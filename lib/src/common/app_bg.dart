@@ -13,7 +13,6 @@ class AppBg extends StatelessWidget {
           height: double.infinity,
           width: double.infinity,
           child: Image.asset(appBgSkin(appBg).toString()),
-          // child: Image.asset('assets/img/app_bg/png/app_bg_pink.png'),
         ),
         Scaffold(
           backgroundColor: Colors.transparent,
