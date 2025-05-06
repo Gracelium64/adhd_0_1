@@ -1,3 +1,4 @@
+import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 class Dailys extends StatelessWidget {
@@ -5,6 +6,8 @@ class Dailys extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Center(
+      child: Text('dailys', style: TextStyle(color: Palette.basicBitchWhite)),
+    );
   }
 }

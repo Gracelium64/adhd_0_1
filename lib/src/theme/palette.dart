@@ -17,4 +17,5 @@ abstract class Palette {
   static final Color mediocreBlue = const Color.fromARGB(255, 0, 25, 255);
   static final Color neonLightBlue = const Color.fromARGB(255, 0, 255, 250);
   static final Color neonRed = const Color.fromARGB(255, 255, 0, 5);
+  static final Color highlight = const Color(0xFF4B2C4F);
 }

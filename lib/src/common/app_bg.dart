@@ -18,7 +18,7 @@ class AppBg extends StatelessWidget {
         Scaffold(
           backgroundColor: Colors.transparent,
           body: Padding(
-            padding: const EdgeInsets.fromLTRB(52, 44, 0, 0),
+            padding: const EdgeInsets.fromLTRB(48, 44, 0, 0),
             child: Text(
               'Attention Deficit oH Dear',
               style: TextStyle(
