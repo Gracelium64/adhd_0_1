@@ -1,16 +1,97 @@
+import 'package:adhd_0_1/src/common/app_bg.dart';
+import 'package:adhd_0_1/src/common/screens/dailys.dart';
+import 'package:adhd_0_1/src/common/screens/deadlineys.dart';
+import 'package:adhd_0_1/src/common/screens/fidget.dart';
+import 'package:adhd_0_1/src/common/screens/fridge_lock.dart';
+import 'package:adhd_0_1/src/common/screens/prizes.dart';
+import 'package:adhd_0_1/src/common/screens/quest.dart';
+import 'package:adhd_0_1/src/common/screens/settings.dart';
+import 'package:adhd_0_1/src/common/screens/tutorial.dart';
+import 'package:adhd_0_1/src/common/screens/weeklys.dart';
 import 'package:flutter/material.dart';
 
-class MainScreen extends StatelessWidget {
-  const MainScreen({
-    super.key,
-  });
+class MainScreen extends StatefulWidget {
+  const MainScreen({super.key});
+
+  @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  int _pageIndex = 0;
+
+  List<Widget> pages = [
+    Tutorial(),
+    Dailys(),
+    Weeklys(),
+    Deadlineys(),
+    Quest(),
+    FridgeLock(),
+    Fidget(),
+    Prizes(),
+    Settings(),
+  ];
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Text('Hello World!'),
-      ),
+    return Stack(
+      children: [
+        AppBg(),
+        SizedBox(
+          width: 50,
+          height: double.infinity,
+          child: NavigationRail(
+            leading: SizedBox(height: 50),
+            selectedIndex: _pageIndex,
+
+            onDestinationSelected: (int index) {
+              setState(() {
+                _pageIndex = index;
+              });
+            },
+            backgroundColor: Colors.transparent,
+            destinations: <NavigationRailDestination>[
+              NavigationRailDestination(
+                icon: Image.asset('assets/img/sidebar/oi.png', width: 30),
+                label: Text(''),
+              ),
+              NavigationRailDestination(
+                icon: Image.asset('assets/img/sidebar/daily.png'),
+                label: Text(''),
+              ),
+              NavigationRailDestination(
+                icon: Image.asset('assets/img/sidebar/week.png'),
+                label: Text(''),
+              ),
+              NavigationRailDestination(
+                icon: Image.asset('assets/img/sidebar/clock.png'),
+                label: Text(''),
+              ),
+              NavigationRailDestination(
+                icon: Image.asset('assets/img/sidebar/star.png'),
+                label: Text(''),
+              ),
+              NavigationRailDestination(
+                icon: Image.asset('assets/img/sidebar/fridge.png'),
+                label: Text(''),
+              ),
+              NavigationRailDestination(
+                icon: Image.asset('assets/img/sidebar/fidget.png'),
+                label: Text(''),
+              ),
+              NavigationRailDestination(
+                icon: Image.asset('assets/img/sidebar/prize.png'),
+                label: Text(''),
+              ),
+              NavigationRailDestination(
+                icon: Image.asset('assets/img/sidebar/hamburger.png'),
+                label: Text(''),
+              ),
+            ],
+          ),
+        ),
+        Scaffold(backgroundColor: Colors.transparent, body: Column()),
+      ],
     );
   }
 }

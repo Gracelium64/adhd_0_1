@@ -17,3 +17,20 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/img/sidebar/
+    - assets/img/app_bg/png/
+    - assets/img/app_bg/svg/
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter/Inter-VariableFont_opsz,wght.ttf
+    - family: InterBlack
+      fonts:
+        - asset: assets/fonts/Inter/static/Inter_18pt-Black.ttf
+    - family: Lobster
+      fonts:
+        - asset: assets/fonts/Lobster/Lobster-Regular.ttf
+    - family: Marvel
+      fonts:
+        - asset: assets/fonts/Marvel/Marvel-Regular.ttf
