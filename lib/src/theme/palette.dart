@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 abstract class Palette {
@@ -17,5 +19,7 @@ abstract class Palette {
   static final Color mediocreBlue = const Color.fromARGB(255, 0, 25, 255);
   static final Color neonLightBlue = const Color.fromARGB(255, 0, 255, 250);
   static final Color neonRed = const Color.fromARGB(255, 255, 0, 5);
-  static final Color highlight = const Color(0xFF4B2C4F);
+  static final Color highlight = const Color.fromARGB(255, 75, 44, 79);
+
+  static final Color random = Color(Random().nextInt(0xffffff) | 0xff000000);
 }

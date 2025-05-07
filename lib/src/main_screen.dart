@@ -121,6 +121,7 @@ class _MainScreenState extends State<MainScreen> {
                   padding: const EdgeInsets.only(left: 50),
                   child: Center(child: pages[_pageIndex]),
                 ),
+                
               ],
             ),
           ),
