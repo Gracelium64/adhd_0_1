@@ -23,6 +23,7 @@ flutter:
     - assets/img/sidebar/
     - assets/img/app_bg/png/
     - assets/img/app_bg/svg/
+    - assets/img/buttons/
   fonts:
     - family: Inter
       fonts:

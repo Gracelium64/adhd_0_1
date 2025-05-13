@@ -20,6 +20,8 @@ abstract class Palette {
   static final Color neonLightBlue = const Color.fromARGB(255, 0, 255, 250);
   static final Color neonRed = const Color.fromARGB(255, 255, 0, 5);
   static final Color highlight = const Color.fromARGB(255, 75, 44, 79);
+  static final Color boxShadow1 = const Color.fromARGB(63, 17, 17, 17);
+  static final Color boxShadow2 = const Color.fromARGB(51, 238, 238, 238);
 
   static final Color random = Color(Random().nextInt(0xffffff) | 0xff000000);
 }

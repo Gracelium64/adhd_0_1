@@ -1,3 +1,5 @@
+import 'package:adhd_0_1/src/common/progress_bar_daily.dart';
+import 'package:adhd_0_1/src/common/progress_bar_weekly.dart';
 import 'package:adhd_0_1/src/common/skin.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +29,16 @@ class AppBg extends StatelessWidget {
               ),
             ),
           ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(80, 116, 0, 0),
+          child: ProgressBarDaily(progressBarStatus: 170),
+          // 0 - 272
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(80, 140, 0, 0),
+          child: ProgressBarWeekly(progressBarStatus: 200),
+          // 0 - 272
         ),
       ],
     );

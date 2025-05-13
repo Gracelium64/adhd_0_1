@@ -1,5 +1,5 @@
 import 'package:adhd_0_1/src/common/app_bg.dart';
-import 'package:adhd_0_1/src/common/screens/dailys.dart';
+import 'package:adhd_0_1/src/features/dailys/presentation/dailys.dart';
 import 'package:adhd_0_1/src/common/screens/deadlineys.dart';
 import 'package:adhd_0_1/src/common/screens/fidget.dart';
 import 'package:adhd_0_1/src/common/screens/fridge_lock.dart';
@@ -50,7 +50,7 @@ class _MainScreenState extends State<MainScreen> {
 
                     height: double.infinity,
                     child: NavigationRail(
-                      leading: SizedBox(height: 50),
+                      leading: SizedBox(height: 40),
                       selectedIndex: _pageIndex,
                       indicatorColor: Palette.highlight,
 
@@ -117,11 +117,7 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                 ),
 
-                Padding(
-                  padding: const EdgeInsets.only(left: 50),
-                  child: Center(child: pages[_pageIndex]),
-                ),
-                
+                Expanded(child: Center(child: pages[_pageIndex])),
               ],
             ),
           ),
