@@ -12,6 +12,5 @@ Future main() async {
   //TODO: add task button - with destinations per screen activation ** onTap needed per screen
   //TODO: overlay windows - including setState for differant catagories (aleart dialog?)
   //TODO: theming - fonts in main theme
-  //TODO: app icon + app name + splash screen - icon asset ----splash not working on android
   //TODO: mockdatabase - for catagories and won prizes
 }

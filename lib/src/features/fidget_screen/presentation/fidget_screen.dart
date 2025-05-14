@@ -4,8 +4,8 @@ import 'package:adhd_0_1/src/common/sub_title.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
-class FridgeLock extends StatelessWidget {
-  const FridgeLock({super.key});
+class FidgetScreen extends StatelessWidget {
+  const FidgetScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +16,7 @@ class FridgeLock extends StatelessWidget {
         backgroundColor: Colors.transparent,
         body: Column(
           children: [
-            SubTitle(sub: 'Fridge Lock'),
+            SubTitle(sub: 'Fidget Screen'),
 
             Expanded(
               child: Padding(

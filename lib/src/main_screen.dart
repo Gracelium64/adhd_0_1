@@ -1,7 +1,7 @@
 import 'package:adhd_0_1/src/common/app_bg.dart';
 import 'package:adhd_0_1/src/features/dailys/presentation/dailys.dart';
 import 'package:adhd_0_1/src/features/deadlineys/presentation/deadlineys.dart';
-import 'package:adhd_0_1/src/features/fidget_screen/presentation/fidget.dart';
+import 'package:adhd_0_1/src/features/fidget_screen/presentation/fidget_screen.dart';
 import 'package:adhd_0_1/src/features/fridge_lock/presentation/fridge_lock.dart';
 import 'package:adhd_0_1/src/features/prizes/presentation/prizes.dart';
 import 'package:adhd_0_1/src/features/quest/presentation/quest.dart';
@@ -28,7 +28,7 @@ class _MainScreenState extends State<MainScreen> {
     Deadlineys(),
     Quest(),
     FridgeLock(),
-    Fidget(),
+    FidgetScreen(),
     Prizes(),
     Settings(),
   ];
