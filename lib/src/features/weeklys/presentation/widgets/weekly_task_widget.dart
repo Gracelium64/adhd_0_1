@@ -1,0 +1,114 @@
+import 'package:adhd_0_1/src/theme/palette.dart';
+import 'package:flutter/material.dart';
+
+class WeeklyTaskWidget extends StatefulWidget {
+  const WeeklyTaskWidget({super.key});
+
+  @override
+  State<WeeklyTaskWidget> createState() => _WeeklyTaskWidgetState();
+}
+
+class _WeeklyTaskWidgetState extends State<WeeklyTaskWidget> {
+  bool goodGirl = false;
+  double spreadEm = -2;
+  String taskStatus = 'assets/img/buttons/task_not_done.png';
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              goodGirl = !goodGirl;
+              if (!goodGirl) {
+                spreadEm = -2;
+                taskStatus = 'assets/img/buttons/task_not_done.png';
+              } else if (goodGirl) {
+                spreadEm = -0.1;
+                taskStatus = 'assets/img/buttons/task_done.png';
+              }
+            });
+          },
+          child: Container(
+            width: 46,
+            height: 60,
+            decoration: ShapeDecoration(
+              shadows: [
+                BoxShadow(color: Palette.boxShadow1),
+                BoxShadow(
+                  color: Palette.monarchPurple2,
+                  blurRadius: 11.8,
+                  spreadRadius: spreadEm,
+                  blurStyle: BlurStyle.inner,
+                ),
+              ],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(25),
+                  bottomLeft: Radius.circular(25),
+                ),
+              ),
+            ),
+            child: Image.asset(taskStatus),
+          ),
+        ),
+        SizedBox(width: 1),
+        Container(
+          width: 257,
+          height: 60,
+          decoration: ShapeDecoration(
+            shadows: [
+              BoxShadow(color: Palette.boxShadow1),
+              BoxShadow(
+                color: Palette.monarchPurple2,
+                blurRadius: 11.8,
+                spreadRadius: -0.1,
+                blurStyle: BlurStyle.inner,
+              ),
+            ],
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                topRight: Radius.circular(25),
+                bottomRight: Radius.circular(25),
+              ),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Text(
+                'Weekly task',
+                style: TextStyle(
+                  fontFamily: 'Inter',
+                  color: Palette.basicBitchWhite,
+                ),
+              ),
+              SizedBox(width: 100),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Row(
+                    spacing: 8,
+                    children: [
+                      Text(
+                        'XXX',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          color: Palette.basicBitchWhite,
+                          fontSize: 8,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 6),
+                ],
+              ),
+              SizedBox(width: 0.2),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}

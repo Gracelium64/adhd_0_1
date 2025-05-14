@@ -43,7 +43,6 @@ class _DailyTaskWidgetState extends State<DailyTaskWidget> {
                   blurStyle: BlurStyle.inner,
                 ),
               ],
-
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(25),
@@ -68,7 +67,6 @@ class _DailyTaskWidgetState extends State<DailyTaskWidget> {
                 blurStyle: BlurStyle.inner,
               ),
             ],
-            // color: const Color(0xFF64396A),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.only(
                 topRight: Radius.circular(25),
