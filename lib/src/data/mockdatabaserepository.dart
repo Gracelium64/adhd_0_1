@@ -1,6 +1,6 @@
 import 'package:adhd_0_1/src/common/task.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
-import 'package:adhd_0_1/src/features/prizes/domain/prize.dart';
+import 'package:adhd_0_1/src/features/prizes/domain/prizes.dart';
 import 'package:adhd_0_1/src/features/settings/domain/settings.dart';
 
 class MockDataRepository implements DataBaseRepository {
@@ -8,7 +8,7 @@ class MockDataRepository implements DataBaseRepository {
   List<Task> weeklyTasks = [];
   List<Task> deadlineTasks = [];
   List<Task> questTasks = [];
-  List<Prize> prizesWon = [];
+  List<Prizes> prizesWon = [];
   int taskIdCounter = 0;
   int dailyCompleted = 0;
   int weeklyCompleted = 0;
@@ -46,7 +46,7 @@ class MockDataRepository implements DataBaseRepository {
 
   @override
   void addPrize(int prizeId, String prizeUrl) {
-    prizesWon.add(Prize(prizeId: prizeId, prizeUrl: prizeUrl));
+    prizesWon.add(Prizes(prizeId: prizeId, prizeUrl: prizeUrl));
   }
 
   @override
@@ -224,7 +224,7 @@ class MockDataRepository implements DataBaseRepository {
   }
 
   @override
-  List<Prize> getPrizes() {
+  List<Prizes> getPrizes() {
     return prizesWon;
   }
 

@@ -1,6 +1,6 @@
 
 import 'package:adhd_0_1/src/common/task.dart';
-import 'package:adhd_0_1/src/features/prizes/domain/prize.dart';
+import 'package:adhd_0_1/src/features/prizes/domain/prizes.dart';
 import 'package:adhd_0_1/src/features/settings/domain/settings.dart';
 
 abstract class DataBaseRepository {
@@ -8,7 +8,7 @@ abstract class DataBaseRepository {
   List<Task> getWeeklyTasks();
   List<Task> getDeadlineTasks();
   List<Task> getQuestTasks();
-  List<Prize> getPrizes();
+  List<Prizes> getPrizes();
   // int getTaskIdCounter();
   // int getCompletedDailyTasks();
   // int getCompletedWeeklyTasks();
