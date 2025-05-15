@@ -1,8 +1,11 @@
+import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 class WeeklyTaskWidget extends StatefulWidget {
-  const WeeklyTaskWidget({super.key});
+  final DataBaseRepository repository;
+  
+  const WeeklyTaskWidget(this.repository, {super.key});
 
   @override
   State<WeeklyTaskWidget> createState() => _WeeklyTaskWidgetState();

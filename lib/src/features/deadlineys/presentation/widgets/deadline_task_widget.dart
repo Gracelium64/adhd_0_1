@@ -1,8 +1,11 @@
+import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 class DeadlineTaskWidget extends StatefulWidget {
-  const DeadlineTaskWidget({super.key});
+  final DataBaseRepository repository;
+  
+  const DeadlineTaskWidget(this.repository, {super.key});
 
   @override
   State<DeadlineTaskWidget> createState() => _DeadlineTaskWidgetState();

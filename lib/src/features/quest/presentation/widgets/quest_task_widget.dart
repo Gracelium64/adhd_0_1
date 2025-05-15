@@ -1,8 +1,11 @@
+import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 class QuestTaskWidget extends StatefulWidget {
-  const QuestTaskWidget({super.key});
+  final DataBaseRepository repository;
+  
+  const QuestTaskWidget(this.repository, {super.key});
 
   @override
   State<QuestTaskWidget> createState() => _QuestTaskWidgetState();
