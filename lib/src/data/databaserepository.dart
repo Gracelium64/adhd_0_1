@@ -1,5 +1,4 @@
-
-import 'package:adhd_0_1/src/common/task.dart';
+import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/features/prizes/domain/prizes.dart';
 import 'package:adhd_0_1/src/features/settings/domain/settings.dart';
 
@@ -15,7 +14,13 @@ abstract class DataBaseRepository {
   // int getCompletedDeadlineTasks();
   // int getCompletedQuestTasks();
   Settings? getSettings();
-  Settings setSettings(bool? dataAppSkinColor, String dataLanguage, String dataLocation, int dataStartOfDay, int dataStartOfWeek);
+  Settings setSettings(
+    bool? dataAppSkinColor,
+    String dataLanguage,
+    String dataLocation,
+    int dataStartOfDay,
+    int dataStartOfWeek,
+  );
   void addDaily(String data);
   void addWeekly(String data, day);
   void addDeadline(String data, date, time);

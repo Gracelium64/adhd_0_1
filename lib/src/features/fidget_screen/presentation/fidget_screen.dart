@@ -1,6 +1,6 @@
-import 'package:adhd_0_1/src/common/add_task_button.dart';
+import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
 import 'package:adhd_0_1/os_build.dart';
-import 'package:adhd_0_1/src/common/sub_title.dart';
+import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';

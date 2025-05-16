@@ -1,4 +1,10 @@
-bool? appBg = true;
+/*
+true = pink
+null = white
+false = blue
+*/
+
+bool? appBg;
 
 // ignore: body_might_complete_normally_nullable
 String? appBgSkin(bool? appBg) {

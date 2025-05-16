@@ -1,11 +1,14 @@
-import 'package:adhd_0_1/src/common/progress_bar_daily.dart';
-import 'package:adhd_0_1/src/common/progress_bar_weekly.dart';
-import 'package:adhd_0_1/src/common/skin.dart';
+import 'package:adhd_0_1/src/common/presentation/progress_bar_daily.dart';
+import 'package:adhd_0_1/src/common/presentation/progress_bar_weekly.dart';
+import 'package:adhd_0_1/src/common/domain/skin.dart';
+import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 class AppBg extends StatelessWidget {
-  const AppBg({super.key});
+  final DataBaseRepository repository;
+
+  const AppBg(this.repository, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +17,9 @@ class AppBg extends StatelessWidget {
         SizedBox(
           height: double.infinity,
           width: double.infinity,
-          child: Image.asset(appBgSkin(appBg).toString()),
+          child: Image.asset(
+            appBgSkin(repository.getSettings()?.appSkinColor).toString(),
+          ),
         ),
         Scaffold(
           backgroundColor: Colors.transparent,

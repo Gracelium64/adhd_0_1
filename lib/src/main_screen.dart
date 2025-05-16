@@ -1,4 +1,4 @@
-import 'package:adhd_0_1/src/common/app_bg.dart';
+import 'package:adhd_0_1/src/common/presentation/app_bg.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/dailys/presentation/dailys.dart';
 import 'package:adhd_0_1/src/features/deadlineys/presentation/deadlineys.dart';
@@ -14,7 +14,7 @@ import 'package:flutter/material.dart';
 
 class MainScreen extends StatefulWidget {
   final DataBaseRepository repository;
-  
+
   const MainScreen(this.repository, {super.key});
 
   @override
@@ -23,27 +23,24 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _pageIndex = 1;
-  
-  
 
   @override
   Widget build(BuildContext context) {
-
-  List<Widget> pages = [
-    Tutorial(widget.repository),
-    Dailys(widget.repository),
-    Weeklys(widget.repository),
-    Deadlineys(widget.repository),
-    Quest(widget.repository),
-    FridgeLock(widget.repository),
-    FidgetScreen(widget.repository),
-    Prizes(widget.repository),
-    Settings(widget.repository),
-  ];
+    List<Widget> pages = [
+      Tutorial(widget.repository),
+      Dailys(widget.repository),
+      Weeklys(widget.repository),
+      Deadlineys(widget.repository),
+      Quest(widget.repository),
+      FridgeLock(widget.repository),
+      FidgetScreen(widget.repository),
+      Prizes(widget.repository),
+      Settings(widget.repository),
+    ];
 
     return Stack(
       children: [
-        AppBg(),
+        AppBg(widget.repository),
         Scaffold(
           backgroundColor: Colors.transparent,
           body: SafeArea(
