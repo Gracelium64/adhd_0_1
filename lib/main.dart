@@ -14,15 +14,15 @@ Future main() async {
   runApp(App(repository));
 
   //TODO: ListView.builder for tasks and prizes screens
+  //TODO: Settings page
   //TODO: theming - fonts in main theme
   //TODO: Overlays: (AleartDialog?)
+  // // // // // // // // // //tutorial overlay
+  // // // // // // // // // //add task overlays
+  // // // // // // // // // //edit task overlays
+  // //single prize overlay
   //good morning overlay
   //week summery overlay
-  //tutorial overlay
-  //add task overlays
-  //single prize overlay
-  //prizes listview
-  //settings page
   //backup overlays
   //about overlay
 
