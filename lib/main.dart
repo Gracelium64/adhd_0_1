@@ -13,7 +13,18 @@ Future main() async {
 
   runApp(App(repository));
 
-  //TODO: add task button - with destinations per screen activation ** onTap needed per screen
-  //TODO: overlay windows - including setState for differant catagories (aleart dialog?)
+  //TODO: ListView.builder for tasks and prizes screens
   //TODO: theming - fonts in main theme
+  //TODO: Overlays: (AleartDialog?)
+  //good morning overlay
+  //week summery overlay
+  //tutorial overlay
+  //add task overlays
+  //single prize overlay
+  //prizes listview
+  //settings page
+  //backup overlays
+  //about overlay
+
+  //TODO: Tip of the day Database
 }

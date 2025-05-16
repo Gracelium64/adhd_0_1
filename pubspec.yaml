@@ -46,6 +46,7 @@ flutter:
     - assets/img/buttons/
     - assets/img/prizes/
     - assets/img/icons/
+    
   fonts:
     - family: Inter
       fonts:

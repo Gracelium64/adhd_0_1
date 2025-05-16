@@ -4,8 +4,20 @@ import 'package:flutter/material.dart';
 
 abstract class Palette {
   static final Color peasantGrey1 = const Color.fromARGB(255, 65, 63, 63);
+  static final Color peasantGrey1Opacity = const Color.fromARGB(
+    200,
+    65,
+    63,
+    63,
+  );
   static final Color peasantGrey2 = const Color.fromARGB(255, 90, 90, 90);
   static final Color monarchPurple1 = const Color.fromARGB(255, 66, 39, 70);
+  static final Color monarchPurple1Opacity = const Color.fromARGB(
+    200,
+    66,
+    39,
+    70,
+  );
   static final Color monarchPurple2 = const Color.fromARGB(255, 90, 51, 95);
   static final Color fieldBg = const Color.fromARGB(255, 141, 132, 132);
   static final Color basicBitchBlack = const Color.fromARGB(255, 18, 18, 18);
