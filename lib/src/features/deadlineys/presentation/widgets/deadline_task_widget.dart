@@ -3,9 +3,11 @@ import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 class DeadlineTaskWidget extends StatefulWidget {
-  final DataBaseRepository repository;
+  final String taskDesctiption;
+  final String? deadlineDate;
+  final String? deadlineTime;
   
-  const DeadlineTaskWidget(this.repository, {super.key});
+  const DeadlineTaskWidget({super.key, required this.taskDesctiption, this.deadlineDate, this.deadlineTime});
 
   @override
   State<DeadlineTaskWidget> createState() => _DeadlineTaskWidgetState();
@@ -82,7 +84,7 @@ class _DeadlineTaskWidgetState extends State<DeadlineTaskWidget> {
             children: [
               // SizedBox(width: 8),
               Text(
-                'Deadline task',
+                widget.taskDesctiption,
                 style: TextStyle(
                   fontFamily: 'Inter',
                   color: Palette.basicBitchWhite,
@@ -96,7 +98,7 @@ class _DeadlineTaskWidgetState extends State<DeadlineTaskWidget> {
                     spacing: 8,
                     children: [
                       Text(
-                        'DD/MM/YYYY',
+                        '${widget.deadlineDate}',
                         style: TextStyle(
                           fontFamily: 'Inter',
                           color: Palette.basicBitchWhite,
@@ -105,7 +107,7 @@ class _DeadlineTaskWidgetState extends State<DeadlineTaskWidget> {
                       ),
 
                       Text(
-                        'HH:MM',
+                        '${widget.deadlineTime}',
                         style: TextStyle(
                           fontFamily: 'Inter',
                           color: Palette.basicBitchWhite,

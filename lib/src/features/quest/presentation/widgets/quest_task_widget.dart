@@ -3,9 +3,9 @@ import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 class QuestTaskWidget extends StatefulWidget {
-  final DataBaseRepository repository;
-  
-  const QuestTaskWidget(this.repository, {super.key});
+  final String taskDesctiption;
+
+  const QuestTaskWidget({super.key, required this.taskDesctiption});
 
   @override
   State<QuestTaskWidget> createState() => _QuestTaskWidgetState();
@@ -81,7 +81,7 @@ class _QuestTaskWidgetState extends State<QuestTaskWidget> {
             children: [
               SizedBox(width: 8),
               Text(
-                'Quest task',
+                widget.taskDesctiption,
                 style: TextStyle(
                   fontFamily: 'Inter',
                   color: Palette.basicBitchWhite,

@@ -41,7 +41,21 @@ class Quest extends StatelessWidget {
                     height: 548,
                     width: 304,
                     child: Column(
-                      children: [QuestTaskWidget(repository), Placeholder()],
+                      children: [
+                        SizedBox(
+                          height: 548,
+                          width: 304,
+                          child: ListView.builder(
+                            itemCount: repository.getQuestTasks().length,
+                            itemBuilder: (context, index) {
+                              final task = repository.getQuestTasks()[index];
+                              return QuestTaskWidget(
+                                taskDesctiption: task.taskDesctiption,
+                              );
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                     /////  ^^^^^^ ListView comes here
                   ),

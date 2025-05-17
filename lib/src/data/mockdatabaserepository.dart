@@ -19,7 +19,7 @@ class MockDataRepository implements DataBaseRepository {
   ];
   List<Task> weeklyTasks = [
     Task(012, 'Weekly', 'Weekly 1', null, null, 'Mon', false),
-    Task(013, 'Weekly', 'Weekly 2', null, null, 'Mon', false),
+    Task(013, 'Weekly', 'Weeklysdf 2', null, null, 'Mon', false),
     Task(014, 'Weekly', 'Weekly 3', null, null, '', false),
     Task(015, 'Weekly', 'Weekly 4', null, null, '', false),
     Task(016, 'Weekly', 'Weekly 5', null, null, '', false),

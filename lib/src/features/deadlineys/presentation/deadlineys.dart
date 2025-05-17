@@ -41,7 +41,23 @@ class Deadlineys extends StatelessWidget {
                     height: 548,
                     width: 304,
                     child: Column(
-                      children: [DeadlineTaskWidget(repository), Placeholder()],
+                      children: [
+                        SizedBox(
+                          height: 548,
+                          width: 304,
+                          child: ListView.builder(
+                            itemCount: repository.getDeadlineTasks().length,
+                            itemBuilder: (context, index) {
+                              final task = repository.getDeadlineTasks()[index];
+                              return DeadlineTaskWidget(
+                                taskDesctiption: task.taskDesctiption,
+                                deadlineDate: task.deadlineDate,
+                                deadlineTime: task.deadlineTime,
+                              );
+                            },
+                          ),
+                        ),
+                      ],
                       /////  ^^^^^^ ListView comes here
                     ),
                   ),

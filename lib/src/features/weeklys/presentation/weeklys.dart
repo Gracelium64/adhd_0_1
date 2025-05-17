@@ -7,7 +7,7 @@ import 'dart:io' show Platform;
 
 class Weeklys extends StatelessWidget {
   final DataBaseRepository repository;
-  
+
   const Weeklys(this.repository, {super.key});
 
   @override
@@ -41,8 +41,22 @@ class Weeklys extends StatelessWidget {
                     height: 548,
                     width: 304,
                     child: Column(
-                      children: [WeeklyTaskWidget(repository), Placeholder()],
-                      /////  ^^^^^^ ListView comes here
+                      children: [
+                        SizedBox(
+                          height: 548,
+                          width: 304,
+                          child: ListView.builder(
+                            itemCount: repository.getWeeklyTasks().length,
+                            itemBuilder: (context, index) {
+                              final task = repository.getWeeklyTasks()[index];
+                              return WeeklyTaskWidget(
+                                taskDesctiption: task.taskDesctiption,
+                                dayOfWeek: task.dayOfWeek,
+                              );
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

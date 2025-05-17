@@ -3,9 +3,14 @@ import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 class WeeklyTaskWidget extends StatefulWidget {
-  final DataBaseRepository repository;
-  
-  const WeeklyTaskWidget(this.repository, {super.key});
+  final String taskDesctiption;
+  final String? dayOfWeek;
+
+  const WeeklyTaskWidget({
+    super.key,
+    required this.taskDesctiption,
+    required this.dayOfWeek,
+  });
 
   @override
   State<WeeklyTaskWidget> createState() => _WeeklyTaskWidgetState();
@@ -81,7 +86,7 @@ class _WeeklyTaskWidgetState extends State<WeeklyTaskWidget> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               Text(
-                'Weekly task',
+                widget.taskDesctiption,
                 style: TextStyle(
                   fontFamily: 'Inter',
                   color: Palette.basicBitchWhite,
@@ -95,7 +100,7 @@ class _WeeklyTaskWidgetState extends State<WeeklyTaskWidget> {
                     spacing: 8,
                     children: [
                       Text(
-                        'XXX',
+                        '${widget.dayOfWeek}',
                         style: TextStyle(
                           fontFamily: 'Inter',
                           color: Palette.basicBitchWhite,

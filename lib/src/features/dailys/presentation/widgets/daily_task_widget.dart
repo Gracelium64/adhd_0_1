@@ -3,9 +3,9 @@ import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 class DailyTaskWidget extends StatefulWidget {
-  final DataBaseRepository repository;
-  
-  const DailyTaskWidget(this.repository,{super.key});
+  final String taskDesctiption;
+
+  const DailyTaskWidget({super.key, required this.taskDesctiption});
 
   @override
   State<DailyTaskWidget> createState() => _DailyTaskWidgetState();
@@ -81,7 +81,7 @@ class _DailyTaskWidgetState extends State<DailyTaskWidget> {
             children: [
               SizedBox(width: 8),
               Text(
-                'Daily task',
+                widget.taskDesctiption,
                 style: TextStyle(
                   fontFamily: 'Inter',
                   color: Palette.basicBitchWhite,

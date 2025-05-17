@@ -13,6 +13,7 @@ Future main() async {
 
   runApp(App(repository));
 
+  //TODO: DeadlineTasks + WeeklyTasks placement of elemnts in widget
   //TODO: ListView.builder for tasks and prizes screens
   //TODO: Settings page
   //TODO: theming - fonts in main theme
