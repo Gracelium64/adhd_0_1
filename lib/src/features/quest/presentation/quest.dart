@@ -57,7 +57,6 @@ class Quest extends StatelessWidget {
                         ),
                       ],
                     ),
-                    /////  ^^^^^^ ListView comes here
                   ),
                 ),
               ),
