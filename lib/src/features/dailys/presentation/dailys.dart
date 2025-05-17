@@ -1,19 +1,31 @@
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
-import 'package:adhd_0_1/os_build.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/dailys/presentation/widgets/daily_task_widget.dart';
 import 'package:flutter/material.dart';
+// import 'package:adhd_0_1/os_build.dart';
+import 'dart:io' show Platform;
 
 class Dailys extends StatelessWidget {
   final DataBaseRepository repository;
-  
+
   const Dailys(this.repository, {super.key});
 
   @override
   Widget build(BuildContext context) {
+    double? leftBuild;
+    double? topBuild;
+
+    if (Platform.isAndroid) {
+      leftBuild = 4.toDouble(); // Android
+      topBuild = 10.toDouble(); // Android
+    } else if (Platform.isIOS) {
+      leftBuild = 0.toDouble(); // iPhone
+      topBuild = 0.toDouble(); // iPhone
+    }
+
     return Padding(
-      padding: EdgeInsets.fromLTRB(leftBuild, topBuild, 0, 0),
+      padding: EdgeInsets.fromLTRB(leftBuild!, topBuild!, 0, 0),
 
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -29,7 +41,9 @@ class Dailys extends StatelessWidget {
                   child: SizedBox(
                     height: 548,
                     width: 304,
-                    child: Column(children: [DailyTaskWidget(repository), Placeholder()]),
+                    child: Column(
+                      children: [DailyTaskWidget(repository), Placeholder()],
+                    ),
                     /////  ^^^^^^ ListView comes here
                   ),
                 ),

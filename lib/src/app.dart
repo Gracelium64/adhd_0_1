@@ -12,8 +12,8 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      // home: MainScreen(repository),
-      home: MsPaint(repository),
+      home: MainScreen(repository),
+      // home: MsPaint(repository),
     );
   }
 }
