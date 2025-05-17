@@ -24,7 +24,7 @@ class FidgetScreen extends StatelessWidget {
     }
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(leftBuild!, topBuild!, 0, 0),
+      padding: EdgeInsets.fromLTRB(leftBuild ?? 0, topBuild ?? 0, 0, 0),
 
       child: Scaffold(
         backgroundColor: Colors.transparent,

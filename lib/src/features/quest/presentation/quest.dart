@@ -7,7 +7,7 @@ import 'dart:io' show Platform;
 
 class Quest extends StatelessWidget {
   final DataBaseRepository repository;
-  
+
   const Quest(this.repository, {super.key});
 
   @override
@@ -24,7 +24,7 @@ class Quest extends StatelessWidget {
     }
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(leftBuild!, topBuild!, 0, 0),
+      padding: EdgeInsets.fromLTRB(leftBuild ?? 0, topBuild ?? 0, 0, 0),
 
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -40,7 +40,9 @@ class Quest extends StatelessWidget {
                   child: SizedBox(
                     height: 548,
                     width: 304,
-                    child: Column(children: [QuestTaskWidget(repository), Placeholder()]),
+                    child: Column(
+                      children: [QuestTaskWidget(repository), Placeholder()],
+                    ),
                     /////  ^^^^^^ ListView comes here
                   ),
                 ),
