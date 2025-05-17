@@ -85,34 +85,41 @@ class _WeeklyTaskWidgetState extends State<WeeklyTaskWidget> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Text(
-                widget.taskDesctiption,
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  color: Palette.basicBitchWhite,
+              SizedBox(width: 8),
+              Expanded(
+                flex: 3,
+                child: Text(
+                  widget.taskDesctiption,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    color: Palette.basicBitchWhite,
+                  ),
                 ),
               ),
-              SizedBox(width: 100),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Row(
-                    spacing: 8,
-                    children: [
-                      Text(
-                        '${widget.dayOfWeek}',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          color: Palette.basicBitchWhite,
-                          fontSize: 8,
+              Expanded(flex: 1, child: SizedBox(width: 100)),
+              Expanded(
+                flex: 1,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Row(
+                      spacing: 8,
+                      children: [
+                        Text(
+                          '${widget.dayOfWeek}',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            color: Palette.basicBitchWhite,
+                            fontSize: 8,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 6),
-                ],
+                      ],
+                    ),
+                    SizedBox(height: 6),
+                  ],
+                ),
               ),
-              SizedBox(width: 0.2),
+
             ],
           ),
         ),

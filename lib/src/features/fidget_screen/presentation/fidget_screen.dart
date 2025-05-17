@@ -44,7 +44,7 @@ class FidgetScreen extends StatelessWidget {
                       children: [
                         SizedBox(height: 150),
                         Text(
-                          'Not available',
+                          'No fidget here',
                           style: TextStyle(
                             color: Palette.basicBitchWhite,
                             fontFamily: 'Marvel',
@@ -52,7 +52,7 @@ class FidgetScreen extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          'Planned for next update',
+                          'Get back to work!',
                           style: TextStyle(
                             color: Palette.basicBitchWhite,
                             fontFamily: 'Marvel',

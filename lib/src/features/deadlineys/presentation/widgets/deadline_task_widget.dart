@@ -6,8 +6,13 @@ class DeadlineTaskWidget extends StatefulWidget {
   final String taskDesctiption;
   final String? deadlineDate;
   final String? deadlineTime;
-  
-  const DeadlineTaskWidget({super.key, required this.taskDesctiption, this.deadlineDate, this.deadlineTime});
+
+  const DeadlineTaskWidget({
+    super.key,
+    required this.taskDesctiption,
+    this.deadlineDate,
+    this.deadlineTime,
+  });
 
   @override
   State<DeadlineTaskWidget> createState() => _DeadlineTaskWidgetState();
@@ -82,42 +87,43 @@ class _DeadlineTaskWidgetState extends State<DeadlineTaskWidget> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              // SizedBox(width: 8),
-              Text(
-                widget.taskDesctiption,
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  color: Palette.basicBitchWhite,
+              SizedBox(width: 8),
+              Expanded(
+                flex: 3,
+                child: Text(
+                  widget.taskDesctiption,
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    color: Palette.basicBitchWhite,
+                  ),
                 ),
               ),
-              SizedBox(width: 8),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Row(
-                    spacing: 8,
-                    children: [
-                      Text(
-                        '${widget.deadlineDate}',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          color: Palette.basicBitchWhite,
-                          fontSize: 8,
-                        ),
+              Expanded(flex: 1, child: SizedBox(width: 8)),
+              Expanded(
+                flex: 1,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      '${widget.deadlineDate}',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        color: Palette.basicBitchWhite,
+                        fontSize: 8,
                       ),
+                    ),
 
-                      Text(
-                        '${widget.deadlineTime}',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          color: Palette.basicBitchWhite,
-                          fontSize: 8,
-                        ),
+                    Text(
+                      '${widget.deadlineTime}',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        color: Palette.basicBitchWhite,
+                        fontSize: 8,
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 6),
-                ],
+                    ),
+                    SizedBox(height: 6),
+                  ],
+                ),
               ),
               SizedBox(width: 0.2),
             ],

@@ -49,6 +49,15 @@ class MockDataRepository implements DataBaseRepository {
       null,
       false,
     ),
+    Task(
+      025,
+      'Deadline',
+      'setLimit of 36 characters for task',
+      '18/05/25',
+      '16:15',
+      null,
+      false,
+    ),
   ];
   List<Task> questTasks = [
     Task(025, 'Quest', 'Quest 1', null, null, null, false),
