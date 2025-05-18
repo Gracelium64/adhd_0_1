@@ -4,9 +4,7 @@ import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 class LetsGoOverlay extends StatelessWidget {
-  const LetsGoOverlay({
-    super.key,
-  });
+  const LetsGoOverlay({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +24,7 @@ class LetsGoOverlay extends StatelessWidget {
               children: [
                 SizedBox(height: 28),
                 Image.asset('assets/img/app_bg/png/cold_start_icon.png'),
-    
+
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(25)),
@@ -58,23 +56,17 @@ class LetsGoOverlay extends StatelessWidget {
                         padding: const EdgeInsets.only(top: 102),
                         child: Text(
                           'Alright!',
-                          style: TextStyle(
-                            color: Palette.basicBitchWhite,
-                            fontFamily: 'Marvel',
-                            fontSize: 40,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleLarge,
                           textAlign: TextAlign.center,
                         ),
                       ),
                       Text(
                         "Let's Go!",
-                        style: TextStyle(
-                          color: Palette.basicBitchWhite,
-                          fontFamily: 'Marvel',
-                          fontSize: 40,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.titleLarge,
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: 72),

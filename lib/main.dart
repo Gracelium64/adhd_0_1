@@ -13,8 +13,6 @@ Future main() async {
 
   runApp(App(repository));
 
-  //TODO: theming - fonts in main theme
-  
   //TODO: Settings page
   //TODO: Overlays: (AleartDialog?)
   // // // // // // // // // //tutorial overlay

@@ -59,12 +59,7 @@ class SkinOverlayChoose extends StatelessWidget {
                       ),
                       Text(
                         'Choose your Flesh Prison',
-                        style: TextStyle(
-                          color: Palette.basicBitchWhite,
-                          fontFamily: 'Marvel',
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.bodySmall,
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: 20),

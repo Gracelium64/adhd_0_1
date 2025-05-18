@@ -30,23 +30,13 @@ class NameOverlay extends StatelessWidget {
                 Image.asset('assets/img/app_bg/png/cold_start_icon.png'),
                 Text(
                   'Hello Adventurer!',
-                  style: TextStyle(
-                    color: Palette.basicBitchWhite,
-                    fontFamily: 'Marvel',
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(46, 36, 46, 0),
                   child: Text(
                     'Before we begin, could you tell me your name?',
-                    style: TextStyle(
-                      color: Palette.basicBitchWhite,
-                      fontFamily: 'Inter',
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium,
                     textAlign: TextAlign.center,
                   ),
                 ),

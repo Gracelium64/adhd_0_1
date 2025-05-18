@@ -4,9 +4,7 @@ import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 class SkinOverlay extends StatelessWidget {
-  const SkinOverlay({
-    super.key,
-  });
+  const SkinOverlay({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -28,22 +26,15 @@ class SkinOverlay extends StatelessWidget {
                 Image.asset('assets/img/app_bg/png/cold_start_icon.png'),
                 Text(
                   'Hello Adventurer!',
-                  style: TextStyle(
-                    color: Palette.basicBitchWhite,
-                    fontFamily: 'Marvel',
-                    fontSize: 40,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge,
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(24, 36, 24, 0),
                   child: Text(
                     'Please choose your Flesh Prison',
-                    style: TextStyle(
-                      color: Palette.basicBitchWhite,
-                      fontFamily: 'Inter',
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium,
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -51,7 +42,7 @@ class SkinOverlay extends StatelessWidget {
                 SizedBox(
                   height: 50,
                   width: 98,
-    
+
                   child: Image.asset(
                     'assets/img/buttons/skin_null.png',
                     fit: BoxFit.fill,
@@ -60,12 +51,7 @@ class SkinOverlay extends StatelessWidget {
                 SizedBox(height: 12),
                 Text(
                   'You can always change it later',
-                  style: TextStyle(
-                    color: Palette.basicBitchWhite,
-                    fontFamily: 'Inter',
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(context).textTheme.bodyMedium,
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 72),

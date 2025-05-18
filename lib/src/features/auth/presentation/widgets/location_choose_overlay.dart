@@ -29,22 +29,14 @@ class LocationChooseOverlay extends StatelessWidget {
                 Image.asset('assets/img/app_bg/png/cold_start_icon.png'),
                 Text(
                   'Hello Adventurer!',
-                  style: TextStyle(
-                    color: Palette.basicBitchWhite,
-                    fontFamily: 'Marvel',
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge,
                 ),
                 SizedBox(height: 24),
                 Text(
                   'Where do you live?',
-                  style: TextStyle(
-                    color: Palette.basicBitchWhite,
-                    fontFamily: 'Inter',
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(context).textTheme.bodyMedium,
                   textAlign: TextAlign.center,
                 ),
 
@@ -52,12 +44,9 @@ class LocationChooseOverlay extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(42, 0, 42, 0),
                   child: Text(
                     'I need it only for your daily weather report, I promise :)',
-                    style: TextStyle(
-                      color: Palette.basicBitchWhite,
-                      fontFamily: 'Inter',
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.titleSmall,
                     textAlign: TextAlign.center,
                   ),
                 ),

@@ -1,4 +1,3 @@
-import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 class SubTitle extends StatelessWidget {
@@ -10,15 +9,7 @@ class SubTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0, 20, 40, 0),
-      child: Text(
-        sub,
-        style: TextStyle(
-          color: Palette.basicBitchWhite,
-          fontFamily: 'Marvel',
-          fontSize: 34,
-          fontWeight: FontWeight.w400,
-        ),
-      ),
+      child: Text(sub, style: Theme.of(context).textTheme.headlineMedium),
     );
   }
 }

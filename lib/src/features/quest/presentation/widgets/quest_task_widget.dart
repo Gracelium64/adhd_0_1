@@ -1,4 +1,3 @@
-import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
@@ -82,10 +81,7 @@ class _QuestTaskWidgetState extends State<QuestTaskWidget> {
               SizedBox(width: 8),
               Text(
                 widget.taskDesctiption,
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  color: Palette.basicBitchWhite,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium,
               ),
             ],
           ),

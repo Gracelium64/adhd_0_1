@@ -1,7 +1,6 @@
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
-import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 import 'dart:io' show Platform;
 
@@ -41,23 +40,16 @@ class FidgetScreen extends StatelessWidget {
                     height: 492,
                     width: 304,
                     child: Column(
+                      spacing: 2,
                       children: [
                         SizedBox(height: 150),
                         Text(
                           'No fidget here',
-                          style: TextStyle(
-                            color: Palette.basicBitchWhite,
-                            fontFamily: 'Marvel',
-                            fontSize: 24,
-                          ),
+                          style: Theme.of(context).textTheme.displayMedium,
                         ),
                         Text(
                           'Get back to work!',
-                          style: TextStyle(
-                            color: Palette.basicBitchWhite,
-                            fontFamily: 'Marvel',
-                            fontSize: 24,
-                          ),
+                          style: Theme.of(context).textTheme.displayMedium,
                         ),
                       ],
                     ),

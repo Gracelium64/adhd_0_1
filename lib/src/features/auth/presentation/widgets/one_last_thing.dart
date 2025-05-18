@@ -3,9 +3,7 @@ import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 class OneLastThing extends StatelessWidget {
-  const OneLastThing({
-    super.key,
-  });
+  const OneLastThing({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -27,23 +25,15 @@ class OneLastThing extends StatelessWidget {
                 Image.asset('assets/img/app_bg/png/cold_start_icon.png'),
                 Text(
                   'One last thing!',
-                  style: TextStyle(
-                    color: Palette.basicBitchWhite,
-                    fontFamily: 'Marvel',
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge,
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(58, 12, 58, 0),
                   child: Text(
                     'Would you like a short tutorial for the app?',
-                    style: TextStyle(
-                      color: Palette.basicBitchWhite,
-                      fontFamily: 'Inter',
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium,
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -51,12 +41,9 @@ class OneLastThing extends StatelessWidget {
                   padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
                   child: Text(
                     'You can always access it later by clicking the Organic Interface button',
-                    style: TextStyle(
-                      color: Palette.basicBitchWhite,
-                      fontFamily: 'Inter',
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.titleSmall?.copyWith(fontSize: 12),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -75,7 +62,7 @@ class OneLastThing extends StatelessWidget {
                     Image.asset('assets/img/buttons/cancel_big.png'),
                     SizedBox(width: 12),
                     Image.asset('assets/img/buttons/confirm.png'),
-    
+
                     ///////TODO: make clickable
                   ],
                 ),

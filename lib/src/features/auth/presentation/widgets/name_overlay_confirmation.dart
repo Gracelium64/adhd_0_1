@@ -50,35 +50,20 @@ class NameOverlayConfirmation extends StatelessWidget {
                         padding: const EdgeInsets.only(top: 102),
                         child: Text(
                           'Awesome name!',
-                          style: TextStyle(
-                            color: Palette.basicBitchWhite,
-                            fontFamily: 'Inter',
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium,
                           textAlign: TextAlign.center,
                         ),
                       ),
                       Text(
                         "I've already forgotten it!",
-                        style: TextStyle(
-                          color: Palette.basicBitchWhite,
-                          fontFamily: 'Inter',
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.bodyMedium,
                         textAlign: TextAlign.center,
                       ),
                       Padding(
                         padding: const EdgeInsets.fromLTRB(20, 10, 20, 92),
                         child: Text(
                           "We won't be needing that anyway :)",
-                          style: TextStyle(
-                            color: Palette.basicBitchWhite,
-                            fontFamily: 'Inter',
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium,
                           textAlign: TextAlign.center,
                         ),
                       ),

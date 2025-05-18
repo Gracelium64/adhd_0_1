@@ -1,4 +1,3 @@
-import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
@@ -92,10 +91,7 @@ class _DeadlineTaskWidgetState extends State<DeadlineTaskWidget> {
                 flex: 3,
                 child: Text(
                   widget.taskDesctiption,
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    color: Palette.basicBitchWhite,
-                  ),
+                  style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),
               Expanded(flex: 1, child: SizedBox(width: 8)),
@@ -106,20 +102,12 @@ class _DeadlineTaskWidgetState extends State<DeadlineTaskWidget> {
                   children: [
                     Text(
                       '${widget.deadlineDate}',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        color: Palette.basicBitchWhite,
-                        fontSize: 8,
-                      ),
+                      style: Theme.of(context).textTheme.labelSmall,
                     ),
 
                     Text(
                       '${widget.deadlineTime}',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        color: Palette.basicBitchWhite,
-                        fontSize: 8,
-                      ),
+                      style: Theme.of(context).textTheme.labelSmall,
                     ),
                     SizedBox(height: 6),
                   ],

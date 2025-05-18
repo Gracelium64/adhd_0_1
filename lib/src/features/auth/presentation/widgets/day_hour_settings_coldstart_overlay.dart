@@ -29,22 +29,12 @@ class DayHourSettingsColdstartOverlay extends StatelessWidget {
                 Image.asset('assets/img/app_bg/png/cold_start_icon.png'),
                 Text(
                   'Hello Adventurer!',
-                  style: TextStyle(
-                    color: Palette.basicBitchWhite,
-                    fontFamily: 'Marvel',
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
                 SizedBox(height: 24),
                 Text(
                   'When does your week start?',
-                  style: TextStyle(
-                    color: Palette.basicBitchWhite,
-                    fontFamily: 'Inter',
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(context).textTheme.bodyMedium,
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 12),
@@ -68,12 +58,7 @@ class DayHourSettingsColdstartOverlay extends StatelessWidget {
                 SizedBox(height: 12),
                 Text(
                   'When does your day start?',
-                  style: TextStyle(
-                    color: Palette.basicBitchWhite,
-                    fontFamily: 'Inter',
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(context).textTheme.bodyMedium,
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 12),
