@@ -8,7 +8,6 @@ abstract class AppTheme {
       brightness: Brightness.dark,
     ),
     textTheme: baseTextTheme,
-    // textTheme: darkTextTheme,
   );
 
   static final TextTheme baseTextTheme = TextTheme(
@@ -64,6 +63,4 @@ abstract class AppTheme {
       fontSize: 10,
     ),
   );
-
-  // static final TextTheme darkTextTheme = baseTextTheme.apply();
 }
