@@ -13,7 +13,6 @@ Future main() async {
 
   runApp(App(repository));
 
-  //TODO: Settings page
   //TODO: Overlays: (AleartDialog?)
   // // // // // // // // // //tutorial overlay
   // // // // // // // // // //add task overlays
