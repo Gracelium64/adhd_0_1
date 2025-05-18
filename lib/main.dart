@@ -15,7 +15,7 @@ Future main() async {
 
   //TODO: Overlays: (AleartDialog?)
   // // // // // // // // // //tutorial overlay
-  // // // // // // // // // //add task overlays
+  // // // // // // // // // //add task overlays - basic design done
   // // // // // // // // // //edit task overlays
   // //single prize overlay
   //good morning overlay

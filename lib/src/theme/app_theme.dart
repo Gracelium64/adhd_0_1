@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 abstract class AppTheme {
   static final darkTheme = ThemeData.from(
     colorScheme: ColorScheme.fromSeed(
-      seedColor: Palette.monarchPurple1,
+      seedColor: Palette.lightTeal,
       brightness: Brightness.dark,
     ),
     textTheme: baseTextTheme,

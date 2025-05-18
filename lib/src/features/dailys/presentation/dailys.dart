@@ -1,4 +1,5 @@
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
+import 'package:adhd_0_1/src/common/presentation/add_task_widget.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/dailys/presentation/widgets/daily_task_widget.dart';
@@ -56,7 +57,17 @@ class Dailys extends StatelessWidget {
                 ),
               ),
             ),
-            GestureDetector(onTap: () {}, child: AddTaskButton()),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AddTaskWidget(repository),
+                  ),
+                );
+              },
+              child: AddTaskButton(),
+            ),
             SizedBox(height: 40),
           ],
         ),
