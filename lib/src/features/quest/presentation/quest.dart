@@ -31,31 +31,22 @@ class Quest extends StatelessWidget {
         body: Column(
           children: [
             SubTitle(sub: 'Quest'),
-
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(24, 48, 0, 0),
                 child: SingleChildScrollView(
                   scrollDirection: Axis.vertical,
                   child: SizedBox(
-                    height: 548,
+                    height: 492,
                     width: 304,
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          height: 548,
-                          width: 304,
-                          child: ListView.builder(
-                            itemCount: repository.getQuestTasks().length,
-                            itemBuilder: (context, index) {
-                              final task = repository.getQuestTasks()[index];
-                              return QuestTaskWidget(
-                                taskDesctiption: task.taskDesctiption,
-                              );
-                            },
-                          ),
-                        ),
-                      ],
+                    child: ListView.builder(
+                      itemCount: repository.getQuestTasks().length,
+                      itemBuilder: (context, index) {
+                        final task = repository.getQuestTasks()[index];
+                        return QuestTaskWidget(
+                          taskDesctiption: task.taskDesctiption,
+                        );
+                      },
                     ),
                   ),
                 ),

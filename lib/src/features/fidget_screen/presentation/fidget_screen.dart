@@ -38,7 +38,7 @@ class FidgetScreen extends StatelessWidget {
                 child: SingleChildScrollView(
                   scrollDirection: Axis.vertical,
                   child: SizedBox(
-                    height: 548,
+                    height: 492,
                     width: 304,
                     child: Column(
                       children: [

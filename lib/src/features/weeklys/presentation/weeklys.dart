@@ -38,25 +38,17 @@ class Weeklys extends StatelessWidget {
                 child: SingleChildScrollView(
                   scrollDirection: Axis.vertical,
                   child: SizedBox(
-                    height: 548,
+                    height: 492,
                     width: 304,
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          height: 548,
-                          width: 304,
-                          child: ListView.builder(
-                            itemCount: repository.getWeeklyTasks().length,
-                            itemBuilder: (context, index) {
-                              final task = repository.getWeeklyTasks()[index];
-                              return WeeklyTaskWidget(
-                                taskDesctiption: task.taskDesctiption,
-                                dayOfWeek: task.dayOfWeek,
-                              );
-                            },
-                          ),
-                        ),
-                      ],
+                    child: ListView.builder(
+                      itemCount: repository.getWeeklyTasks().length,
+                      itemBuilder: (context, index) {
+                        final task = repository.getWeeklyTasks()[index];
+                        return WeeklyTaskWidget(
+                          taskDesctiption: task.taskDesctiption,
+                          dayOfWeek: task.dayOfWeek,
+                        );
+                      },
                     ),
                   ),
                 ),

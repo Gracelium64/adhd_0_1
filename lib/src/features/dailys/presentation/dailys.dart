@@ -31,7 +31,6 @@ class Dailys extends StatelessWidget {
         body: Column(
           children: [
             SubTitle(sub: 'Dailys'),
-
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(24, 48, 0, 0),
@@ -40,7 +39,7 @@ class Dailys extends StatelessWidget {
                   child: Column(
                     children: [
                       SizedBox(
-                        height: 548,
+                        height: 492,
                         width: 304,
                         child: ListView.builder(
                           itemCount: repository.getDailyTasks().length,

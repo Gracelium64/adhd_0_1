@@ -77,12 +77,18 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                         NavigationRailDestination(
                           padding: EdgeInsets.only(bottom: 8),
-                          icon: Image.asset('assets/img/sidebar/daily.png'),
+                          icon: Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 2, 0, 0),
+                            child: Image.asset('assets/img/sidebar/daily.png'),
+                          ),
                           label: Text(''),
                         ),
                         NavigationRailDestination(
                           padding: EdgeInsets.only(bottom: 8),
-                          icon: Image.asset('assets/img/sidebar/week.png'),
+                          icon: Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 2, 0, 0),
+                            child: Image.asset('assets/img/sidebar/week.png'),
+                          ),
                           label: Text(''),
                         ),
                         NavigationRailDestination(
@@ -92,7 +98,10 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                         NavigationRailDestination(
                           padding: EdgeInsets.only(bottom: 8),
-                          icon: Image.asset('assets/img/sidebar/star.png'),
+                          icon: Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 0, 0, 2),
+                            child: Image.asset('assets/img/sidebar/star.png'),
+                          ),
                           label: Text(''),
                         ),
                         NavigationRailDestination(
@@ -102,7 +111,10 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                         NavigationRailDestination(
                           padding: EdgeInsets.only(bottom: 8),
-                          icon: Image.asset('assets/img/sidebar/fidget.png'),
+                          icon: Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 4, 0, 0),
+                            child: Image.asset('assets/img/sidebar/fidget.png'),
+                          ),
                           label: Text(''),
                         ),
                         NavigationRailDestination(
@@ -112,7 +124,12 @@ class _MainScreenState extends State<MainScreen> {
                         ),
                         NavigationRailDestination(
                           padding: EdgeInsets.only(bottom: 8),
-                          icon: Image.asset('assets/img/sidebar/hamburger.png'),
+                          icon: Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 0, 0, 5),
+                            child: Image.asset(
+                              'assets/img/sidebar/hamburger.png',
+                            ),
+                          ),
                           label: Text(''),
                         ),
                       ],
