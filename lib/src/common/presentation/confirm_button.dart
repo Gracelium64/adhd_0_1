@@ -5,11 +5,7 @@ class ConfirmButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {},
-////// TODO: add variable for onTap
-      child: Image.asset('assets/img/buttons/confirm.png'),
-    );
+    return Image.asset('assets/img/buttons/confirm.png');
   }
 }
 

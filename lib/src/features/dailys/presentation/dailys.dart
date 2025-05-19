@@ -15,6 +15,7 @@ class Dailys extends StatelessWidget {
   Widget build(BuildContext context) {
     double? leftBuild;
     double? topBuild;
+    var overlayController = OverlayPortalController();
 
     if (Platform.isAndroid) {
       leftBuild = 4.toDouble(); // Android
@@ -57,16 +58,22 @@ class Dailys extends StatelessWidget {
                 ),
               ),
             ),
+
             GestureDetector(
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AddTaskWidget(repository),
-                  ),
-                );
+                overlayController.toggle();
               },
-              child: AddTaskButton(),
+              child: OverlayPortal(
+                controller: overlayController,
+                overlayChildBuilder: (BuildContext context) {
+                  return AddTaskWidget(
+                    repository,
+                    overlayController,
+                    taskType: TaskType.daily,
+                  );
+                },
+                child: AddTaskButton(),
+              ),
             ),
             SizedBox(height: 40),
           ],

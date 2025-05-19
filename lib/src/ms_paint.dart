@@ -11,6 +11,6 @@ class MsPaint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AddTaskWidget(repository);
+    return Placeholder();
   }
 }
