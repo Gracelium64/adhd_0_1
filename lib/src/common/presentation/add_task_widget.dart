@@ -210,7 +210,6 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
                       SizedBox(height: 4),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
                         children: [
                           GestureDetector(
                             onTap: () {
