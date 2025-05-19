@@ -1,3 +1,4 @@
-# adhd_0_1
+# Attention Deficit oH Dear
 
-A new Flutter project.
+18/5/2025 - v0.1
+Most HiFi screens programmed in, no function.
