@@ -2,6 +2,7 @@ import 'dart:io' show Platform;
 
 import 'package:adhd_0_1/main.dart';
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
+import 'package:adhd_0_1/src/common/presentation/add_task_widget.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/dailys/presentation/widgets/daily_task_widget.dart';
@@ -19,6 +20,7 @@ class Settings extends StatelessWidget {
   Widget build(BuildContext context) {
     double? leftBuild;
     double? topBuild;
+    var overlayController = OverlayPortalController();
 
     if (Platform.isAndroid) {
       leftBuild = 4.toDouble(); // Android
@@ -250,7 +252,22 @@ class Settings extends StatelessWidget {
                 ),
               ),
             ),
-            GestureDetector(onTap: () {}, child: AddTaskButton()),
+            GestureDetector(
+              onTap: () {
+                overlayController.toggle();
+              },
+              child: OverlayPortal(
+                controller: overlayController,
+                overlayChildBuilder: (BuildContext context) {
+                  return AddTaskWidget(
+                    repository,
+                    overlayController,
+                    taskType: TaskType.daily,
+                  );
+                },
+                child: AddTaskButton(),
+              ),
+            ),
             SizedBox(height: 40),
           ],
         ),

@@ -1,4 +1,5 @@
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
+import 'package:adhd_0_1/src/common/presentation/add_task_widget.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/Quest/presentation/widgets/quest_task_widget.dart';
@@ -14,6 +15,7 @@ class Quest extends StatelessWidget {
   Widget build(BuildContext context) {
     double? leftBuild;
     double? topBuild;
+    var overlayController = OverlayPortalController();
 
     if (Platform.isAndroid) {
       leftBuild = 4.toDouble(); // Android
@@ -52,7 +54,22 @@ class Quest extends StatelessWidget {
                 ),
               ),
             ),
-            GestureDetector(onTap: () {}, child: AddTaskButton()),
+            GestureDetector(
+              onTap: () {
+                overlayController.toggle();
+              },
+              child: OverlayPortal(
+                controller: overlayController,
+                overlayChildBuilder: (BuildContext context) {
+                  return AddTaskWidget(
+                    repository,
+                    overlayController,
+                    taskType: TaskType.quest,
+                  );
+                },
+                child: AddTaskButton(),
+              ),
+            ),
             SizedBox(height: 40),
           ],
         ),

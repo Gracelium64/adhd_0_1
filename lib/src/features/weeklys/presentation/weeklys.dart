@@ -1,4 +1,5 @@
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
+import 'package:adhd_0_1/src/common/presentation/add_task_widget.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/weeklys/presentation/widgets/weekly_task_widget.dart';
@@ -14,6 +15,7 @@ class Weeklys extends StatelessWidget {
   Widget build(BuildContext context) {
     double? leftBuild;
     double? topBuild;
+    var overlayController = OverlayPortalController();
 
     if (Platform.isAndroid) {
       leftBuild = 4.toDouble(); // Android
@@ -54,7 +56,22 @@ class Weeklys extends StatelessWidget {
                 ),
               ),
             ),
-            GestureDetector(onTap: () {}, child: AddTaskButton()),
+            GestureDetector(
+              onTap: () {
+                overlayController.toggle();
+              },
+              child: OverlayPortal(
+                controller: overlayController,
+                overlayChildBuilder: (BuildContext context) {
+                  return AddTaskWidget(
+                    repository,
+                    overlayController,
+                    taskType: TaskType.weekly,
+                  );
+                },
+                child: AddTaskButton(),
+              ),
+            ),
             SizedBox(height: 40),
           ],
         ),
