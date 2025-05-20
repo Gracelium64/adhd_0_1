@@ -14,7 +14,7 @@ class FridgeLock extends StatelessWidget {
   Widget build(BuildContext context) {
     double? leftBuild;
     double? topBuild;
-    var overlayController = OverlayPortalController();
+    OverlayPortalController overlayController = OverlayPortalController();
 
     if (Platform.isAndroid) {
       leftBuild = 4.toDouble(); // Android

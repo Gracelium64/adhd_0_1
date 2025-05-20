@@ -1,12 +1,9 @@
 import 'dart:io' show Platform;
 
-import 'package:adhd_0_1/main.dart';
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
 import 'package:adhd_0_1/src/common/presentation/add_task_widget.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
-import 'package:adhd_0_1/src/features/dailys/presentation/widgets/daily_task_widget.dart';
-import 'package:adhd_0_1/src/features/prizes/presentation/widgets/prizes_widget.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
@@ -20,7 +17,7 @@ class Settings extends StatelessWidget {
   Widget build(BuildContext context) {
     double? leftBuild;
     double? topBuild;
-    var overlayController = OverlayPortalController();
+    OverlayPortalController overlayController = OverlayPortalController();
 
     if (Platform.isAndroid) {
       leftBuild = 4.toDouble(); // Android

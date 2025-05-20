@@ -38,7 +38,6 @@ const List<String> motivationalQuotes = [
   "It's your dopamine addiction.",
   "Today owes you nothing.",
 
-
   "Romanticize your struggle — and mediocrity is boring. Become ungovernable.",
   "Romanticize your struggle — and mediocrity is boring. Conquer something today.",
   "Romanticize your struggle — and mediocrity is boring. Get dramatic with your ambition.",
@@ -496,4 +495,5 @@ const List<String> chaoticQuotes = [
   "Your vibe today? Controlled chaos with high output.",
   "You are the storm in your own weather app.",
   "You're not behind. You're just charging up for a dramatic entrance.",
+  "There are no stupid questions, only stupid people.",
 ];

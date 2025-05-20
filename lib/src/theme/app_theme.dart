@@ -2,7 +2,7 @@ import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 abstract class AppTheme {
-  static final darkTheme = ThemeData.from(
+  static final darkTheme = ThemeData(
     colorScheme: ColorScheme.fromSeed(
       seedColor: Palette.lightTeal,
       brightness: Brightness.dark,
@@ -23,14 +23,14 @@ abstract class AppTheme {
       fontSize: 14,
       fontWeight: FontWeight.bold,
     ),
-    displayLarge: TextStyle(),
+    // displayLarge: TextStyle(),
     displayMedium: TextStyle(
       color: Palette.basicBitchWhite,
       fontFamily: 'Marvel',
       fontSize: 24,
       fontWeight: FontWeight.w400,
     ),
-    displaySmall: TextStyle(),
+    // displaySmall: TextStyle(),
     headlineLarge: TextStyle(
       fontFamily: 'Lobster',
       fontSize: 30,
@@ -42,9 +42,9 @@ abstract class AppTheme {
       fontSize: 34,
       fontWeight: FontWeight.w400,
     ),
-    headlineSmall: TextStyle(),
-    labelLarge: TextStyle(),
-    labelMedium: TextStyle(),
+    // headlineSmall: TextStyle(),
+    // labelLarge: TextStyle(),
+    // labelMedium: TextStyle(),
     labelSmall: TextStyle(
       color: Palette.basicBitchWhite,
       fontFamily: 'Inter',
@@ -56,7 +56,7 @@ abstract class AppTheme {
       fontSize: 40,
       fontWeight: FontWeight.w400,
     ),
-    titleMedium: TextStyle(),
+    // titleMedium: TextStyle(),
     titleSmall: TextStyle(
       color: Palette.basicBitchWhite,
       fontFamily: 'Inter',
