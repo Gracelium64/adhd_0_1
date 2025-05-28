@@ -26,6 +26,8 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Size screenSize = MediaQuery.of(context).size;
+
     List<Widget> pages = [
       Tutorial(widget.repository),
       Dailys(widget.repository),
@@ -137,7 +139,13 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                 ),
 
-                Expanded(child: Center(child: pages[_pageIndex])),
+                Expanded(
+                  child: SizedBox(
+                    height: screenSize.height / 1.12,
+                    width: screenSize.width,
+                    child: Center(child: pages[_pageIndex]),
+                  ),
+                ),
               ],
             ),
           ),
