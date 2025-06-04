@@ -1,3 +1,4 @@
+import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
 import 'package:adhd_0_1/src/common/presentation/add_task_widget.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
@@ -5,10 +6,24 @@ import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/Quest/presentation/widgets/quest_task_widget.dart';
 import 'package:flutter/material.dart';
 
-class Quest extends StatelessWidget {
+class Quest extends StatefulWidget {
   final DataBaseRepository repository;
 
   const Quest(this.repository, {super.key});
+
+  @override
+  State<Quest> createState() => _QuestState();
+}
+
+class _QuestState extends State<Quest> {
+late Future<List<Task>> myList;
+
+  @override
+  void initState() {
+    super.initState();
+    myList = widget.repository.getQuestTasks();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +31,23 @@ class Quest extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: Column(
+      body: Center(child: FutureBuilder<List<Task>>(
+        future: myList, 
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator();
+          }else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}');
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+return Text('No data available');
+          }
+
+          final data = snapshot.data!;
+      
+      
+      
+      
+      return Column(
         children: [
           SubTitle(sub: 'Quest'),
           Expanded(
@@ -28,9 +59,9 @@ class Quest extends StatelessWidget {
                   height: 492,
                   width: 304,
                   child: ListView.builder(
-                    itemCount: repository.getQuestTasks().length,
+                    itemCount: data.length,
                     itemBuilder: (context, index) {
-                      final task = repository.getQuestTasks()[index];
+                      final task = data[index];
                       return QuestTaskWidget(
                         taskDesctiption: task.taskDesctiption,
                       );
@@ -48,7 +79,7 @@ class Quest extends StatelessWidget {
               controller: overlayController,
               overlayChildBuilder: (BuildContext context) {
                 return AddTaskWidget(
-                  repository,
+                  widget.repository,
                   overlayController,
                   taskType: TaskType.quest,
                 );
@@ -58,7 +89,10 @@ class Quest extends StatelessWidget {
           ),
           SizedBox(height: 40),
         ],
-      ),
+      );
+        },
+
+      ))
     );
   }
 }

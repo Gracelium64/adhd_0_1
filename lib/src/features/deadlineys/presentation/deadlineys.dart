@@ -1,3 +1,4 @@
+import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
 import 'package:adhd_0_1/src/common/presentation/add_task_widget.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
@@ -6,10 +7,23 @@ import 'package:adhd_0_1/src/features/Deadlineys/presentation/widgets/deadline_t
 import 'package:flutter/material.dart';
 // import 'dart:io' show Platform;
 
-class Deadlineys extends StatelessWidget {
+class Deadlineys extends StatefulWidget {
   final DataBaseRepository repository;
 
   const Deadlineys(this.repository, {super.key});
+
+  @override
+  State<Deadlineys> createState() => _DeadlineysState();
+}
+
+class _DeadlineysState extends State<Deadlineys> {
+  late Future<List<Task>> myList;
+
+  @override
+  void initState() {
+    super.initState();
+    myList = widget.repository.getDeadlineTasks();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,50 +31,67 @@ class Deadlineys extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: Column(
-        children: [
-          SubTitle(sub: 'Deadlineys'),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 48, 0, 0),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: SizedBox(
-                  height: 492,
-                  width: 304,
-                  child: ListView.builder(
-                    itemCount: repository.getDeadlineTasks().length,
-                    itemBuilder: (context, index) {
-                      final task = repository.getDeadlineTasks()[index];
-                      return DeadlineTaskWidget(
-                        taskDesctiption: task.taskDesctiption,
-                        deadlineDate: task.deadlineDate,
-                        deadlineTime: task.deadlineTime,
-                      );
-                    },
+      body: Center(
+        child: FutureBuilder<List<Task>>(
+          future: myList,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return CircularProgressIndicator();
+            } else if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Text('No data available');
+            }
+
+            final data = snapshot.data!;
+
+            return Column(
+              children: [
+                SubTitle(sub: 'Deadlineys'),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 48, 0, 0),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: SizedBox(
+                        height: 492,
+                        width: 304,
+                        child: ListView.builder(
+                          itemCount: data.length,
+                          itemBuilder: (context, index) {
+                            final task = data[index];
+                            return DeadlineTaskWidget(
+                              taskDesctiption: task.taskDesctiption,
+                              deadlineDate: task.deadlineDate,
+                              deadlineTime: task.deadlineTime,
+                            );
+                          },
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ),
-          GestureDetector(
-            onTap: () {
-              overlayController.toggle();
-            },
-            child: OverlayPortal(
-              controller: overlayController,
-              overlayChildBuilder: (BuildContext context) {
-                return AddTaskWidget(
-                  repository,
-                  overlayController,
-                  taskType: TaskType.deadline,
-                );
-              },
-              child: AddTaskButton(),
-            ),
-          ),
-          SizedBox(height: 40),
-        ],
+                GestureDetector(
+                  onTap: () {
+                    overlayController.toggle();
+                  },
+                  child: OverlayPortal(
+                    controller: overlayController,
+                    overlayChildBuilder: (BuildContext context) {
+                      return AddTaskWidget(
+                        widget.repository,
+                        overlayController,
+                        taskType: TaskType.deadline,
+                      );
+                    },
+                    child: AddTaskButton(),
+                  ),
+                ),
+                SizedBox(height: 40),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

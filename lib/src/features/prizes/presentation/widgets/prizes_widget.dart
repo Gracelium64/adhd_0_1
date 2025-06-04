@@ -12,20 +12,43 @@ class PrizesWidget extends StatefulWidget {
 }
 
 class _PrizesWidgetState extends State<PrizesWidget> {
+  late Future<List<Prizes>> myList;
+
+  @override
+  void initState() {
+    super.initState();
+    myList = widget.repository.getPrizes();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return GridView.count(
-      crossAxisCount: 3,
-      mainAxisSpacing: 16,
-      crossAxisSpacing: 16,
-      children: buildImages(context),
+    return FutureBuilder<List<Prizes>>(
+      future: myList,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return Text('Error: ${snapshot.error}');
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Text('No prizes yet!');
+        }
+
+        final data = snapshot.data!;
+
+        return GridView.count(
+          crossAxisCount: 3,
+          mainAxisSpacing: 16,
+          crossAxisSpacing: 16,
+          children: buildImages(context, data),
+        );
+      },
     );
   }
 
-  List<Widget> buildImages(BuildContext context) {
+  List<Widget> buildImages(BuildContext context, List<Prizes> listData) {
     List<Widget> displayPrizes = [];
 
-    for (Prizes gridItem in widget.repository.getPrizes()) {
+    for (Prizes gridItem in listData) {
       displayPrizes.add(
         GestureDetector(
           onTap: () {},
