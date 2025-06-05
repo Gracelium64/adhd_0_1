@@ -273,14 +273,13 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          DeleteButton(),
-                          GestureDetector(
-                            onTap: () {
+                          DeleteButton(onPressed: () {}),
+                          CancelButton(
+                            onPressed: () {
                               widget.controller.toggle();
                             },
-                            child: CancelButton(),
                           ),
-                          ConfirmButton(),
+                          ConfirmButton(onPressed: () {}),
                         ],
                       ),
                     ],

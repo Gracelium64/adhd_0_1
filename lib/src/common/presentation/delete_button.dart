@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 
 class DeleteButton extends StatelessWidget {
-  const DeleteButton({super.key});
+final void Function() onPressed;
+
+  const DeleteButton({super.key, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
-    return Image.asset('assets/img/buttons/delete.png');
+    return InkWell(
+      onTap: onPressed,
+      child: Image.asset('assets/img/buttons/delete.png'));
   }
 }
 

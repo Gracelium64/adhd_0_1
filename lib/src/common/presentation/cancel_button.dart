@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 
 class CancelButton extends StatelessWidget {
-  const CancelButton({super.key});
+  final void Function() onPressed;
+
+  const CancelButton({super.key, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
-    return Image.asset('assets/img/buttons/cancel.png');
+    return InkWell(
+      onTap: onPressed,
+      child: Image.asset('assets/img/buttons/cancel.png'));
   }
 }

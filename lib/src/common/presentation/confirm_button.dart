@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 
 class ConfirmButton extends StatelessWidget {
-  const ConfirmButton({super.key});
+  final void Function() onPressed;
+  
+  const ConfirmButton({super.key, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
-    return Image.asset('assets/img/buttons/confirm.png');
+    return InkWell(
+      onTap: onPressed,
+      child: Image.asset('assets/img/buttons/confirm.png'));
   }
 }
 
