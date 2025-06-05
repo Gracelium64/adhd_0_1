@@ -26,7 +26,23 @@ class _PrizesWidgetState extends State<PrizesWidget> {
       future: myList,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return CircularProgressIndicator();
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(height: 26),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: 35,
+                    width: 35,
+                    child: CircularProgressIndicator(),
+                  ),
+                  SizedBox(width: 18),
+                ],
+              ),
+            ],
+          );
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {

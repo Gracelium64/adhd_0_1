@@ -21,8 +21,6 @@ class _AppBgState extends State<AppBg> {
   void initState() {
     super.initState();
     mySkin = loadSkin();
-
-    // appBgSkin(widget.repository.getSettings()?.appSkinColor);
   }
 
   Future<String?> loadSkin() async {
@@ -42,20 +40,10 @@ class _AppBgState extends State<AppBg> {
       builder: (context, snapshot) {
         final skinData =
             snapshot.data ?? 'assets/img/app_bg/png/app_bg_white.png';
-
-        // if (snapshot.connectionState == ConnectionState.waiting) {
-        //   return CircularProgressIndicator();
-        // } else if (snapshot.hasError) {
-        //   return Text('Error: ${snapshot.error}');
-        // } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-        //   return Text('assets/img/app_bg/png/app_bg_pink.png');
-        // }
-
-        // final skinData = snapshot.data!;
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
             body: Center(
-              child: Container(
+              child: SizedBox(
                 height: double.infinity,
                 width: double.infinity,
                 child: Image.asset(
