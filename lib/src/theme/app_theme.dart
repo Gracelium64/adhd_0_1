@@ -8,6 +8,11 @@ abstract class AppTheme {
       brightness: Brightness.dark,
     ),
     textTheme: baseTextTheme,
+
+    progressIndicatorTheme: ProgressIndicatorThemeData(
+      circularTrackColor: Palette.monarchPurple1,
+      color: Palette.monarchPurple2,
+    ),
   );
 
   static final TextTheme baseTextTheme = TextTheme(
