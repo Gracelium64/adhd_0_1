@@ -69,7 +69,7 @@ class NameOverlay extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 84),
-                ConfirmButton(),
+                ConfirmButton(onPressed: () {  },),
               ],
             ),
           ),

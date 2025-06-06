@@ -67,7 +67,7 @@ class NameOverlayConfirmation extends StatelessWidget {
                           textAlign: TextAlign.center,
                         ),
                       ),
-                      ConfirmButton(),
+                      ConfirmButton(onPressed: () {  },),
                     ],
                   ),
                 ),

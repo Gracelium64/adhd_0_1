@@ -80,7 +80,7 @@ class DayHourSettingsColdstartOverlay extends StatelessWidget {
                 ),
                 ////// TODO: replace textbutton with TimeInput
                 SizedBox(height: 36),
-                ConfirmButton(),
+                ConfirmButton(onPressed: () {  },),
               ],
             ),
           ),

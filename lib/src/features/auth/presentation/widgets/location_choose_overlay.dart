@@ -69,7 +69,7 @@ class LocationChooseOverlay extends StatelessWidget {
                 ),
                 ////// TODO: replace textbutton with TextInput
                 SizedBox(height: 108),
-                ConfirmButton(),
+                ConfirmButton(onPressed: () {  },),
               ],
             ),
           ),

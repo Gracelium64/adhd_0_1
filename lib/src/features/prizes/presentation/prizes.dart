@@ -16,47 +16,49 @@ class Prizes extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: Column(
-        children: [
-          SubTitle(sub: 'Prizes'),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 48, 0, 0),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: 492,
-                      width: 304,
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                        child: PrizesWidget(repository),
+      body: Center(
+        child: Column(
+          children: [
+            SubTitle(sub: 'Prizes'),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 48, 0, 0),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.vertical,
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 492,
+                        width: 304,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                          child: PrizesWidget(repository),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          GestureDetector(
-            onTap: () {
-              overlayController.toggle();
-            },
-            child: OverlayPortal(
-              controller: overlayController,
-              overlayChildBuilder: (BuildContext context) {
-                return AddTaskWidget(
-                  repository,
-                  overlayController,
-                  taskType: TaskType.daily,
-                );
+            GestureDetector(
+              onTap: () {
+                overlayController.toggle();
               },
-              child: AddTaskButton(),
+              child: OverlayPortal(
+                controller: overlayController,
+                overlayChildBuilder: (BuildContext context) {
+                  return AddTaskWidget(
+                    repository,
+                    overlayController,
+                    taskType: TaskType.daily,
+                  );
+                },
+                child: AddTaskButton(),
+              ),
             ),
-          ),
-          SizedBox(height: 40),
-        ],
+            SizedBox(height: 40),
+          ],
+        ),
       ),
     );
   }

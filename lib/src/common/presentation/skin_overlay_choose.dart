@@ -73,7 +73,7 @@ class SkinOverlayChoose extends StatelessWidget {
                         //////TODO: make clickable with clicked differance
                       ),
                       SizedBox(height: 36),
-                      ConfirmButton(),
+                      ConfirmButton(onPressed: () {  },),
                     ],
                   ),
                 ),

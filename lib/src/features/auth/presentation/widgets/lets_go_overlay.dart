@@ -70,7 +70,7 @@ class LetsGoOverlay extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: 72),
-                      ConfirmButton(),
+                      ConfirmButton(onPressed: () {  },),
                     ],
                   ),
                 ),
