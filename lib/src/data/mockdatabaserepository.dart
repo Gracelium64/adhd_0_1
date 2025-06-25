@@ -157,7 +157,7 @@ class MockDataRepository implements DataBaseRepository {
     for (int i = 0; i < weeklyTasks.length; i++) {
       if (weeklyTasks[i].taskId == dataTaskId) {
         weeklyTasks[i].isDone = true;
-        dailyCompleted++;
+        weeklyCompleted++;
       }
     }
   }
@@ -168,7 +168,7 @@ class MockDataRepository implements DataBaseRepository {
     for (int i = 0; i < deadlineTasks.length; i++) {
       if (deadlineTasks[i].taskId == dataTaskId) {
         deadlineTasks[i].isDone = true;
-        weeklyCompleted++;
+        deadlineCompleted++;
         deadlineTasks.remove(deadlineTasks[i]);
       }
     }
@@ -180,7 +180,7 @@ class MockDataRepository implements DataBaseRepository {
     for (int i = 0; i < questTasks.length; i++) {
       if (questTasks[i].taskId == dataTaskId) {
         questTasks[i].isDone = true;
-        weeklyCompleted++;
+        questCompleted++;
         questTasks.remove(questTasks[i]);
       }
     }

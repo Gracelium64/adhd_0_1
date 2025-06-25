@@ -24,6 +24,8 @@ Future<void> main() async {
 
   runApp(App(repository));
 
+  //TODO: responsive design - this design is problematic for up- and downscaling
+
   //TODO:  fix other TODO's scattered across the design
 
   //OVERLAYS TO MAKE
@@ -36,19 +38,20 @@ Future<void> main() async {
   //backup overlays
   //about overlay
 
-  //TODO: shared preferences for coldstart
-  //TODO: finish database implemintierung
   //TODO: TextFormField, controllers, validators
+
   //TODO: AppUser class = userInput.text + DateTime.now() ; as unique identifier
+
   //TODO: Logic of progress bars
   //TODO: Logic of isDone reset for daily and weekly tasks
   //TODO: Logic for weekly score counters - for each day seperatly, for the week, for special tasks
+
   //TODO: how to save files outside of shared memory / sharing files / local backup of user data
   //TODO: display notification at specific time of day
   //TODO: weather API
   //TODO: how to work with random seed (for daily motivation message, for winning prizes)
 
-  //TODO: responsive design - this design is problematic for up- and downscaling
+  //TODO: finish database implemintierung
 
   //TODO: make more AI abominations for prizes
 
