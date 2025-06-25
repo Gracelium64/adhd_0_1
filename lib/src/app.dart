@@ -1,5 +1,4 @@
 import 'package:adhd_0_1/src/data/databaserepository.dart';
-import 'package:adhd_0_1/src/features/auth/presentation/widgets/app_bg_coldstart.dart';
 import 'package:adhd_0_1/src/main_screen.dart';
 import 'package:adhd_0_1/src/cold_start.dart';
 import 'package:adhd_0_1/src/theme/app_theme.dart';
@@ -58,7 +57,6 @@ class _AppState extends State<App> {
           isColdStrart!
               ? ColdStart(widget.repository)
               : MainScreen(widget.repository),
-      // home: MsPaint(repository),
     );
   }
 }

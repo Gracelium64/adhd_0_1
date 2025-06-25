@@ -3,7 +3,7 @@ import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/prizes/domain/prizes.dart';
 import 'package:adhd_0_1/src/features/settings/domain/settings.dart';
 
-class MockDataRepository implements DataBaseRepository {
+class LocalBackupRepository implements DataBaseRepository {
   List<Task> dailyTasks = [
     Task(001, 'Daily', 'Daily 1', null, null, null, false),
     Task(002, 'Daily', 'Daily 2', null, null, null, false),

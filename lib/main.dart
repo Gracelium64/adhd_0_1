@@ -1,11 +1,12 @@
 import 'package:adhd_0_1/src/app.dart';
-import 'package:adhd_0_1/src/data/databaserepository.dart';
+import 'package:adhd_0_1/src/data/localbackuprepository.dart';
 import 'package:adhd_0_1/src/data/mockdatabaserepository.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:device_preview/device_preview.dart';
+import 'package:adhd_0_1/src/data/syncrepository.dart';
 
 Future<void> main() async {
   await Future.delayed(const Duration(seconds: 2));
@@ -13,7 +14,11 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
-  DataBaseRepository repository = MockDataRepository();
+  final mainRepo = MockDataRepository();
+  final backupRepo = LocalBackupRepository();
+  final repository = SyncRepository(mainRepo: mainRepo, localRepo: backupRepo);
+
+  runApp(App(repository));
 
   // runApp(
   //   DevicePreview(
@@ -21,8 +26,6 @@ Future<void> main() async {
   //     builder: (context) => App(repository),
   //   ),
   // );
-
-  runApp(App(repository));
 
   //TODO: responsive design - this design is problematic for up- and downscaling
 
@@ -37,6 +40,8 @@ Future<void> main() async {
   //week summery overlay
   //backup overlays
   //about overlay
+
+  //TODO: UNDO Button in SncakBar when completing a Quest or Deadline Tasks
 
   //TODO: TextFormField, controllers, validators
 
