@@ -11,140 +11,202 @@ class SyncRepository implements DataBaseRepository {
 
   @override
   Future<void> addDaily(String data) async {
-    await mainRepo.addDaily(data);
     await localRepo.addDaily(data);
+    try {
+      await mainRepo.addDaily(data);
+    } catch (e) {
+      print('Sync error: $e');
+    }
   }
 
   @override
   Future<void> addDeadline(String data, date, time) async {
-    await mainRepo.addDeadline(data, date, time);
     await localRepo.addDeadline(data, date, time);
+    try {
+      await mainRepo.addDeadline(data, date, time);
+    } catch (e) {
+      print('Sync error: $e');
+    }
   }
 
   @override
   Future<void> addPrize(int prizeId, String prizeUrl) async {
-    await mainRepo.addPrize(prizeId, prizeUrl);
     await localRepo.addPrize(prizeId, prizeUrl);
+    try {
+      await mainRepo.addPrize(prizeId, prizeUrl);
+    } catch (e) {
+      print('Sync error: $e');
+    }
   }
 
   @override
   Future<void> addQuest(String data) async {
-    await mainRepo.addQuest(data);
     await localRepo.addQuest(data);
+    try {
+      await mainRepo.addQuest(data);
+    } catch (e) {
+      print('Sync error: $e');
+    }
   }
 
   @override
   Future<void> addWeekly(String data, day) async {
-    await mainRepo.addWeekly(data, day);
     await localRepo.addWeekly(data, day);
+    try {
+      await mainRepo.addWeekly(data, day);
+    } catch (e) {
+      print('Sync error: $e');
+    }
   }
 
   @override
   Future<void> completeDaily(int dataTaskId) async {
-    await mainRepo.completeDaily(dataTaskId);
     await localRepo.completeDaily(dataTaskId);
+    try {
+      await mainRepo.completeDaily(dataTaskId);
+    } catch (e) {
+      print('Sync error: $e');
+    }
   }
 
   @override
   Future<void> completeDeadline(int dataTaskId) async {
-    await mainRepo.completeDeadline(dataTaskId);
     await localRepo.completeDeadline(dataTaskId);
+    try {
+      await mainRepo.completeDeadline(dataTaskId);
+    } catch (e) {
+      print('Sync error: $e');
+    }
   }
 
   @override
   Future<void> completeQuest(int dataTaskId) async {
-    await mainRepo.completeQuest(dataTaskId);
     await localRepo.completeQuest(dataTaskId);
+    try {
+      await mainRepo.completeQuest(dataTaskId);
+    } catch (e) {
+      print('Sync error: $e');
+    }
   }
 
   @override
   Future<void> completeWeekly(int dataTaskId) async {
-    await mainRepo.completeWeekly(dataTaskId);
     await localRepo.completeWeekly(dataTaskId);
+    try {
+      await mainRepo.completeWeekly(dataTaskId);
+    } catch (e) {
+      print('Sync error: $e');
+    }
   }
 
   @override
   Future<void> deleteDaily(int dataTaskId) async {
-    await mainRepo.deleteDaily(dataTaskId);
     await localRepo.deleteDaily(dataTaskId);
+    try {
+      await mainRepo.deleteDaily(dataTaskId);
+    } catch (e) {
+      print('Sync error: $e');
+    }
   }
 
   @override
   Future<void> deleteDeadline(int dataTaskId) async {
-    await mainRepo.deleteDeadline(dataTaskId);
     await localRepo.deleteDeadline(dataTaskId);
+    try {
+      await mainRepo.deleteDeadline(dataTaskId);
+    } catch (e) {
+      print('Sync error: $e');
+    }
   }
 
   @override
   Future<void> deleteQuest(int dataTaskId) async {
-    await mainRepo.deleteQuest(dataTaskId);
     await localRepo.deleteQuest(dataTaskId);
+    try {
+      await mainRepo.deleteQuest(dataTaskId);
+    } catch (e) {
+      print('Sync error: $e');
+    }
   }
 
   @override
   Future<void> deleteWeekly(int dataTaskId) async {
-    await mainRepo.deleteWeekly(dataTaskId);
     await localRepo.deleteWeekly(dataTaskId);
+    try {
+      await mainRepo.deleteWeekly(dataTaskId);
+    } catch (e) {
+      print('Sync error: $e');
+    }
   }
 
   @override
   Future<void> editDaily(int dataTaskId, String data) async {
-    await mainRepo.editDaily(dataTaskId, data);
     await localRepo.editDaily(dataTaskId, data);
+    try {
+      await mainRepo.editDaily(dataTaskId, data);
+    } catch (e) {
+      print('Sync error: $e');
+    }
   }
 
   @override
   Future<void> editDeadline(int dataTaskId, String data, date, time) async {
-    await mainRepo.editDeadline(dataTaskId, data, date, time);
     await localRepo.editDeadline(dataTaskId, data, date, time);
+    try {
+      await mainRepo.editDeadline(dataTaskId, data, date, time);
+    } catch (e) {
+      print('Sync error: $e');
+    }
   }
 
   @override
   Future<void> editQuest(int dataTaskId, String data) async {
-    await mainRepo.editQuest(dataTaskId, data);
     await localRepo.editQuest(dataTaskId, data);
+    try {
+      await mainRepo.editQuest(dataTaskId, data);
+    } catch (e) {
+      print('Sync error: $e');
+    }
   }
 
   @override
   Future<void> editWeekly(int dataTaskId, String data, day) async {
-    await mainRepo.editWeekly(dataTaskId, data, day);
     await localRepo.editWeekly(dataTaskId, data, day);
+    try {
+      await mainRepo.editWeekly(dataTaskId, data, day);
+    } catch (e) {
+      print('Sync error: $e');
+    }
   }
 
   @override
   Future<List<Task>> getDailyTasks() async {
-    await mainRepo.getDailyTasks();
-    await localRepo.getDailyTasks();
+    return await localRepo.getDailyTasks();
   }
 
   @override
   Future<List<Task>> getDeadlineTasks() async {
-    await mainRepo.getDeadlineTasks();
-    await localRepo.getDeadlineTasks();
+    return await localRepo.getDeadlineTasks();
   }
 
   @override
   Future<List<Prizes>> getPrizes() async {
-    await mainRepo.getPrizes();
-    await localRepo.getPrizes();
+    return await localRepo.getPrizes();
   }
 
   @override
   Future<List<Task>> getQuestTasks() async {
-    await mainRepo.getQuestTasks();
-    await localRepo.getQuestTasks();
+    return await localRepo.getQuestTasks();
   }
 
   @override
   Future<Settings?> getSettings() async {
-    await mainRepo.getSettings();
-    await localRepo.getSettings();
+    return await localRepo.getSettings();
   }
 
   @override
   Future<List<Task>> getWeeklyTasks() async {
-    await mainRepo.getWeeklyTasks();
-    await localRepo.getWeeklyTasks();
+    return await localRepo.getWeeklyTasks();
   }
 
   @override
@@ -155,19 +217,107 @@ class SyncRepository implements DataBaseRepository {
     int dataStartOfDay,
     int dataStartOfWeek,
   ) async {
-    await mainRepo.setSettings(
+    Settings settings = await localRepo.setSettings(
       dataAppSkinColor,
       dataLanguage,
       dataLocation,
       dataStartOfDay,
       dataStartOfWeek,
     );
-    await localRepo.setSettings(
-      dataAppSkinColor,
-      dataLanguage,
-      dataLocation,
-      dataStartOfDay,
-      dataStartOfWeek,
-    );
+    try {
+      await mainRepo.setSettings(
+        dataAppSkinColor,
+        dataLanguage,
+        dataLocation,
+        dataStartOfDay,
+        dataStartOfWeek,
+      );
+    } catch (e) {
+      print('Sync error: $e');
+    }
+    return settings;
+  }
+
+  Future<void> syncAll() async {
+    print("Sync started...");
+
+    try {
+      // Sync daily tasks
+      final dailyTasks = await localRepo.getDailyTasks();
+      for (final task in dailyTasks) {
+        try {
+          await mainRepo.addDaily(task.taskDesctiption);
+        } catch (e) {
+          print("Failed to sync daily task ${task.taskId}: $e");
+        }
+      }
+
+      // Sync weekly tasks
+      final weeklyTasks = await localRepo.getWeeklyTasks();
+      for (final task in weeklyTasks) {
+        try {
+          await mainRepo.addWeekly(
+            task.taskDesctiption,
+            task.dayOfWeek,
+          ); // adapt if needed
+        } catch (e) {
+          print("Failed to sync weekly task ${task.taskId}: $e");
+        }
+      }
+
+      // Sync deadline tasks
+      final deadlineTasks = await localRepo.getDeadlineTasks();
+      for (final task in deadlineTasks) {
+        try {
+          await mainRepo.addDeadline(
+            task.taskDesctiption,
+            task.deadlineDate,
+            task.deadlineTime,
+          );
+        } catch (e) {
+          print("Failed to sync deadline task ${task.taskId}: $e");
+        }
+      }
+
+      // Sync quests
+      final questTasks = await localRepo.getQuestTasks();
+      for (final task in questTasks) {
+        try {
+          await mainRepo.addQuest(task.taskDesctiption);
+        } catch (e) {
+          print("Failed to sync quest task ${task.taskId}: $e");
+        }
+      }
+
+      // Sync prizes
+      final prizes = await localRepo.getPrizes();
+      for (final prize in prizes) {
+        try {
+          await mainRepo.addPrize(prize.prizeId, prize.prizeUrl);
+        } catch (e) {
+          print("Failed to sync prize ${prize.prizeId}: $e");
+        }
+      }
+
+      // Sync settings
+      final settings = await localRepo.getSettings();
+      if (settings != null) {
+        try {
+          await mainRepo.setSettings(
+            settings.appSkinColor,
+            settings.language,
+            settings.location,
+            settings.startOfDay,
+            settings.startOfWeek,
+          );
+        } catch (e) {
+          print("Failed to sync settings: $e");
+        }
+      }
+
+      print("Sync finished.");
+    } catch (e) {
+      print("General sync error: $e");
+    }
   }
 }
