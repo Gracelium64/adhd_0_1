@@ -101,6 +101,8 @@ class MockDataBaseRepository implements DataBaseRepository {
     startOfWeek: 2,
   );
 
+  String? appUser;
+
   @override
   Future<void> addDaily(String data) async {
     dailyTasks.add(Task(taskIdCounter, 'Daily', data, null, null, null, false));
@@ -316,6 +318,18 @@ class MockDataBaseRepository implements DataBaseRepository {
   @override
   Future<Settings?> getSettings() async {
     return userSettings;
+  }
+
+
+
+  @override
+  Future<void> setAppUser(String data) async {
+    appUser = data;
+  }
+
+  @override
+  Future<String?> getAppUser() async {
+    return appUser;
   }
 
   // @override

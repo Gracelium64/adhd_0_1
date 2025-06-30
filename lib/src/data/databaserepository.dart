@@ -38,4 +38,6 @@ abstract class DataBaseRepository {
   Future<void> editWeekly(int dataTaskId, String data, day);
   Future<void> editDeadline(int dataTaskId, String data, date, time);
   Future<void> editQuest(int dataTaskId, String data);
+  Future<void> setAppUser(String data);
+  Future<String?> getAppUser();
 }

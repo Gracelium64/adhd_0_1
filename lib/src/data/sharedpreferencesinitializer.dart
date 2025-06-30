@@ -8,7 +8,6 @@ class SharedPreferencesInitializer {
   static Future<void> initializeDefaults() async {
     final prefs = await SharedPreferences.getInstance();
 
-    // Only set if the key is missing
     if (!prefs.containsKey('dailyTasks')) {
       final dailyTasks = List.generate(
         11,

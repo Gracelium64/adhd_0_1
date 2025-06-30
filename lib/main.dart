@@ -1,6 +1,5 @@
 import 'package:adhd_0_1/firebase_options.dart';
 import 'package:adhd_0_1/src/app.dart';
-import 'package:adhd_0_1/src/data/old/localbackuprepository.dart';
 import 'package:adhd_0_1/src/data/old/mockdatabaserepository.dart';
 import 'package:adhd_0_1/src/data/sharedpreferencesinitializer.dart';
 import 'package:adhd_0_1/src/data/sharedpreferencesrepository.dart';

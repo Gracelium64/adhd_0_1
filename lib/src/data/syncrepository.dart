@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 class SyncRepository implements DataBaseRepository {
   final DataBaseRepository mainRepo;
   final DataBaseRepository localRepo;
+  bool isSyncing = false;
 
   SyncRepository({required this.mainRepo, required this.localRepo});
 
@@ -162,7 +163,16 @@ class SyncRepository implements DataBaseRepository {
     return settings;
   }
 
-  bool isSyncing = false;
+  @override
+  Future<void> setAppUser(String data) async {
+    await localRepo.setAppUser(data);
+    triggerSync();
+  }
+
+  @override
+  Future<String?> getAppUser() async {
+    return await localRepo.getAppUser();
+  }
 
   Future<void> syncAll() async {
     if (isSyncing) {
