@@ -17,4 +17,20 @@ class Settings {
     required this.startOfDay,
     required this.startOfWeek,
   });
+
+  Map<String, dynamic> toJson() => {
+    'appSkinColor': appSkinColor,
+    'language': language,
+    'location': location,
+    'startOfDay': startOfDay,
+    'startOfWeek': startOfWeek,
+  };
+
+  factory Settings.fromJson(Map<String, dynamic> json) => Settings(
+    appSkinColor: json['appSkinColor'],
+    language: json['language'],
+    location: json['location'],
+    startOfDay: json['startOfDay'],
+    startOfWeek: json['startOfWeek'],
+  );
 }

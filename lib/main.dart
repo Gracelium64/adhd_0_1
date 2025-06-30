@@ -1,7 +1,9 @@
 import 'package:adhd_0_1/firebase_options.dart';
 import 'package:adhd_0_1/src/app.dart';
-import 'package:adhd_0_1/src/data/localbackuprepository.dart';
-import 'package:adhd_0_1/src/data/mockdatabaserepository.dart';
+import 'package:adhd_0_1/src/data/old/localbackuprepository.dart';
+import 'package:adhd_0_1/src/data/old/mockdatabaserepository.dart';
+import 'package:adhd_0_1/src/data/sharedpreferencesinitializer.dart';
+import 'package:adhd_0_1/src/data/sharedpreferencesrepository.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -27,13 +29,12 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
-WidgetsFlutterBinding.ensureInitialized();
-await Firebase.initializeApp(
-  options: DefaultFirebaseOptions.currentPlatform,
-);
+  WidgetsFlutterBinding.ensureInitialized();
+  await SharedPreferencesInitializer.initializeDefaults();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   final mainRepo = MockDataBaseRepository();
-  final backupRepo = LocalBackupRepository();
+  final backupRepo = SharedPreferencesRepository();
   final repository = SyncRepository(mainRepo: mainRepo, localRepo: backupRepo);
 
   initSyncListeners(repository);
