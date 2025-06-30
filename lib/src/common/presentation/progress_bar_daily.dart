@@ -1,11 +1,17 @@
+import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 class ProgressBarDaily extends StatelessWidget {
+  final DataBaseRepository repository;
   final double progressBarStatus;
   // 0 - 272
 
-  const ProgressBarDaily({super.key, required this.progressBarStatus});
+  const ProgressBarDaily({
+    super.key,
+    required this.progressBarStatus,
+    required this.repository,
+  });
 
   @override
   Widget build(BuildContext context) {

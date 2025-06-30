@@ -11,8 +11,6 @@ import 'package:adhd_0_1/src/features/tutorial/presentation/tutorial.dart';
 import 'package:adhd_0_1/src/features/weeklys/presentation/weeklys.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 
 class MainScreen extends StatefulWidget {
   final DataBaseRepository repository;
@@ -23,7 +21,6 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-
   int _pageIndex = 1;
 
   @override

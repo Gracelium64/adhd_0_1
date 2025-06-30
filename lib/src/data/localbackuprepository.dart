@@ -103,14 +103,12 @@ class LocalBackupRepository implements DataBaseRepository {
 
   @override
   Future<void> addDaily(String data) async {
-    await Future.delayed(Duration(seconds: 3));
     dailyTasks.add(Task(taskIdCounter, 'Daily', data, null, null, null, false));
     taskIdCounter++;
   }
 
   @override
   Future<void> addWeekly(String data, day) async {
-    await Future.delayed(Duration(seconds: 3));
     weeklyTasks.add(
       Task(taskIdCounter, 'Weekly', data, null, null, day, false),
     );
@@ -119,7 +117,6 @@ class LocalBackupRepository implements DataBaseRepository {
 
   @override
   Future<void> addDeadline(String data, date, time) async {
-    await Future.delayed(Duration(seconds: 3));
     deadlineTasks.add(
       Task(taskIdCounter, 'Deadline', data, date, time, null, false),
     );
@@ -128,20 +125,17 @@ class LocalBackupRepository implements DataBaseRepository {
 
   @override
   Future<void> addQuest(String data) async {
-    await Future.delayed(Duration(seconds: 3));
     questTasks.add(Task(taskIdCounter, 'Quest', data, null, null, null, false));
     taskIdCounter++;
   }
 
   @override
   Future<void> addPrize(int prizeId, String prizeUrl) async {
-    await Future.delayed(Duration(seconds: 3));
     prizesWon.add(Prizes(prizeId: prizeId, prizeUrl: prizeUrl));
   }
 
   @override
   Future<void> completeDaily(int dataTaskId) async {
-    await Future.delayed(Duration(seconds: 3));
     for (int i = 0; i < dailyTasks.length; i++) {
       if (dailyTasks[i].taskId == dataTaskId) {
         dailyTasks[i].isDone = true;
@@ -152,7 +146,6 @@ class LocalBackupRepository implements DataBaseRepository {
 
   @override
   Future<void> completeWeekly(int dataTaskId) async {
-    await Future.delayed(Duration(seconds: 3));
     for (int i = 0; i < weeklyTasks.length; i++) {
       if (weeklyTasks[i].taskId == dataTaskId) {
         weeklyTasks[i].isDone = true;
@@ -163,7 +156,6 @@ class LocalBackupRepository implements DataBaseRepository {
 
   @override
   Future<void> completeDeadline(int dataTaskId) async {
-    await Future.delayed(Duration(seconds: 3));
     for (int i = 0; i < deadlineTasks.length; i++) {
       if (deadlineTasks[i].taskId == dataTaskId) {
         deadlineTasks[i].isDone = true;
@@ -175,7 +167,6 @@ class LocalBackupRepository implements DataBaseRepository {
 
   @override
   Future<void> completeQuest(int dataTaskId) async {
-    await Future.delayed(Duration(seconds: 3));
     for (int i = 0; i < questTasks.length; i++) {
       if (questTasks[i].taskId == dataTaskId) {
         questTasks[i].isDone = true;
@@ -187,7 +178,6 @@ class LocalBackupRepository implements DataBaseRepository {
 
   @override
   Future<void> deleteDaily(int dataTaskId) async {
-    await Future.delayed(Duration(seconds: 3));
     for (int i = 0; i < dailyTasks.length; i++) {
       if (dailyTasks[i].taskId == dataTaskId) {
         dailyTasks.remove(dailyTasks[i]);
@@ -197,7 +187,6 @@ class LocalBackupRepository implements DataBaseRepository {
 
   @override
   Future<void> deleteWeekly(int dataTaskId) async {
-    await Future.delayed(Duration(seconds: 3));
     for (int i = 0; i < weeklyTasks.length; i++) {
       if (weeklyTasks[i].taskId == dataTaskId) {
         weeklyTasks.remove(weeklyTasks[i]);
@@ -207,7 +196,6 @@ class LocalBackupRepository implements DataBaseRepository {
 
   @override
   Future<void> deleteDeadline(int dataTaskId) async {
-    await Future.delayed(Duration(seconds: 3));
     for (int i = 0; i < deadlineTasks.length; i++) {
       if (deadlineTasks[i].taskId == dataTaskId) {
         deadlineTasks.remove(deadlineTasks[i]);
@@ -217,7 +205,6 @@ class LocalBackupRepository implements DataBaseRepository {
 
   @override
   Future<void> deleteQuest(int dataTaskId) async {
-    await Future.delayed(Duration(seconds: 3));
     for (int i = 0; i < questTasks.length; i++) {
       if (questTasks[i].taskId == dataTaskId) {
         questTasks.remove(questTasks[i]);
@@ -227,7 +214,6 @@ class LocalBackupRepository implements DataBaseRepository {
 
   @override
   Future<void> editDaily(int dataTaskId, String data) async {
-    await Future.delayed(Duration(seconds: 3));
     for (int i = 0; i < dailyTasks.length; i++) {
       if (dailyTasks[i].taskId == dataTaskId) {
         dailyTasks[i].taskDesctiption = data;
@@ -237,7 +223,6 @@ class LocalBackupRepository implements DataBaseRepository {
 
   @override
   Future<void> editWeekly(int dataTaskId, String data, day) async {
-    await Future.delayed(Duration(seconds: 3));
     for (int i = 0; i < weeklyTasks.length; i++) {
       if (weeklyTasks[i].taskId == dataTaskId) {
         weeklyTasks[i].taskDesctiption = data;
@@ -248,7 +233,6 @@ class LocalBackupRepository implements DataBaseRepository {
 
   @override
   Future<void> editDeadline(int dataTaskId, String data, date, time) async {
-    await Future.delayed(Duration(seconds: 3));
     for (int i = 0; i < deadlineTasks.length; i++) {
       if (deadlineTasks[i].taskId == dataTaskId) {
         deadlineTasks[i].taskDesctiption = data;
@@ -260,7 +244,6 @@ class LocalBackupRepository implements DataBaseRepository {
 
   @override
   Future<void> editQuest(int dataTaskID, String data) async {
-    await Future.delayed(Duration(seconds: 3));
     for (int i = 0; i < questTasks.length; i++) {
       if (questTasks[i].taskId == dataTaskID) {
         questTasks[i].taskDesctiption = data;
@@ -276,7 +259,6 @@ class LocalBackupRepository implements DataBaseRepository {
     int dataStartOfDay,
     int dataStartOfWeek,
   ) async {
-    await Future.delayed(Duration(seconds: 3));
     return userSettings = Settings(
       appSkinColor: dataAppSkinColor,
       language: dataLanguage,
@@ -308,37 +290,31 @@ class LocalBackupRepository implements DataBaseRepository {
 
   @override
   Future<List<Task>> getDailyTasks() async {
-    await Future.delayed(Duration(seconds: 3));
     return dailyTasks;
   }
 
   @override
   Future<List<Task>> getWeeklyTasks() async {
-    await Future.delayed(Duration(seconds: 3));
     return weeklyTasks;
   }
 
   @override
   Future<List<Task>> getDeadlineTasks() async {
-    await Future.delayed(Duration(seconds: 3));
     return deadlineTasks;
   }
 
   @override
   Future<List<Task>> getQuestTasks() async {
-    await Future.delayed(Duration(seconds: 3));
     return questTasks;
   }
 
   @override
   Future<List<Prizes>> getPrizes() async {
-    await Future.delayed(Duration(seconds: 3));
     return prizesWon;
   }
 
   @override
   Future<Settings?> getSettings() async {
-    await Future.delayed(Duration(milliseconds: 100));
     return userSettings;
   }
 

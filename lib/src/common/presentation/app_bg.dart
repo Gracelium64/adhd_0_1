@@ -4,6 +4,7 @@ import 'package:adhd_0_1/src/common/domain/skin.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_launcher_icons/logger.dart';
 
 class AppBg extends StatefulWidget {
   final DataBaseRepository repository;
@@ -16,6 +17,23 @@ class AppBg extends StatefulWidget {
 
 class _AppBgState extends State<AppBg> {
   late Future<String?> mySkin;
+  Future<double> calculateDailyProgress() async {
+    final allTasks = await widget.repository.getDailyTasks();
+    final total = allTasks.length;
+    if (total == 0) return 0;
+    final completed = allTasks.where((task) => task.isDone).length;
+    final percentage = completed / total;
+    return 272 * percentage;
+  }
+
+  Future<double> calculateWeeklyProgress() async {
+    final allTasks = await widget.repository.getWeeklyTasks();
+    final total = allTasks.length;
+    if (total == 0) return 0;
+    final completed = allTasks.where((task) => task.isDone).length;
+    final percentage = completed / total;
+    return 272 * percentage;
+  }
 
   @override
   void initState() {
@@ -74,13 +92,31 @@ class _AppBgState extends State<AppBg> {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(80, 116, 0, 0),
-              child: ProgressBarDaily(progressBarStatus: 170),
+              child: FutureBuilder<double>(
+                future: calculateDailyProgress(),
+                builder: (context, snapshot) {
+                  final progress = snapshot.data ?? 0;
+                  return ProgressBarDaily(
+                    progressBarStatus: progress,
+                    repository: widget.repository,
+                  );
+                },
+              ),
+
               // 0 - 272
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(80, 140, 0, 0),
-              child: ProgressBarWeekly(progressBarStatus: 200),
-              // 0 - 272
+              child: FutureBuilder<double>(
+                future: calculateWeeklyProgress(),
+                builder: (context, snapshot) {
+                  final progress = snapshot.data ?? 0;
+                  return ProgressBarWeekly(
+                    progressBarStatus: progress,
+                    repository: widget.repository,
+                  );
+                },
+              ),
             ),
           ],
         );
