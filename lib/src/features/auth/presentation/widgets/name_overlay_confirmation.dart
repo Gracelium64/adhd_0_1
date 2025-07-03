@@ -1,10 +1,24 @@
 import 'dart:ui';
 import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
+import 'package:adhd_0_1/src/data/databaserepository.dart';
+import 'package:adhd_0_1/src/data/domain/auth_repository.dart';
+import 'package:adhd_0_1/src/features/auth/presentation/widgets/skin_overlay.dart';
+import 'package:adhd_0_1/src/main_screen.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NameOverlayConfirmation extends StatelessWidget {
-  const NameOverlayConfirmation({super.key});
+  final DataBaseRepository repository;
+  final AuthRepository auth;
+  final String userName;
+
+  const NameOverlayConfirmation({
+    super.key,
+    required this.repository,
+    required this.auth,
+    required this.userName,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +81,26 @@ class NameOverlayConfirmation extends StatelessWidget {
                           textAlign: TextAlign.center,
                         ),
                       ),
-                      ConfirmButton(onPressed: () {  },),
+                      ConfirmButton(
+                        onPressed: () {
+                          Navigator.of(
+                            context,
+                            rootNavigator: true,
+                          ).pushReplacement(
+                            PageRouteBuilder(
+                              opaque: false,
+                              pageBuilder:
+                                  (_, __, ___) => SkinOverlay(repository),
+                              transitionsBuilder: (_, animation, __, child) {
+                                return FadeTransition(
+                                  opacity: animation,
+                                  child: child,
+                                );
+                              },
+                            ),
+                          );
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -79,3 +112,49 @@ class NameOverlayConfirmation extends StatelessWidget {
     );
   }
 }
+
+//navigate to next
+
+// WidgetsBinding.instance.addPostFrameCallback((_) {
+//                         if (!mounted) return;
+
+//                         Navigator.of(
+//                           context,
+//                           rootNavigator: true,
+//                         ).pushReplacement(
+//                           PageRouteBuilder(
+//                             opaque: false,
+//                             pageBuilder:
+//                                 (_, __, ___) => NEXT_SCREEN/OVERLAY(
+//                                   repository: widget.repository,
+//                                   auth: widget.auth,
+//                                   userName: userName.text,
+//                                 ),
+//                             transitionsBuilder: (_, animation, __, child) {
+//                               return FadeTransition(
+//                                 opacity: animation,
+//                                 child: child,
+//                               );
+//                             },
+//                           ),
+//                         );
+//                       });
+
+
+
+///finish setting up the onboarding
+// ConfirmButton(
+                      //   onPressed: () async {
+                      //     final prefs = await SharedPreferences.getInstance();
+                      //     await prefs.setBool('onboardingComplete', true);
+
+                      //     Navigator.of(
+                      //       context,
+                      //       rootNavigator: true,
+                      //     ).pushReplacement(
+                      //       MaterialPageRoute(
+                      //         builder: (_) => MainScreen(repository, auth),
+                      //       ),
+                      //     );
+                      //   },
+                      // ),

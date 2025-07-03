@@ -4,7 +4,7 @@ import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/prizes/domain/prizes.dart';
 import 'package:adhd_0_1/src/features/settings/domain/settings.dart';
-import 'package:adhd_0_1/src/data/prefs_keys.dart';
+import 'package:adhd_0_1/src/data/domain/prefs_keys.dart';
 
 class SharedPreferencesRepository implements DataBaseRepository {
   int taskIdCounter = 0;
@@ -63,9 +63,9 @@ class SharedPreferencesRepository implements DataBaseRepository {
     }
   }
 
-  @override
-  Future<void> completeDaily(int dataTaskId) async =>
-      _markComplete(PrefsKeys.dailyKey, dataTaskId);
+  // @override
+  // Future<void> completeDaily(int dataTaskId) async =>
+  //     _markComplete(PrefsKeys.dailyKey, dataTaskId);
 
   @override
   Future<void> completeWeekly(int dataTaskId) async =>
@@ -201,6 +201,16 @@ class SharedPreferencesRepository implements DataBaseRepository {
   Future<String?> getAppUser() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(PrefsKeys.appUserKey);
+  }
+
+  @override
+  Future<void> toggleDaily(int dataTaskId, bool dataIsDone) async {
+    final tasks = await _loadTasks(PrefsKeys.dailyKey);
+    final index = tasks.indexWhere((t) => t.taskId == dataTaskId);
+    if (index != -1) {
+      tasks[index].isDone = dataIsDone;
+      await _saveTasks(PrefsKeys.dailyKey, tasks);
+    }
   }
 }
 

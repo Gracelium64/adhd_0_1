@@ -1,7 +1,9 @@
 import 'package:adhd_0_1/firebase_options.dart';
 import 'package:adhd_0_1/src/app.dart';
+import 'package:adhd_0_1/src/data/domain/auth_repository.dart';
+import 'package:adhd_0_1/src/data/domain/firebase_auth_repository.dart';
+import 'package:adhd_0_1/src/data/domain/sharedpreferencesinitializer.dart';
 import 'package:adhd_0_1/src/data/old/mockdatabaserepository.dart';
-import 'package:adhd_0_1/src/data/sharedpreferencesinitializer.dart';
 import 'package:adhd_0_1/src/data/sharedpreferencesrepository.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -11,6 +13,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:adhd_0_1/src/data/syncrepository.dart';
+
+final AuthRepository auth = FirebaseAuthRepository();
 
 void initSyncListeners(SyncRepository repository) {
   final Connectivity connectivity = Connectivity();
@@ -37,7 +41,7 @@ Future<void> main() async {
   final repository = SyncRepository(mainRepo: mainRepo, localRepo: backupRepo);
 
   initSyncListeners(repository);
-  runApp(App(repository));
+  runApp(App(repository, auth));
 
   // runApp(
   //   DevicePreview(

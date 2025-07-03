@@ -26,7 +26,7 @@ abstract class DataBaseRepository {
   Future<void> addDeadline(String data, date, time);
   Future<void> addQuest(String data);
   Future<void> addPrize(int prizeId, String prizeUrl);
-  Future<void> completeDaily(int dataTaskId);
+  // Future<void> completeDaily(int dataTaskId);
   Future<void> completeWeekly(int dataTaskId);
   Future<void> completeDeadline(int dataTaskId);
   Future<void> completeQuest(int dataTaskId);
@@ -40,4 +40,5 @@ abstract class DataBaseRepository {
   Future<void> editQuest(int dataTaskId, String data);
   Future<void> setAppUser(String data);
   Future<String?> getAppUser();
+  Future<void> toggleDaily(int dataTaskId, bool dataIsDone);
 }

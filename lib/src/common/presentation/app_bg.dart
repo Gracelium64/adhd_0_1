@@ -3,6 +3,7 @@ import 'package:adhd_0_1/src/common/presentation/progress_bar_weekly.dart';
 import 'package:adhd_0_1/src/common/domain/skin.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:flutter/material.dart';
+import 'package:adhd_0_1/src/common/domain/progress_triggers.dart';
 
 class AppBg extends StatefulWidget {
   final DataBaseRepository repository;
@@ -37,6 +38,11 @@ class _AppBgState extends State<AppBg> {
   void initState() {
     super.initState();
     mySkin = loadSkin();
+    dailyProgressFuture.value = widget.repository.getDailyTasks().then((tasks) {
+      final total = tasks.length;
+      final completed = tasks.where((task) => task.isDone).length;
+      return total == 0 ? 0.0 : 272.0 * (completed / total);
+    });
   }
 
   Future<String?> loadSkin() async {
@@ -90,13 +96,18 @@ class _AppBgState extends State<AppBg> {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(80, 116, 0, 0),
-              child: FutureBuilder<double>(
-                future: calculateDailyProgress(),
-                builder: (context, snapshot) {
-                  final progress = snapshot.data ?? 0;
-                  return ProgressBarDaily(
-                    progressBarStatus: progress,
-                    repository: widget.repository,
+              child: ValueListenableBuilder<Future<double>>(
+                valueListenable: dailyProgressFuture,
+                builder: (context, future, _) {
+                  return FutureBuilder<double>(
+                    future: future,
+                    builder: (context, snapshot) {
+                      final progress = snapshot.data ?? 0;
+                      return ProgressBarDaily(
+                        progressBarStatus: progress,
+                        repository: widget.repository,
+                      );
+                    },
                   );
                 },
               ),

@@ -1,17 +1,49 @@
 import 'dart:ui';
-
+import 'package:adhd_0_1/main.dart';
 import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
+import 'package:adhd_0_1/src/data/domain/auth_repository.dart';
+import 'package:adhd_0_1/src/features/auth/domain/validators.dart';
+import 'package:adhd_0_1/src/features/auth/presentation/widgets/name_overlay_confirmation.dart';
+import 'package:adhd_0_1/src/main_screen.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class NameOverlay extends StatelessWidget {
+class NameOverlay extends StatefulWidget {
   final DataBaseRepository repository;
+  final AuthRepository auth;
 
-  const NameOverlay(this.repository, {super.key});
+  const NameOverlay(this.repository, this.auth, {super.key});
+
+  @override
+  State<NameOverlay> createState() => _NameOverlayState();
+}
+
+class _NameOverlayState extends State<NameOverlay> {
+  TextEditingController userName = TextEditingController(text: '');
+  final storage = FlutterSecureStorage();
+
+  Future<void> onSubmit(String userName, String pw) async {
+    await widget.auth.createUserWithEmailAndPassword(userName, pw);
+  }
+
+  String generateUserId(String username) {
+    final now = DateTime.now();
+    final formatted =
+        '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}'
+        '${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}';
+    final microTimestamp = now.microsecondsSinceEpoch;
+    return '${username}_${formatted}_$microTimestamp';
+  }
+
+  final formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
+    OverlayPortalController overlayController = OverlayPortalController();
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Center(
@@ -41,21 +73,29 @@ class NameOverlay extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 20),
-                Container(
-                  height: 43,
-                  width: 242,
-                  decoration: BoxDecoration(
-                    color: Palette.basicBitchWhite,
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 14),
+                Padding(
+                  padding: const EdgeInsets.all(14),
+                  child: Form(
+                    key: formKey,
                     child: TextFormField(
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      validator: userNameValidator,
+                      controller: userName,
                       decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Palette.basicBitchWhite,
                         hintText: 'Enter name here to start',
-
-                        enabledBorder: UnderlineInputBorder(
-                          borderSide: BorderSide(color: Colors.transparent),
+                        contentPadding: EdgeInsets.only(bottom: 14),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide.none,
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Palette.basicBitchBlack,
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(15),
                         ),
                         hintStyle: TextStyle(
                           color: Palette.basicBitchBlack,
@@ -64,17 +104,60 @@ class NameOverlay extends StatelessWidget {
                         ),
                       ),
                       textAlign: TextAlign.center,
-                      textAlignVertical: TextAlignVertical.top,
+                      textAlignVertical: TextAlignVertical.center,
                     ),
                   ),
                 ),
                 SizedBox(height: 84),
-                ConfirmButton(onPressed: () {  },),
+                OverlayPortal(
+                  controller: overlayController,
+                  overlayChildBuilder: (BuildContext context) {
+                    return NameOverlayConfirmation(
+                      repository: widget.repository,
+                      auth: widget.auth,
+                      userName: userName.text,
+                    );
+                  },
+                  child: ConfirmButton(
+                    onPressed: () async {
+                      if (!formKey.currentState!.validate()) return;
+
+                      try {
+                        final userId = generateUserId(userName.text);
+                        await storage.write(
+                          key: 'email',
+                          value: '$userId@adventurer.adhd',
+                        );
+                        await storage.write(key: 'password', value: 'password');
+                        await onSubmit('$userId@adventurer.adhd', 'password');
+
+                        if (!context.mounted) return;
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Welcome $userId!')),
+                        );
+                        overlayController.toggle();
+                      } catch (e) {
+                        if (!context.mounted) return;
+
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(SnackBar(content: Text(e.toString())));
+                      }
+                    },
+                  ),
+                ),
               ],
             ),
           ),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    userName.dispose();
+    super.dispose();
   }
 }

@@ -62,9 +62,7 @@ class _DailysState extends State<Dailys> {
                               itemCount: data.length,
                               itemBuilder: (context, index) {
                                 final task = data[index];
-                                return DailyTaskWidget(
-                                  taskDesctiption: task.taskDesctiption,
-                                );
+                                return DailyTaskWidget(task: task, repository: widget.repository,);
                               },
                             ),
                           ),

@@ -136,15 +136,15 @@ class MockDataBaseRepository implements DataBaseRepository {
     prizesWon.add(Prizes(prizeId: prizeId, prizeUrl: prizeUrl));
   }
 
-  @override
-  Future<void> completeDaily(int dataTaskId) async {
-    for (int i = 0; i < dailyTasks.length; i++) {
-      if (dailyTasks[i].taskId == dataTaskId) {
-        dailyTasks[i].isDone = true;
-        dailyCompleted++;
-      }
-    }
-  }
+  // @override
+  // Future<void> completeDaily(int dataTaskId) async {
+  //   for (int i = 0; i < dailyTasks.length; i++) {
+  //     if (dailyTasks[i].taskId == dataTaskId) {
+  //       dailyTasks[i].isDone = true;
+  //       dailyCompleted++;
+  //     }
+  //   }
+  // }
 
   @override
   Future<void> completeWeekly(int dataTaskId) async {
@@ -320,8 +320,6 @@ class MockDataBaseRepository implements DataBaseRepository {
     return userSettings;
   }
 
-
-
   @override
   Future<void> setAppUser(String data) async {
     appUser = data;
@@ -330,6 +328,15 @@ class MockDataBaseRepository implements DataBaseRepository {
   @override
   Future<String?> getAppUser() async {
     return appUser;
+  }
+
+  @override
+  Future<void> toggleDaily(int dataTaskId, bool dataIsDone) async {
+    for (int i = 0; i < dailyTasks.length; i++) {
+      if (dailyTasks[i].taskId == dataTaskId) {
+        dailyTasks[i].isDone = dataIsDone;
+      }
+    }
   }
 
   // @override

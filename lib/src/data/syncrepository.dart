@@ -41,11 +41,11 @@ class SyncRepository implements DataBaseRepository {
     triggerSync();
   }
 
-  @override
-  Future<void> completeDaily(int dataTaskId) async {
-    await localRepo.completeDaily(dataTaskId);
-    triggerSync();
-  }
+  // @override
+  // Future<void> completeDaily(int dataTaskId) async {
+  //   await localRepo.completeDaily(dataTaskId);
+  //   triggerSync();
+  // }
 
   @override
   Future<void> completeDeadline(int dataTaskId) async {
@@ -172,6 +172,12 @@ class SyncRepository implements DataBaseRepository {
   @override
   Future<String?> getAppUser() async {
     return await localRepo.getAppUser();
+  }
+
+  @override
+  Future<void> toggleDaily(int taskId, bool isDone) async {
+    await localRepo.toggleDaily(taskId, isDone);
+    triggerSync();
   }
 
   Future<void> syncAll() async {

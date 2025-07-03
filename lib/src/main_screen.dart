@@ -1,5 +1,6 @@
 import 'package:adhd_0_1/src/common/presentation/app_bg.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
+import 'package:adhd_0_1/src/data/domain/auth_repository.dart';
 import 'package:adhd_0_1/src/features/dailys/presentation/dailys.dart';
 import 'package:adhd_0_1/src/features/deadlineys/presentation/deadlineys.dart';
 import 'package:adhd_0_1/src/features/fidget_screen/presentation/fidget_screen.dart';
@@ -14,8 +15,9 @@ import 'package:flutter/material.dart';
 
 class MainScreen extends StatefulWidget {
   final DataBaseRepository repository;
+  final AuthRepository auth;
 
-  const MainScreen(this.repository, {super.key});
+  const MainScreen(this.repository, this.auth, {super.key});
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
@@ -28,7 +30,7 @@ class _MainScreenState extends State<MainScreen> {
     Size screenSize = MediaQuery.of(context).size;
 
     List<Widget> pages = [
-      Tutorial(widget.repository),
+      Tutorial(widget.repository, widget.auth),
       Dailys(widget.repository),
       Weeklys(widget.repository),
       Deadlineys(widget.repository),

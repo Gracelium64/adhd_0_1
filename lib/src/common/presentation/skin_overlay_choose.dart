@@ -4,10 +4,18 @@ import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
-class SkinOverlayChoose extends StatelessWidget {
+class SkinOverlayChoose extends StatefulWidget {
   final DataBaseRepository repository;
 
   const SkinOverlayChoose(this.repository, {super.key});
+
+  @override
+  State<SkinOverlayChoose> createState() => _SkinOverlayChooseState();
+}
+
+class _SkinOverlayChooseState extends State<SkinOverlayChoose> {
+  bool trueImgSelected = false;
+  final Image trueImg = Image.asset('assets/img/buttons/skin_true.png');
 
   @override
   Widget build(BuildContext context) {
@@ -66,14 +74,35 @@ class SkinOverlayChoose extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Image.asset('assets/img/buttons/skin_true.png'),
+                          GestureDetector(
+                            onTap: () async {
+                              final currentSettings =
+                                  await widget.repository.getSettings();
+
+                              final updatedSettings = await widget.repository
+                                  .setSettings(
+                                    true,
+                                    currentSettings?.language ?? 'en',
+                                    currentSettings?.location ??
+                                        'default_location',
+                                    currentSettings?.startOfDay ?? 8,
+                                    currentSettings?.startOfWeek ?? 1,
+                                  );
+
+                              setState(() {});
+                            },
+
+                            child: Image.asset(
+                              'assets/img/buttons/skin_true.png',
+                            ),
+                          ),
                           Image.asset('assets/img/buttons/skin_null.png'),
                           Image.asset('assets/img/buttons/skin_false.png'),
                         ],
                         //////TODO: make clickable with clicked differance
                       ),
                       SizedBox(height: 36),
-                      ConfirmButton(onPressed: () {  },),
+                      ConfirmButton(onPressed: () {}),
                     ],
                   ),
                 ),
