@@ -16,6 +16,7 @@ import 'package:adhd_0_1/src/data/syncrepository.dart';
 
 final AuthRepository auth = FirebaseAuthRepository();
 
+
 void initSyncListeners(SyncRepository repository) {
   final Connectivity connectivity = Connectivity();
 
@@ -55,7 +56,6 @@ Future<void> main() async {
   // // //TODO:  fix other TODO's scattered across the design// // //
 
   //TODO: mark as completed tied to the tasks / toggle isDone
-  //TODO: AppUser class = userInput.text + DateTime.now() ; as unique identifier
   //TODO: TextFormField, controllers, validators
   //add task overlays - basic design done, refine
   //edit task overlays

@@ -1,15 +1,12 @@
 import 'dart:ui';
-import 'package:adhd_0_1/main.dart';
 import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/domain/auth_repository.dart';
 import 'package:adhd_0_1/src/features/auth/domain/validators.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/widgets/name_overlay_confirmation.dart';
-import 'package:adhd_0_1/src/main_screen.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class NameOverlay extends StatefulWidget {
   final DataBaseRepository repository;
