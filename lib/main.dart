@@ -100,7 +100,7 @@ Future<void> main() async {
   //  // // SPRINT 3 // // ---------------------- UNTIL (3.8.25 16:14) ---------------------- // //
   // // APP TESTING // //
   //TODO: recruit test subjects
-  //TODO: automized testing (?)
+  //TODO: automated testing (?)
   // // Non MVP // //
   //TODO: auto copy user unique id to clipboard when registring and aleart the user about it
   //TODO: translations
