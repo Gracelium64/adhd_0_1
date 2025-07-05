@@ -88,4 +88,8 @@ Future<void> main() async {
 
   // // API SECURITY // //
   //TODO: SECURE API KEYS REVOKE CURRENT
+
+  // // APP TESTING // //
+  //TODO: recruit test subjects
+  //TODO: automized testing (?)
 }
