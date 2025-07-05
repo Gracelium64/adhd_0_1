@@ -63,6 +63,10 @@ Future<void> main() async {
   //TODO: quest isDone
   //TODO: click on task open edit task overlay
 
+  //
+  // v.0.1.11 //
+  //
+
   //  // // SPRINT 1.2 // // ---------------------- UNTIL (13.7.25 16:14) ---------------------- // //
   // // ONBOARDING // //
   //TODO: on the last onboarding screen confirmation button opens main screen with tutorial overlay open
@@ -77,6 +81,12 @@ Future<void> main() async {
   //TODO: SECURE API KEYS REVOKE CURRENT
 
   //
+  // v.0.1.12 //
+  //
+
+  // // READY FOR CLINICAL TESTING // //
+  //TODO: recruit test subjects
+  //TODO: automated testing (?)
   //
 
   //  // // SPRINT 2 // // ---------------------- UNTIL (26.7.25 16:14) ---------------------- // //
@@ -95,12 +105,10 @@ Future<void> main() async {
   //TODO: remove initializer for shared preferences
 
   //
+  // v.0.1.2 //
   //
 
   //  // // SPRINT 3 // // ---------------------- UNTIL (3.8.25 16:14) ---------------------- // //
-  // // APP TESTING // //
-  //TODO: recruit test subjects
-  //TODO: automated testing (?)
   // // Non MVP // //
   //TODO: auto copy user unique id to clipboard when registring and aleart the user about it
   //TODO: translations
@@ -109,5 +117,8 @@ Future<void> main() async {
   //TODO: repurpose FridgeLock (?)
   //TODO: tasks with multiple subtasks
   //TODO: animated splash screen
-  //TODO: 
+
+  //
+  // v.0.1.3 //
+  //
 }
