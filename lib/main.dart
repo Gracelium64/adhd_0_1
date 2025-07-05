@@ -50,9 +50,12 @@ Future<void> main() async {
   //   ),
   // );
 
-  // // ONBOARDING // //
-  //TODO: on the last onboarding screen confirmation button opens main screen with tutorial overlay open
+  //
+  //
 
+  //  // // PHASE 1 // //
+  // // API SECURITY // //
+  //TODO: SECURE API KEYS REVOKE CURRENT
   // // MVP Functionality // //
   //TODO: add task overlay - remove delete button, touch up and implement working overlay
   //TODO: edit task overlay - based on add task overlay
@@ -60,36 +63,43 @@ Future<void> main() async {
   //TODO: deadline isDone
   //TODO: quest isDone
   //TODO: click on task open edit task overlay
-  //*//TODO: weather API
-  //*//TODO: how to save files outside of shared memory / sharing files / save local backup of user data from local repository
-
   // // MVP Visual // //
   //TODO: tutorial overlay
   //TODO: single prize overlay
-  //*//TODO: responsive design - this design is problematic for up- and downscaling
-  //*//TODO: week summery overlay
-  //*//TODO: good morning overlay
-  //*//TODO: backup overlays
-  //*//TODO: about overlay
-
+  // // ONBOARDING // //
+  //TODO: on the last onboarding screen confirmation button opens main screen with tutorial overlay open
   // // MVP Logic // //
   //TODO: Logic of isDone reset for daily and weekly tasks
   //TODO: Logic for weekly score counters - for each day seperatly, for the week, for special tasks
   //TODO: Logic for prize system
-  //*//TODO: how to work with random seed (for daily motivation message, for winning prizes)
-  //*//TODO: UNDO Button in SncakBar when completing a Quest or Deadline Tasks
 
+  //
+  //
+
+  //  // // PHASE 2 // //
+  // Functionality // //
+  //TODO: weather API
+  //TODO: how to save files outside of shared memory / sharing files / save local backup of user data from local repository
+  // // Visual // //
+  //TODO: responsive design - this design is problematic for up- and downscaling
+  //TODO: week summery overlay
+  //TODO: good morning overlay
+  //TODO: backup overlays
+  //TODO: about overlay
+  // // Logic // //
+  //TODO: UNDO Button in SncakBar when completing a Quest or Deadline Tasks
+  //TODO: eastereggs
+
+  //
+  //
+
+  //  // // PHASE 3 // //
+  // // APP TESTING // //
+  //TODO: recruit test subjects
+  //TODO: automized testing (?)
   // // Non MVP // //
   //TODO: translations
   //TODO: display tasks for today (optional for update)
   //TODO: make more AI abominations for prizes
-  //*//TODO: eastereggs
-  //*//TODO: repurpose FridgeLock (?)
-
-  // // API SECURITY // //
-  //TODO: SECURE API KEYS REVOKE CURRENT
-
-  // // APP TESTING // //
-  //TODO: recruit test subjects
-  //TODO: automized testing (?)
+  //TODO: repurpose FridgeLock (?)
 }
