@@ -84,7 +84,7 @@ Future<void> main() async {
   // v.0.1.12 //
   //
 
-  // // READY FOR CLINICAL TESTING // //
+  // // READY FOR CLINICAL TRIALS // //
   //TODO: recruit test subjects
   //TODO: automated testing (?)
   //
