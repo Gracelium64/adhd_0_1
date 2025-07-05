@@ -60,12 +60,56 @@ class _AppState extends State<App> {
                   ? ColdStart(widget.repository, widget.auth)
                   : onboardingComplete!
                   ? MainScreen(widget.repository, widget.auth)
-                  : ColdStart(
-                    widget.repository,
-                    widget.auth,
-                  ), // stay in ColdStart flow
+                  : ColdStart(widget.repository, widget.auth),
         );
       },
     );
   }
 }
+
+
+//navigate to next
+
+// WidgetsBinding.instance.addPostFrameCallback((_) {
+//                         if (!mounted) return;
+
+//                         Navigator.of(
+//                           context,
+//                           rootNavigator: true,
+//                         ).pushReplacement(
+//                           PageRouteBuilder(
+//                             opaque: false,
+//                             pageBuilder:
+//                                 (_, __, ___) => NEXT_SCREEN/OVERLAY(
+//                                   repository: widget.repository,
+//                                   auth: widget.auth,
+//                                   userName: userName.text,
+//                                 ),
+//                             transitionsBuilder: (_, animation, __, child) {
+//                               return FadeTransition(
+//                                 opacity: animation,
+//                                 child: child,
+//                               );
+//                             },
+//                           ),
+//                         );
+//                       });
+
+
+
+// /finish setting up the onboarding
+// ConfirmButton(
+//                         onPressed: () async {
+//                           final prefs = await SharedPreferences.getInstance();
+//                           await prefs.setBool('onboardingComplete', true);
+
+//                           Navigator.of(
+//                             context,
+//                             rootNavigator: true,
+//                           ).pushReplacement(
+//                             MaterialPageRoute(
+//                               builder: (_) => MainScreen(repository, auth),
+//                             ),
+//                           );
+//                         },
+//                       ),

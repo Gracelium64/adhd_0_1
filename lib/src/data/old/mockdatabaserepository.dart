@@ -2,6 +2,7 @@ import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/prizes/domain/prizes.dart';
 import 'package:adhd_0_1/src/features/settings/domain/settings.dart';
+import 'package:flutter/material.dart';
 
 class MockDataBaseRepository implements DataBaseRepository {
   List<Task> dailyTasks = [
@@ -97,8 +98,8 @@ class MockDataBaseRepository implements DataBaseRepository {
     appSkinColor: true,
     language: 'English',
     location: 'Berlin',
-    startOfDay: 0715,
-    startOfWeek: 2,
+    startOfDay: TimeOfDay(hour: 07, minute: 15),
+    startOfWeek: Weekday.mon,
   );
 
   String? appUser;
@@ -258,8 +259,8 @@ class MockDataBaseRepository implements DataBaseRepository {
     bool? dataAppSkinColor,
     String dataLanguage,
     String dataLocation,
-    int dataStartOfDay,
-    int dataStartOfWeek,
+    TimeOfDay dataStartOfDay,
+    Weekday dataStartOfWeek,
   ) async {
     return userSettings = Settings(
       appSkinColor: dataAppSkinColor,

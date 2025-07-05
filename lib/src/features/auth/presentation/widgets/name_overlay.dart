@@ -24,6 +24,7 @@ class _NameOverlayState extends State<NameOverlay> {
 
   Future<void> onSubmit(String userName, String pw) async {
     await widget.auth.createUserWithEmailAndPassword(userName, pw);
+    // await widget.auth.sendVerificatiqonEmail();
   }
 
   String generateUserId(String username) {

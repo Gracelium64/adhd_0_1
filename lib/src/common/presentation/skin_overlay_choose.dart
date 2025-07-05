@@ -1,13 +1,15 @@
 import 'dart:ui';
 import 'package:adhd_0_1/src/common/presentation/widgets/skin_choose.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
+import 'package:adhd_0_1/src/data/domain/auth_repository.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 class SkinOverlayChoose extends StatefulWidget {
   final DataBaseRepository repository;
+  final AuthRepository auth;
 
-  const SkinOverlayChoose(this.repository, {super.key});
+  const SkinOverlayChoose(this.repository, this.auth, {super.key});
 
   @override
   State<SkinOverlayChoose> createState() => _SkinOverlayChooseState();
@@ -76,18 +78,21 @@ class _SkinOverlayChooseState extends State<SkinOverlayChoose> {
                             mounted: mounted,
                             appSkin: true,
                             bGPath: 'assets/img/buttons/skin_true.png',
+                            auth: widget.auth,
                           ),
                           SkinChoose(
                             widget: widget,
                             mounted: mounted,
                             appSkin: null,
                             bGPath: 'assets/img/buttons/skin_null.png',
+                            auth: widget.auth,
                           ),
                           SkinChoose(
                             widget: widget,
                             mounted: mounted,
                             appSkin: false,
                             bGPath: 'assets/img/buttons/skin_false.png',
+                            auth: widget.auth,
                           ),
                         ],
                       ),

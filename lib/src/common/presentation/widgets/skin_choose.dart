@@ -1,8 +1,11 @@
 import 'package:adhd_0_1/src/common/presentation/skin_overlay_choose.dart';
+import 'package:adhd_0_1/src/data/databaserepository.dart';
+import 'package:adhd_0_1/src/data/domain/auth_repository.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/widgets/day_hour_settings_coldstart_overlay.dart';
 import 'package:flutter/material.dart';
 
 class SkinChoose extends StatefulWidget {
+  final AuthRepository auth;
   final bool? appSkin;
   final String bGPath;
 
@@ -12,6 +15,7 @@ class SkinChoose extends StatefulWidget {
     required this.mounted,
     required this.appSkin,
     required this.bGPath,
+    required this.auth,
   });
 
   final SkinOverlayChoose widget;
@@ -32,8 +36,8 @@ class _SkinChooseState extends State<SkinChoose> {
           widget.appSkin,
           currentSettings?.language ?? 'en',
           currentSettings?.location ?? 'default_location',
-          currentSettings?.startOfDay ?? 8,
-          currentSettings?.startOfWeek ?? 1,
+          currentSettings?.startOfDay ?? TimeOfDay(hour: 8, minute: 0),
+          currentSettings?.startOfWeek ?? Weekday.any,
         );
 
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -43,8 +47,10 @@ class _SkinChooseState extends State<SkinChoose> {
             PageRouteBuilder(
               opaque: false,
               pageBuilder:
-                  (_, __, ___) =>
-                      DayHourSettingsColdstartOverlay(widget.widget.repository),
+                  (_, __, ___) => DayHourSettingsColdstartOverlay(
+                    widget.widget.repository,
+                    widget.auth,
+                  ),
               transitionsBuilder: (_, animation, __, child) {
                 return FadeTransition(opacity: animation, child: child);
               },

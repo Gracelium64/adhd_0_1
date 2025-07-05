@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:adhd_0_1/src/data/databaserepository.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/features/prizes/domain/prizes.dart';
@@ -116,8 +118,8 @@ class SharedPreferencesInitializer {
         appSkinColor: true,
         language: 'English',
         location: 'Berlin',
-        startOfDay: 715,
-        startOfWeek: 2,
+        startOfDay: TimeOfDay(hour: 8, minute: 0),
+        startOfWeek: Weekday.mon,
       );
       await prefs.setString('userSettings', jsonEncode(settings.toJson()));
     }

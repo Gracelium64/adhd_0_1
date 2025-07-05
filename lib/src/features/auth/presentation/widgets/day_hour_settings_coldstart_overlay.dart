@@ -2,19 +2,38 @@ import 'dart:ui';
 import 'package:adhd_0_1/src/common/presentation/app_bg.dart';
 import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
+import 'package:adhd_0_1/src/data/domain/auth_repository.dart';
+import 'package:adhd_0_1/src/features/auth/presentation/widgets/app_bg_coldstart.dart';
+import 'package:adhd_0_1/src/features/auth/presentation/widgets/location_choose_overlay.dart';
+import 'package:adhd_0_1/src/main_screen.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
-class DayHourSettingsColdstartOverlay extends StatelessWidget {
+class DayHourSettingsColdstartOverlay extends StatefulWidget {
   final DataBaseRepository repository;
+  final AuthRepository auth;
 
-  const DayHourSettingsColdstartOverlay(this.repository, {super.key});
+  const DayHourSettingsColdstartOverlay(
+    this.repository,
+    this.auth, {
+    super.key,
+  });
+
+  @override
+  State<DayHourSettingsColdstartOverlay> createState() =>
+      _DayHourSettingsColdstartOverlayState();
+}
+
+class _DayHourSettingsColdstartOverlayState
+    extends State<DayHourSettingsColdstartOverlay> {
+  Weekday selectedWeekday = Weekday.mon;
+  TimeOfDay? selectedTime;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        AppBg(repository),
+        AppBgColdstart(),
         Scaffold(
           backgroundColor: Colors.transparent,
           body: Center(
@@ -42,23 +61,27 @@ class DayHourSettingsColdstartOverlay extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                     SizedBox(height: 12),
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                          side: BorderSide(
-                            color: Palette.basicBitchWhite,
-                            width: 1,
-                          ),
-                        ),
-                      ),
-                      onPressed: () {},
-                      child: Text(
-                        'DAY',
-                        style: TextStyle(color: Palette.basicBitchWhite),
-                      ),
+
+                    DropdownButton<Weekday>(
+                      value: selectedWeekday,
+                      dropdownColor: Palette.basicBitchBlack,
+                      style: TextStyle(color: Palette.basicBitchWhite),
+                      onChanged: (Weekday? newDay) {
+                        if (newDay != null) {
+                          setState(() {
+                            selectedWeekday = newDay;
+                          });
+                        }
+                      },
+                      items:
+                          Weekday.values.map((day) {
+                            return DropdownMenuItem(
+                              value: day,
+                              child: Text(day.label),
+                            );
+                          }).toList(),
                     ),
-                    ////// TODO: replace textbutton with DropdownMenu
+
                     SizedBox(height: 12),
                     Text(
                       'When does your day start?',
@@ -66,25 +89,67 @@ class DayHourSettingsColdstartOverlay extends StatelessWidget {
                       textAlign: TextAlign.center,
                     ),
                     SizedBox(height: 12),
+
                     TextButton(
                       style: TextButton.styleFrom(
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
-                          side: BorderSide(
-                            color: Palette.basicBitchWhite,
-                            width: 1,
-                          ),
+                          borderRadius: BorderRadius.circular(8),
+                          side: BorderSide(color: Palette.basicBitchWhite),
                         ),
                       ),
-                      onPressed: () {},
+                      onPressed: () async {
+                        final picked = await showTimePicker(
+                          context: context,
+                          initialTime:
+                              selectedTime ?? TimeOfDay(hour: 8, minute: 0),
+                        );
+                        if (picked != null) {
+                          setState(() {
+                            selectedTime = picked;
+                          });
+                        }
+                      },
                       child: Text(
-                        'HH:MM',
+                        selectedTime?.format(context) ?? 'HH:MM',
                         style: TextStyle(color: Palette.basicBitchWhite),
                       ),
                     ),
-                    ////// TODO: replace textbutton with TimeInput
+
                     SizedBox(height: 36),
-                    ConfirmButton(onPressed: () {}),
+                    ConfirmButton(
+                      onPressed: () async {
+                        final currentSettings =
+                            await widget.repository.getSettings();
+
+                        await widget.repository.setSettings(
+                          currentSettings?.appSkinColor ?? true,
+                          currentSettings?.language ?? 'en',
+                          currentSettings?.location ?? 'default_location',
+                          selectedTime ?? TimeOfDay(hour: 8, minute: 0),
+                          selectedWeekday,
+                        );
+
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          Navigator.of(
+                            context,
+                            rootNavigator: true,
+                          ).pushReplacement(
+                            PageRouteBuilder(
+                              opaque: false,
+                              pageBuilder:
+                                  (_, __, ___) =>
+                                      LocationChooseOverlay(widget.repository),
+                              transitionsBuilder: (_, animation, __, child) {
+                                return FadeTransition(
+                                  opacity: animation,
+                                  child: child,
+                                );
+                              },
+                            ),
+                          );
+                        });
+                      },
+                    ),
                   ],
                 ),
               ),

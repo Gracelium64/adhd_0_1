@@ -88,7 +88,7 @@ class NameOverlayConfirmation extends StatelessWidget {
                             PageRouteBuilder(
                               opaque: false,
                               pageBuilder:
-                                  (_, __, ___) => SkinOverlay(repository),
+                                  (_, __, ___) => SkinOverlay(repository,auth),
                               transitionsBuilder: (_, animation, __, child) {
                                 return FadeTransition(
                                   opacity: animation,
@@ -111,48 +111,3 @@ class NameOverlayConfirmation extends StatelessWidget {
   }
 }
 
-//navigate to next
-
-// WidgetsBinding.instance.addPostFrameCallback((_) {
-//                         if (!mounted) return;
-
-//                         Navigator.of(
-//                           context,
-//                           rootNavigator: true,
-//                         ).pushReplacement(
-//                           PageRouteBuilder(
-//                             opaque: false,
-//                             pageBuilder:
-//                                 (_, __, ___) => NEXT_SCREEN/OVERLAY(
-//                                   repository: widget.repository,
-//                                   auth: widget.auth,
-//                                   userName: userName.text,
-//                                 ),
-//                             transitionsBuilder: (_, animation, __, child) {
-//                               return FadeTransition(
-//                                 opacity: animation,
-//                                 child: child,
-//                               );
-//                             },
-//                           ),
-//                         );
-//                       });
-
-
-
-///finish setting up the onboarding
-// ConfirmButton(
-                      //   onPressed: () async {
-                      //     final prefs = await SharedPreferences.getInstance();
-                      //     await prefs.setBool('onboardingComplete', true);
-
-                      //     Navigator.of(
-                      //       context,
-                      //       rootNavigator: true,
-                      //     ).pushReplacement(
-                      //       MaterialPageRoute(
-                      //         builder: (_) => MainScreen(repository, auth),
-                      //       ),
-                      //     );
-                      //   },
-                      // ),

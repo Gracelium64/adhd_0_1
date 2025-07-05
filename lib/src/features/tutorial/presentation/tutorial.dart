@@ -18,7 +18,7 @@ class Tutorial extends StatelessWidget {
           ElevatedButton(
             onPressed: () async {
               final prefs = await SharedPreferences.getInstance();
-              await prefs.setBool('isColdStart', true);
+              await prefs.setBool('onboardingComplete', false);
               debugPrint('Reset complete');
             },
             child: Text('Reset Cold Start Flag'),

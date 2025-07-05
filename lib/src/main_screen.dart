@@ -35,7 +35,7 @@ class _MainScreenState extends State<MainScreen> {
       Weeklys(widget.repository),
       Deadlineys(widget.repository),
       Quest(widget.repository),
-      FridgeLock(widget.repository),
+      FridgeLock(widget.repository, widget.auth),
       FidgetScreen(widget.repository),
       Prizes(widget.repository),
       Settings(widget.repository),

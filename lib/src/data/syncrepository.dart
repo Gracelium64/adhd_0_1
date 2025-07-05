@@ -3,6 +3,7 @@ import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/prizes/domain/prizes.dart';
 import 'package:adhd_0_1/src/features/settings/domain/settings.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 class SyncRepository implements DataBaseRepository {
   final DataBaseRepository mainRepo;
@@ -148,15 +149,15 @@ class SyncRepository implements DataBaseRepository {
     bool? dataAppSkinColor,
     String dataLanguage,
     String dataLocation,
-    int dataStartOfDay,
-    int dataStartOfWeek,
+    TimeOfDay dataStartOfDay,
+    Weekday dataStartOfWeek,
   ) async {
     Settings settings = await localRepo.setSettings(
       dataAppSkinColor,
       dataLanguage,
       dataLocation,
-      dataStartOfDay,
-      dataStartOfWeek,
+      TimeOfDay(hour: dataStartOfDay.hour, minute: dataStartOfDay.minute),
+      Weekday.values[dataStartOfWeek.index],
     );
     triggerSync();
 

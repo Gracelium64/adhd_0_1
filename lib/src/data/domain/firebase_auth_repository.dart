@@ -12,7 +12,9 @@ class FirebaseAuthRepository implements AuthRepository {
 
   @override
   Future<void> createUserWithEmailAndPassword(
-      String email, String password) async {
+    String email,
+    String password,
+  ) async {
     await FirebaseAuth.instance.createUserWithEmailAndPassword(
       email: email,
       password: password,
@@ -27,5 +29,10 @@ class FirebaseAuthRepository implements AuthRepository {
   @override
   Stream<User?> authStateChanges() {
     return FirebaseAuth.instance.authStateChanges();
+  }
+
+  @override
+  Future<void> sendVerificatiqonEmail() async {
+    await FirebaseAuth.instance.currentUser?.sendEmailVerification();
   }
 }

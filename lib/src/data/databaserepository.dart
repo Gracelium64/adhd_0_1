@@ -1,6 +1,37 @@
 import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/features/prizes/domain/prizes.dart';
 import 'package:adhd_0_1/src/features/settings/domain/settings.dart';
+import 'package:flutter/material.dart';
+
+enum Weekday { mon, tue, wed, thu, fri, sat, sun, any }
+
+extension WeekdayExtension on Weekday {
+  String get label {
+    final word = toString().split('.').last;
+    return word[0].toUpperCase() + word.substring(1);
+  }
+}
+
+enum WorldCapital {
+  berlin,
+  paris,
+  london,
+  washington,
+  tokyo,
+  canberra,
+  ottawa,
+  beijing,
+  sydney,
+  cairo,
+  brasilia,
+}
+
+extension WorldCapitalExtension on WorldCapital {
+  String get label {
+    final word = toString().split('.').last;
+    return word[0].toUpperCase() + word.substring(1);
+  }
+}
 
 abstract class DataBaseRepository {
   Future<List<Task>> getDailyTasks();
@@ -18,8 +49,8 @@ abstract class DataBaseRepository {
     bool? dataAppSkinColor,
     String dataLanguage,
     String dataLocation,
-    int dataStartOfDay,
-    int dataStartOfWeek,
+    TimeOfDay dataStartOfDay,
+    Weekday dataStartOfWeek,
   );
   Future<void> addDaily(String data);
   Future<void> addWeekly(String data, day);

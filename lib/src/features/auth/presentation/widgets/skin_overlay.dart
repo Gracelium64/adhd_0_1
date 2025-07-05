@@ -2,15 +2,16 @@ import 'dart:ui';
 import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
 import 'package:adhd_0_1/src/common/presentation/skin_overlay_choose.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
+import 'package:adhd_0_1/src/data/domain/auth_repository.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/widgets/app_bg_coldstart.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 class SkinOverlay extends StatelessWidget {
   final DataBaseRepository repository;
-  // final AuthRepository auth;
+  final AuthRepository auth;
 
-  const SkinOverlay(this.repository, {super.key});
+  const SkinOverlay(this.repository, this.auth, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +61,7 @@ class SkinOverlay extends StatelessWidget {
                         child: OverlayPortal(
                           controller: overlayController,
                           overlayChildBuilder: (BuildContext context) {
-                            return SkinOverlayChoose(repository);
+                            return SkinOverlayChoose(repository, auth);
                           },
                           child: Image.asset(
                             'assets/img/buttons/skin_null.png',

@@ -1,13 +1,16 @@
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
+import 'package:adhd_0_1/src/data/domain/auth_repository.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/add_task_widget.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class FridgeLock extends StatelessWidget {
   final DataBaseRepository repository;
+  final AuthRepository auth;
 
-  const FridgeLock(this.repository, {super.key});
+  const FridgeLock(this.repository, this.auth, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +31,7 @@ class FridgeLock extends StatelessWidget {
                     height: 492,
                     width: 304,
                     child: Column(
-                      spacing: 2,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SizedBox(height: 150),
                         Text(
@@ -38,6 +41,21 @@ class FridgeLock extends StatelessWidget {
                         Text(
                           'Planned for next update',
                           style: Theme.of(context).textTheme.displayMedium,
+                        ),
+                        ElevatedButton(
+                          onPressed: () async {
+                            final prefs = await SharedPreferences.getInstance();
+                            await prefs.setBool('onboardingComplete', false);
+                            debugPrint('Reset complete');
+                          },
+                          child: Text('Reset Cold Start Flag'),
+                        ),
+
+                        ElevatedButton(
+                          onPressed: () async {
+                            await auth.signOut();
+                          },
+                          child: Text('Log Out'),
                         ),
                       ],
                     ),

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
@@ -168,8 +169,8 @@ class SharedPreferencesRepository implements DataBaseRepository {
     bool? dataAppSkinColor,
     String dataLanguage,
     String dataLocation,
-    int dataStartOfDay,
-    int dataStartOfWeek,
+    TimeOfDay dataStartOfDay,
+    Weekday dataStartOfWeek,
   ) async {
     final settings = Settings(
       appSkinColor: dataAppSkinColor,
