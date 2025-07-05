@@ -84,12 +84,8 @@ Future<void> main() async {
   // v.0.1.12 //
   //
 
-  // // READY FOR CLINICAL TRIALS // //
-  //TODO: recruit test subjects
-  //TODO: automated testing (?)
-  //
 
-  //  // // SPRINT 2 // // ---------------------- UNTIL (26.7.25 16:14) ---------------------- // //
+  //  // // SPRINT 2 // // ---------------------- UNTIL (20.7.25 16:14) ---------------------- // //
   // Functionality // //
   //TODO: weather API
   //TODO: how to save files outside of shared memory / sharing files / save local backup of user data from local repository
@@ -108,12 +104,18 @@ Future<void> main() async {
   // v.0.1.2 //
   //
 
-  //  // // SPRINT 3 // // ---------------------- UNTIL (3.8.25 16:14) ---------------------- // //
+  // // READY FOR CLINICAL TRIALS // //
+  //TODO: recruit test subjects
+  //TODO: automated testing (?)
+  //
+  
+  //  // // SPRINT 3 // // ---------------------- UNTIL (26.7.25 16:14) ---------------------- // //
   // // Non MVP // //
   //TODO: auto copy user unique id to clipboard when registring and aleart the user about it
   //TODO: translations
   //TODO: display tasks for today (optional for update)
   //TODO: make more AI abominations for prizes
+  //TODO: add more items to tip of the day
   //TODO: repurpose FridgeLock (?)
   //TODO: tasks with multiple subtasks
   //TODO: animated splash screen
