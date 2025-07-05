@@ -1,6 +1,4 @@
 import 'dart:ui';
-import 'package:adhd_0_1/main.dart';
-import 'package:adhd_0_1/src/app.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/domain/auth_repository.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/widgets/app_bg_coldstart.dart';
@@ -80,20 +78,22 @@ class _OneLastThingState extends State<OneLastThing> {
                             final prefs = await SharedPreferences.getInstance();
                             await prefs.setBool('onboardingComplete', true);
 
-                            Navigator.of(
-                              context,
-                              rootNavigator: true,
-                            ).pushAndRemoveUntil(
-                              PageRouteBuilder(
-                                opaque: false,
-                                pageBuilder:
-                                    (_, __, ___) => MainScreen(
-                                      widget.repository,
-                                      widget.auth,
-                                    ),
-                              ),
-                              (route) => false,
-                            );
+                            if (context.mounted) {
+                              Navigator.of(
+                                context,
+                                rootNavigator: true,
+                              ).pushAndRemoveUntil(
+                                PageRouteBuilder(
+                                  opaque: false,
+                                  pageBuilder:
+                                      (_, __, ___) => MainScreen(
+                                        widget.repository,
+                                        widget.auth,
+                                      ),
+                                ),
+                                (route) => false,
+                              );
+                            }
                           },
 
                           child: Image.asset(

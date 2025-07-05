@@ -2,7 +2,6 @@ import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/prizes/domain/prizes.dart';
 import 'package:adhd_0_1/src/features/settings/domain/settings.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class SyncRepository implements DataBaseRepository {

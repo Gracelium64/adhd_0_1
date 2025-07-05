@@ -1,5 +1,4 @@
 import 'dart:ui';
-import 'package:adhd_0_1/src/common/presentation/app_bg.dart';
 import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/widgets/app_bg_coldstart.dart';
