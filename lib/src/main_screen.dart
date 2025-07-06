@@ -1,6 +1,6 @@
 import 'package:adhd_0_1/src/common/presentation/app_bg.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
-import 'package:adhd_0_1/src/data/domain/auth_repository.dart';
+import 'package:adhd_0_1/src/data/auth_repository.dart';
 import 'package:adhd_0_1/src/features/dailys/presentation/dailys.dart';
 import 'package:adhd_0_1/src/features/deadlineys/presentation/deadlineys.dart';
 import 'package:adhd_0_1/src/features/fidget_screen/presentation/fidget_screen.dart';

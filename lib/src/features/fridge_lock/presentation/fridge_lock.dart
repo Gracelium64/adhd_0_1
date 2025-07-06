@@ -1,5 +1,5 @@
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
-import 'package:adhd_0_1/src/data/domain/auth_repository.dart';
+import 'package:adhd_0_1/src/data/auth_repository.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/add_task_widget.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';

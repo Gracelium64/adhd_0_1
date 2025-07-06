@@ -1,4 +1,4 @@
-import 'package:adhd_0_1/src/data/domain/auth_repository.dart';
+import 'package:adhd_0_1/src/data/auth_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class FirebaseAuthRepository implements AuthRepository {

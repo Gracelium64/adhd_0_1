@@ -1,6 +1,6 @@
 import 'package:adhd_0_1/src/common/presentation/skin_overlay_choose.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
-import 'package:adhd_0_1/src/data/domain/auth_repository.dart';
+import 'package:adhd_0_1/src/data/auth_repository.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/widgets/day_hour_settings_coldstart_overlay.dart';
 import 'package:flutter/material.dart';
 

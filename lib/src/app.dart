@@ -1,5 +1,5 @@
 import 'package:adhd_0_1/src/data/databaserepository.dart';
-import 'package:adhd_0_1/src/data/domain/auth_repository.dart';
+import 'package:adhd_0_1/src/data/auth_repository.dart';
 import 'package:adhd_0_1/src/main_screen.dart';
 import 'package:adhd_0_1/src/cold_start.dart';
 import 'package:adhd_0_1/src/theme/app_theme.dart';

@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
-import 'package:adhd_0_1/src/data/domain/auth_repository.dart';
+import 'package:adhd_0_1/src/data/auth_repository.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/widgets/app_bg_coldstart.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/widgets/lets_go_overlay.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
