@@ -86,6 +86,7 @@ Future<void> main() async {
   //TODO: Logic of isDone reset for daily and weekly tasks
   //TODO: Logic for weekly score counters - for each day seperatly, for the week, for special tasks
   //TODO: Logic for prize system
+  //TODO: BUG - deadline and quest tasks are being deleted and than the toggle light on the item next on the list lights up green - FIX: after delete loop in list and turn all to isDone = false
   // // API SECURITY // //
   //TODO: SECURE API KEYS REVOKE CURRENT
 
@@ -105,7 +106,6 @@ Future<void> main() async {
   //TODO: about overlay
   // // Logic // //
   //TODO: remove initializer for shared preferences
-  //TODO: BUG - deadline and quest tasks are being deleted and than the toggle light on the item next on the list lights up green
   // // SECURITY // //
   //TODO: Autogenerate random password to replace current default
   //TODO: auto copy user unique id and password to clipboard when registring and aleart the user about it
