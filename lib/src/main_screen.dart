@@ -30,7 +30,7 @@ class _MainScreenState extends State<MainScreen> {
     Size screenSize = MediaQuery.of(context).size;
 
     List<Widget> pages = [
-      Tutorial(widget.repository, widget.auth),
+      Tutorial(),
       Dailys(widget.repository),
       Weeklys(widget.repository),
       Deadlineys(widget.repository),
