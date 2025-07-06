@@ -6,12 +6,15 @@ import 'package:adhd_0_1/src/data/old/mockdatabaserepository.dart';
 import 'package:adhd_0_1/src/data/sharedpreferencesrepository.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:device_preview/device_preview.dart';
 import 'package:adhd_0_1/src/data/syncrepository.dart';
+
+// import 'package:flutter/foundation.dart';
+// import 'package:device_preview/device_preview.dart';
+
+
 
 /*
 There is A LOT of redundent code in this file.
@@ -23,6 +26,7 @@ Fuck it, the code stays.
 
 There will not be many comments in this project, you've just collected your first!  
 */
+
 
 void initSyncListeners(SyncRepository repository) {
   final Connectivity connectivity = Connectivity();
@@ -64,9 +68,6 @@ Future<void> main() async {
   //  // // SPRINT 1 // //
   //  // // SPRINT 1.1 // // ---------------------- UNTIL 6.7.25 ---------------------- // //
   // // MVP Functionality // //
-  //TODO: weekly isDone
-  //TODO: deadline isDone
-  //TODO: quest isDone
   //TODO: click on task open edit task overlay
   //TODO: add task overlay - remove delete button, touch up and implement working overlay
   //TODO: edit task overlay - based on add task overlay
@@ -103,9 +104,11 @@ Future<void> main() async {
   //TODO: backup overlays
   //TODO: about overlay
   // // Logic // //
-  //TODO: UNDO Button in SncakBar when completing a Quest or Deadline Tasks
-  //TODO: eastereggs
   //TODO: remove initializer for shared preferences
+  //TODO: BUG - deadline and quest tasks are being deleted and than the toggle light on the item next on the list lights up green
+  // // SECURITY // //
+  //TODO: Autogenerate random password to replace current default
+  //TODO: auto copy user unique id and password to clipboard when registring and aleart the user about it
 
   //
   // v.0.1.2 //
@@ -118,7 +121,8 @@ Future<void> main() async {
 
   //  // // SPRINT 3 // // ---------------------- UNTIL 26.7.25 ---------------------- // //
   // // Non MVP // //
-  //TODO: auto copy user unique id to clipboard when registring and aleart the user about it
+  //TODO: UNDO Button in SncakBar when completing a Quest or Deadline Tasks
+  //TODO: eastereggs
   //TODO: translations
   //TODO: display tasks for today (optional for update)
   //TODO: make more AI abominations for prizes

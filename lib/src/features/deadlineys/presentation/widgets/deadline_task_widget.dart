@@ -1,16 +1,18 @@
+import 'package:adhd_0_1/src/common/domain/task.dart';
+import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 class DeadlineTaskWidget extends StatefulWidget {
-  final String taskDesctiption;
-  final String? deadlineDate;
-  final String? deadlineTime;
+  final Task task;
+  final DataBaseRepository repository;
+  final VoidCallback onDelete;
 
   const DeadlineTaskWidget({
     super.key,
-    required this.taskDesctiption,
-    this.deadlineDate,
-    this.deadlineTime,
+    required this.task,
+    required this.repository,
+    required this.onDelete,
   });
 
   @override
@@ -18,27 +20,41 @@ class DeadlineTaskWidget extends StatefulWidget {
 }
 
 class _DeadlineTaskWidgetState extends State<DeadlineTaskWidget> {
+  late bool isDone;
   bool goodGirl = false;
   double spreadEm = -2;
   String taskStatus = 'assets/img/buttons/task_not_done.png';
 
   @override
+  void initState() {
+    super.initState();
+    isDone = widget.task.isDone;
+  }
+
+  void _toggleTask() async {
+    final newStatus = !widget.task.isDone;
+
+    await widget.repository.completeDeadline(widget.task.taskId);
+    widget.onDelete();
+
+    setState(() {
+      isDone = newStatus;
+      widget.task.isDone = newStatus;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final double spreadEm = isDone ? -0.1 : -2;
+    final String taskStatus =
+        isDone
+            ? 'assets/img/buttons/task_done.png'
+            : 'assets/img/buttons/task_not_done.png';
+
     return Row(
       children: [
         GestureDetector(
-          onTap: () {
-            setState(() {
-              goodGirl = !goodGirl;
-              if (!goodGirl) {
-                spreadEm = -2;
-                taskStatus = 'assets/img/buttons/task_not_done.png';
-              } else if (goodGirl) {
-                spreadEm = -0.1;
-                taskStatus = 'assets/img/buttons/task_done.png';
-              }
-            });
-          },
+          onTap: _toggleTask,
           child: Container(
             width: 46,
             height: 60,
@@ -90,7 +106,7 @@ class _DeadlineTaskWidgetState extends State<DeadlineTaskWidget> {
               Expanded(
                 flex: 3,
                 child: Text(
-                  widget.taskDesctiption,
+                  widget.task.taskDesctiption,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),
@@ -101,12 +117,12 @@ class _DeadlineTaskWidgetState extends State<DeadlineTaskWidget> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
-                      '${widget.deadlineDate}',
+                      '${widget.task.deadlineDate}',
                       style: Theme.of(context).textTheme.labelSmall,
                     ),
 
                     Text(
-                      '${widget.deadlineTime}',
+                      '${widget.task.deadlineTime}',
                       style: Theme.of(context).textTheme.labelSmall,
                     ),
                     SizedBox(height: 6),

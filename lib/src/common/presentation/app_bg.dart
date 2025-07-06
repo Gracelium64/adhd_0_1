@@ -112,17 +112,22 @@ class _AppBgState extends State<AppBg> {
                 },
               ),
 
-              // 0 - 272
+              // 0 - 272 = 0% - 100% for ProgressBar
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(80, 140, 0, 0),
-              child: FutureBuilder<double>(
-                future: calculateWeeklyProgress(),
-                builder: (context, snapshot) {
-                  final progress = snapshot.data ?? 0;
-                  return ProgressBarWeekly(
-                    progressBarStatus: progress,
-                    repository: widget.repository,
+              child: ValueListenableBuilder<Future<double>>(
+                valueListenable: weeklyProgressFuture,
+                builder: (context, future, _) {
+                  return FutureBuilder<double>(
+                    future: calculateWeeklyProgress(),
+                    builder: (context, snapshot) {
+                      final progress = snapshot.data ?? 0;
+                      return ProgressBarWeekly(
+                        progressBarStatus: progress,
+                        repository: widget.repository,
+                      );
+                    },
                   );
                 },
               ),

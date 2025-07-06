@@ -1,14 +1,17 @@
+import 'package:adhd_0_1/src/common/domain/progress_triggers.dart';
+import 'package:adhd_0_1/src/common/domain/task.dart';
+import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 class WeeklyTaskWidget extends StatefulWidget {
-  final String taskDesctiption;
-  final String? dayOfWeek;
+  final Task task;
+  final DataBaseRepository repository;
 
   const WeeklyTaskWidget({
     super.key,
-    required this.taskDesctiption,
-    required this.dayOfWeek,
+    required this.repository,
+    required this.task,
   });
 
   @override
@@ -16,27 +19,48 @@ class WeeklyTaskWidget extends StatefulWidget {
 }
 
 class _WeeklyTaskWidgetState extends State<WeeklyTaskWidget> {
+  late bool isDone;
   bool goodGirl = false;
   double spreadEm = -2;
   String taskStatus = 'assets/img/buttons/task_not_done.png';
 
   @override
+  void initState() {
+    super.initState();
+    isDone = widget.task.isDone;
+  }
+
+  void _toggleTask() async {
+    final newStatus = !widget.task.isDone;
+
+    await widget.repository.toggleWeekly(widget.task.taskId, newStatus);
+
+    setState(() {
+      isDone = newStatus;
+      widget.task.isDone = newStatus;
+    });
+
+    weeklyProgressFuture.value = widget.repository.getWeeklyTasks().then((
+      tasks,
+    ) {
+      final total = tasks.length;
+      final completed = tasks.where((task) => task.isDone).length;
+      return total == 0 ? 0.0 : 272.0 * (completed / total);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final double spreadEm = isDone ? -0.1 : -2;
+    final String taskStatus =
+        isDone
+            ? 'assets/img/buttons/task_done.png'
+            : 'assets/img/buttons/task_not_done.png';
+
     return Row(
       children: [
         GestureDetector(
-          onTap: () {
-            setState(() {
-              goodGirl = !goodGirl;
-              if (!goodGirl) {
-                spreadEm = -2;
-                taskStatus = 'assets/img/buttons/task_not_done.png';
-              } else if (goodGirl) {
-                spreadEm = -0.1;
-                taskStatus = 'assets/img/buttons/task_done.png';
-              }
-            });
-          },
+          onTap: _toggleTask,
           child: Container(
             width: 46,
             height: 60,
@@ -88,7 +112,7 @@ class _WeeklyTaskWidgetState extends State<WeeklyTaskWidget> {
               Expanded(
                 flex: 3,
                 child: Text(
-                  widget.taskDesctiption,
+                  widget.task.taskDesctiption,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),
@@ -102,7 +126,7 @@ class _WeeklyTaskWidgetState extends State<WeeklyTaskWidget> {
                       spacing: 8,
                       children: [
                         Text(
-                          '${widget.dayOfWeek}',
+                          '${widget.task.dayOfWeek}',
                           style: Theme.of(context).textTheme.labelSmall,
                         ),
                       ],

@@ -16,7 +16,7 @@ class Quest extends StatefulWidget {
 }
 
 class _QuestState extends State<Quest> {
-late Future<List<Task>> myList;
+  late Future<List<Task>> myList;
 
   @override
   void initState() {
@@ -24,75 +24,76 @@ late Future<List<Task>> myList;
     myList = widget.repository.getQuestTasks();
   }
 
-
   @override
   Widget build(BuildContext context) {
     OverlayPortalController overlayController = OverlayPortalController();
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: Center(child: FutureBuilder<List<Task>>(
-        future: myList, 
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator();
-          }else if (snapshot.hasError) {
-            return Text('Error: ${snapshot.error}');
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-return Text('No data available');
-          }
+      body: Center(
+        child: FutureBuilder<List<Task>>(
+          future: myList,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return CircularProgressIndicator();
+            } else if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            }
 
-          final data = snapshot.data!;
-      
-      
-      
-      
-      return Column(
-        children: [
-          SubTitle(sub: 'Quest'),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 48, 0, 0),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.vertical,
-                child: SizedBox(
-                  height: 492,
-                  width: 304,
-                  child: ListView.builder(
-                    itemCount: data.length,
-                    itemBuilder: (context, index) {
-                      final task = data[index];
-                      return QuestTaskWidget(
-                        taskDesctiption: task.taskDesctiption,
-                      );
-                    },
+            final data = snapshot.data!;
+
+            return Column(
+              children: [
+                SubTitle(sub: 'Quest'),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 48, 0, 0),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: SizedBox(
+                        height: 492,
+                        width: 304,
+                        child: ListView.builder(
+                          itemCount: data.length,
+                          itemBuilder: (context, index) {
+                            final task = data[index];
+                            return QuestTaskWidget(
+                              task: task,
+                              repository: widget.repository,
+                              onDelete: () {
+                                setState(() {
+                                  data.removeAt(index);
+                                });
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ),
-          GestureDetector(
-            onTap: () {
-              overlayController.toggle();
-            },
-            child: OverlayPortal(
-              controller: overlayController,
-              overlayChildBuilder: (BuildContext context) {
-                return AddTaskWidget(
-                  widget.repository,
-                  overlayController,
-                  taskType: TaskType.quest,
-                );
-              },
-              child: AddTaskButton(),
-            ),
-          ),
-          SizedBox(height: 40),
-        ],
-      );
-        },
-
-      ))
+                GestureDetector(
+                  onTap: () {
+                    overlayController.toggle();
+                  },
+                  child: OverlayPortal(
+                    controller: overlayController,
+                    overlayChildBuilder: (BuildContext context) {
+                      return AddTaskWidget(
+                        widget.repository,
+                        overlayController,
+                        taskType: TaskType.quest,
+                      );
+                    },
+                    child: AddTaskButton(),
+                  ),
+                ),
+                SizedBox(height: 40),
+              ],
+            );
+          },
+        ),
+      ),
     );
   }
 }

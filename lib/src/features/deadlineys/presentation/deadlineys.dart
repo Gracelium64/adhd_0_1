@@ -39,8 +39,6 @@ class _DeadlineysState extends State<Deadlineys> {
               return CircularProgressIndicator();
             } else if (snapshot.hasError) {
               return Text('Error: ${snapshot.error}');
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Text('No data available');
             }
 
             final data = snapshot.data!;
@@ -61,9 +59,13 @@ class _DeadlineysState extends State<Deadlineys> {
                           itemBuilder: (context, index) {
                             final task = data[index];
                             return DeadlineTaskWidget(
-                              taskDesctiption: task.taskDesctiption,
-                              deadlineDate: task.deadlineDate,
-                              deadlineTime: task.deadlineTime,
+                              task: task,
+                              repository: widget.repository,
+                              onDelete: () {
+                                setState(() {
+                                  data.removeAt(index);
+                                });
+                              },
                             );
                           },
                         ),

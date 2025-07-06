@@ -147,15 +147,15 @@ class MockDataBaseRepository implements DataBaseRepository {
   //   }
   // }
 
-  @override
-  Future<void> completeWeekly(int dataTaskId) async {
-    for (int i = 0; i < weeklyTasks.length; i++) {
-      if (weeklyTasks[i].taskId == dataTaskId) {
-        weeklyTasks[i].isDone = true;
-        weeklyCompleted++;
-      }
-    }
-  }
+  // @override
+  // Future<void> completeWeekly(int dataTaskId) async {
+  //   for (int i = 0; i < weeklyTasks.length; i++) {
+  //     if (weeklyTasks[i].taskId == dataTaskId) {
+  //       weeklyTasks[i].isDone = true;
+  //       weeklyCompleted++;
+  //     }
+  //   }
+  // }
 
   @override
   Future<void> completeDeadline(int dataTaskId) async {
@@ -336,6 +336,15 @@ class MockDataBaseRepository implements DataBaseRepository {
     for (int i = 0; i < dailyTasks.length; i++) {
       if (dailyTasks[i].taskId == dataTaskId) {
         dailyTasks[i].isDone = dataIsDone;
+      }
+    }
+  }
+  
+  @override
+  Future<void> toggleWeekly(int dataTaskId, bool dataIsDone) async {
+    for (int i = 0; i < weeklyTasks.length; i++) {
+      if (weeklyTasks[i].taskId == dataTaskId) {
+        weeklyTasks[i].isDone = dataIsDone;
       }
     }
   }

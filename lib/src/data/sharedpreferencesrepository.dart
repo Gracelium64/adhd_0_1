@@ -68,9 +68,9 @@ class SharedPreferencesRepository implements DataBaseRepository {
   // Future<void> completeDaily(int dataTaskId) async =>
   //     _markComplete(PrefsKeys.dailyKey, dataTaskId);
 
-  @override
-  Future<void> completeWeekly(int dataTaskId) async =>
-      _markComplete(PrefsKeys.weeklyKey, dataTaskId);
+  // @override
+  // Future<void> completeWeekly(int dataTaskId) async =>
+  //     _markComplete(PrefsKeys.weeklyKey, dataTaskId);
 
   @override
   Future<void> completeDeadline(int dataTaskId) async =>
@@ -207,12 +207,28 @@ class SharedPreferencesRepository implements DataBaseRepository {
   @override
   Future<void> toggleDaily(int dataTaskId, bool dataIsDone) async {
     final tasks = await _loadTasks(PrefsKeys.dailyKey);
-    final index = tasks.indexWhere((t) => t.taskId == dataTaskId);
+    final index = tasks.indexWhere((t) {
+      return t.taskId == dataTaskId;
+    });
     if (index != -1) {
       tasks[index].isDone = dataIsDone;
       await _saveTasks(PrefsKeys.dailyKey, tasks);
     }
   }
+  
+  @override
+  Future<void> toggleWeekly(int dataTaskId, bool dataIsDone) async {
+    final tasks = await _loadTasks(PrefsKeys.weeklyKey);
+    final index = tasks.indexWhere((t) {
+      return t.taskId == dataTaskId;
+    });
+    if (index != -1) {
+      tasks[index].isDone = dataIsDone;
+      await _saveTasks(PrefsKeys.weeklyKey, tasks);
+    }
+  }
+  
+
 }
 
 

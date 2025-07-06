@@ -5,7 +5,6 @@ import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/weeklys/presentation/widgets/weekly_task_widget.dart';
 import 'package:flutter/material.dart';
-// import 'dart:io' show Platform;
 
 class Weeklys extends StatefulWidget {
   final DataBaseRepository repository;
@@ -62,8 +61,8 @@ class _WeeklysState extends State<Weeklys> {
                           itemBuilder: (context, index) {
                             final task = data[index];
                             return WeeklyTaskWidget(
-                              taskDesctiption: task.taskDesctiption,
-                              dayOfWeek: task.dayOfWeek,
+                              repository: widget.repository,
+                              task: task,
                             );
                           },
                         ),

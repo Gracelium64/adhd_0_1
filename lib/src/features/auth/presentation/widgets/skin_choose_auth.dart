@@ -1,4 +1,4 @@
-import 'package:adhd_0_1/src/features/auth/presentation/skin_overlay_choose.dart';
+import 'package:adhd_0_1/src/features/auth/presentation/onboarding_second_skin_selection.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/auth_repository.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/onboarding_third_day_hour.dart';
