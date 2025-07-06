@@ -1,6 +1,5 @@
 import 'package:adhd_0_1/firebase_options.dart';
 import 'package:adhd_0_1/src/app.dart';
-import 'package:adhd_0_1/src/data/auth_repository.dart';
 import 'package:adhd_0_1/src/data/firebase_auth_repository.dart';
 import 'package:adhd_0_1/src/data/domain/sharedpreferencesinitializer.dart';
 import 'package:adhd_0_1/src/data/old/mockdatabaserepository.dart';
@@ -41,15 +40,13 @@ Future<void> main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await Future.delayed(const Duration(seconds: 2));
-
   FlutterNativeSplash.remove;
-  WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   final auth = FirebaseAuthRepository();
   final mainRepo = MockDataBaseRepository();
-  final backupRepo = SharedPreferencesRepository();
-  final repository = SyncRepository(mainRepo: mainRepo, localRepo: backupRepo);
+  final localRepo = SharedPreferencesRepository();
+  final repository = SyncRepository(mainRepo: mainRepo, localRepo: localRepo);
 
   initSyncListeners(repository);
   runApp(App(repository, auth));

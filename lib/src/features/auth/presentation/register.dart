@@ -3,22 +3,22 @@ import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/auth_repository.dart';
 import 'package:adhd_0_1/src/features/auth/domain/validators.dart';
-import 'package:adhd_0_1/src/features/auth/presentation/widgets/name_overlay_confirmation.dart';
+import 'package:adhd_0_1/src/features/auth/presentation/register_confirmation.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-class NameOverlay extends StatefulWidget {
+class Register extends StatefulWidget {
   final DataBaseRepository repository;
   final AuthRepository auth;
 
-  const NameOverlay(this.repository, this.auth, {super.key});
+  const Register(this.repository, this.auth, {super.key});
 
   @override
-  State<NameOverlay> createState() => _NameOverlayState();
+  State<Register> createState() => _RegisterState();
 }
 
-class _NameOverlayState extends State<NameOverlay> {
+class _RegisterState extends State<Register> {
   TextEditingController userName = TextEditingController(text: '');
   final storage = FlutterSecureStorage();
 
@@ -109,7 +109,7 @@ class _NameOverlayState extends State<NameOverlay> {
                 OverlayPortal(
                   controller: overlayController,
                   overlayChildBuilder: (BuildContext context) {
-                    return NameOverlayConfirmation(
+                    return RegisterConfirmation(
                       repository: widget.repository,
                       auth: widget.auth,
                       userName: userName.text,

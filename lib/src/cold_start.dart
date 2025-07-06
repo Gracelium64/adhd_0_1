@@ -1,7 +1,7 @@
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/auth_repository.dart';
-import 'package:adhd_0_1/src/features/auth/presentation/widgets/app_bg_coldstart.dart';
-import 'package:adhd_0_1/src/features/auth/presentation/widgets/name_overlay.dart';
+import 'package:adhd_0_1/src/features/auth/presentation/app_bg_coldstart.dart';
+import 'package:adhd_0_1/src/features/auth/presentation/register.dart';
 import 'package:flutter/material.dart';
 
 class ColdStart extends StatelessWidget {
@@ -12,14 +12,13 @@ class ColdStart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // OverlayPortalController overlayController = OverlayPortalController();
-
+    
     return Stack(
       children: [
         AppBgColdstart(),
         Scaffold(
           backgroundColor: Colors.transparent,
-          body: NameOverlay(repository, auth),
+          body: Register(repository, auth),
         ),
       ],
     );

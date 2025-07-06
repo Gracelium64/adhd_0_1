@@ -1,21 +1,21 @@
 import 'dart:ui';
-import 'package:adhd_0_1/src/common/presentation/widgets/skin_choose.dart';
+import 'package:adhd_0_1/src/features/auth/presentation/widgets/skin_choose.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/auth_repository.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
-class SkinOverlayChoose extends StatefulWidget {
+class OnboardingSecondSkinSelection extends StatefulWidget {
   final DataBaseRepository repository;
   final AuthRepository auth;
 
-  const SkinOverlayChoose(this.repository, this.auth, {super.key});
+  const OnboardingSecondSkinSelection(this.repository, this.auth, {super.key});
 
   @override
-  State<SkinOverlayChoose> createState() => _SkinOverlayChooseState();
+  State<OnboardingSecondSkinSelection> createState() => _OnboardingSecondSkinSelectionState();
 }
 
-class _SkinOverlayChooseState extends State<SkinOverlayChoose> {
+class _OnboardingSecondSkinSelectionState extends State<OnboardingSecondSkinSelection> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,21 +73,21 @@ class _SkinOverlayChooseState extends State<SkinOverlayChoose> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          SkinChoose(
+                          SkinChooseAuth(
                             widget: widget,
                             mounted: mounted,
                             appSkin: true,
                             bGPath: 'assets/img/buttons/skin_true.png',
                             auth: widget.auth,
                           ),
-                          SkinChoose(
+                          SkinChooseAuth(
                             widget: widget,
                             mounted: mounted,
                             appSkin: null,
                             bGPath: 'assets/img/buttons/skin_null.png',
                             auth: widget.auth,
                           ),
-                          SkinChoose(
+                          SkinChooseAuth(
                             widget: widget,
                             mounted: mounted,
                             appSkin: false,

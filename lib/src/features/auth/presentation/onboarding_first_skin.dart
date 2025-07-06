@@ -1,17 +1,17 @@
 import 'dart:ui';
 import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
-import 'package:adhd_0_1/src/common/presentation/skin_overlay_choose.dart';
+import 'package:adhd_0_1/src/features/auth/presentation/skin_overlay_choose.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/auth_repository.dart';
-import 'package:adhd_0_1/src/features/auth/presentation/widgets/app_bg_coldstart.dart';
+import 'package:adhd_0_1/src/features/auth/presentation/app_bg_coldstart.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
-class SkinOverlay extends StatelessWidget {
+class OnboardingFirstSkin extends StatelessWidget {
   final DataBaseRepository repository;
   final AuthRepository auth;
 
-  const SkinOverlay(this.repository, this.auth, {super.key});
+  const OnboardingFirstSkin(this.repository, this.auth, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +61,10 @@ class SkinOverlay extends StatelessWidget {
                         child: OverlayPortal(
                           controller: overlayController,
                           overlayChildBuilder: (BuildContext context) {
-                            return SkinOverlayChoose(repository, auth);
+                            return OnboardingSecondSkinSelection(
+                              repository,
+                              auth,
+                            );
                           },
                           child: Image.asset(
                             'assets/img/buttons/skin_null.png',
@@ -76,8 +79,6 @@ class SkinOverlay extends StatelessWidget {
                       style: Theme.of(context).textTheme.bodyMedium,
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: 72),
-                    ConfirmButton(onPressed: () {}),
                   ],
                 ),
               ),

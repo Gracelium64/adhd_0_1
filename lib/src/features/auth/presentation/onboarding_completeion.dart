@@ -1,23 +1,23 @@
 import 'dart:ui';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/auth_repository.dart';
-import 'package:adhd_0_1/src/features/auth/presentation/widgets/app_bg_coldstart.dart';
+import 'package:adhd_0_1/src/features/auth/presentation/app_bg_coldstart.dart';
 import 'package:adhd_0_1/src/main_screen.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class OneLastThing extends StatefulWidget {
+class OnboardingCompletion extends StatefulWidget {
   final DataBaseRepository repository;
   final AuthRepository auth;
 
-  const OneLastThing(this.repository, this.auth, {super.key});
+  const OnboardingCompletion(this.repository, this.auth, {super.key});
 
   @override
-  State<OneLastThing> createState() => _OneLastThingState();
+  State<OnboardingCompletion> createState() => _OnboardingCompletionState();
 }
 
-class _OneLastThingState extends State<OneLastThing> {
+class _OnboardingCompletionState extends State<OnboardingCompletion> {
   @override
   Widget build(BuildContext context) {
     return Stack(

@@ -1,15 +1,15 @@
-import 'package:adhd_0_1/src/common/presentation/skin_overlay_choose.dart';
+import 'package:adhd_0_1/src/features/auth/presentation/skin_overlay_choose.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/auth_repository.dart';
-import 'package:adhd_0_1/src/features/auth/presentation/widgets/day_hour_settings_coldstart_overlay.dart';
+import 'package:adhd_0_1/src/features/auth/presentation/onboarding_third_day_hour.dart';
 import 'package:flutter/material.dart';
 
-class SkinChoose extends StatefulWidget {
+class SkinChooseAuth extends StatefulWidget {
   final AuthRepository auth;
   final bool? appSkin;
   final String bGPath;
 
-  const SkinChoose({
+  const SkinChooseAuth({
     super.key,
     required this.widget,
     required this.mounted,
@@ -18,14 +18,14 @@ class SkinChoose extends StatefulWidget {
     required this.auth,
   });
 
-  final SkinOverlayChoose widget;
+  final OnboardingSecondSkinSelection widget;
   final bool mounted;
 
   @override
-  State<SkinChoose> createState() => _SkinChooseState();
+  State<SkinChooseAuth> createState() => _SkinChooseAuthState();
 }
 
-class _SkinChooseState extends State<SkinChoose> {
+class _SkinChooseAuthState extends State<SkinChooseAuth> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -47,7 +47,7 @@ class _SkinChooseState extends State<SkinChoose> {
             PageRouteBuilder(
               opaque: false,
               pageBuilder:
-                  (_, __, ___) => DayHourSettingsColdstartOverlay(
+                  (_, __, ___) => OnboardingThirdDayHour(
                     widget.widget.repository,
                     widget.auth,
                   ),

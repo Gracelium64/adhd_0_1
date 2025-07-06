@@ -2,16 +2,16 @@ import 'dart:ui';
 import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/auth_repository.dart';
-import 'package:adhd_0_1/src/features/auth/presentation/widgets/skin_overlay.dart';
+import 'package:adhd_0_1/src/features/auth/presentation/onboarding_first_skin.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
-class NameOverlayConfirmation extends StatelessWidget {
+class RegisterConfirmation extends StatelessWidget {
   final DataBaseRepository repository;
   final AuthRepository auth;
   final String userName;
 
-  const NameOverlayConfirmation({
+  const RegisterConfirmation({
     super.key,
     required this.repository,
     required this.auth,
@@ -88,7 +88,7 @@ class NameOverlayConfirmation extends StatelessWidget {
                             PageRouteBuilder(
                               opaque: false,
                               pageBuilder:
-                                  (_, __, ___) => SkinOverlay(repository,auth),
+                                  (_, __, ___) => OnboardingFirstSkin(repository,auth),
                               transitionsBuilder: (_, animation, __, child) {
                                 return FadeTransition(
                                   opacity: animation,

@@ -2,28 +2,28 @@ import 'dart:ui';
 import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/auth_repository.dart';
-import 'package:adhd_0_1/src/features/auth/presentation/widgets/app_bg_coldstart.dart';
-import 'package:adhd_0_1/src/features/auth/presentation/widgets/location_choose_overlay.dart';
+import 'package:adhd_0_1/src/features/auth/presentation/app_bg_coldstart.dart';
+import 'package:adhd_0_1/src/features/auth/presentation/onboarding_fourth_location.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
-class DayHourSettingsColdstartOverlay extends StatefulWidget {
+class OnboardingThirdDayHour extends StatefulWidget {
   final DataBaseRepository repository;
   final AuthRepository auth;
 
-  const DayHourSettingsColdstartOverlay(
+  const OnboardingThirdDayHour(
     this.repository,
     this.auth, {
     super.key,
   });
 
   @override
-  State<DayHourSettingsColdstartOverlay> createState() =>
-      _DayHourSettingsColdstartOverlayState();
+  State<OnboardingThirdDayHour> createState() =>
+      _OnboardingThirdDayHourState();
 }
 
-class _DayHourSettingsColdstartOverlayState
-    extends State<DayHourSettingsColdstartOverlay> {
+class _OnboardingThirdDayHourState
+    extends State<OnboardingThirdDayHour> {
   Weekday selectedWeekday = Weekday.mon;
   TimeOfDay? selectedTime;
 
@@ -136,7 +136,7 @@ class _DayHourSettingsColdstartOverlayState
                               opaque: false,
                               pageBuilder:
                                   (_, __, ___) =>
-                                      LocationChooseOverlay(widget.repository, widget.auth),
+                                      OnboardingFourthLocation(widget.repository, widget.auth),
                               transitionsBuilder: (_, animation, __, child) {
                                 return FadeTransition(
                                   opacity: animation,

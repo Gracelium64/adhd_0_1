@@ -2,22 +2,23 @@ import 'dart:ui';
 import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/auth_repository.dart';
-import 'package:adhd_0_1/src/features/auth/presentation/widgets/app_bg_coldstart.dart';
-import 'package:adhd_0_1/src/features/auth/presentation/widgets/lets_go_overlay.dart';
+import 'package:adhd_0_1/src/features/auth/presentation/app_bg_coldstart.dart';
+import 'package:adhd_0_1/src/features/auth/presentation/onboarding_fifth.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
-class LocationChooseOverlay extends StatefulWidget {
+class OnboardingFourthLocation extends StatefulWidget {
   final DataBaseRepository repository;
   final AuthRepository auth;
 
-  const LocationChooseOverlay(this.repository, this.auth, {super.key});
+  const OnboardingFourthLocation(this.repository, this.auth, {super.key});
 
   @override
-  State<LocationChooseOverlay> createState() => _LocationChooseOverlayState();
+  State<OnboardingFourthLocation> createState() =>
+      _OnboardingFourthLocationState();
 }
 
-class _LocationChooseOverlayState extends State<LocationChooseOverlay> {
+class _OnboardingFourthLocationState extends State<OnboardingFourthLocation> {
   WorldCapital selectedCapital = WorldCapital.berlin;
 
   @override
@@ -100,11 +101,10 @@ class _LocationChooseOverlayState extends State<LocationChooseOverlay> {
                             context,
                             rootNavigator: true,
                           ).pushReplacement(
-                            // MaterialPageRoute(builder: (_) => LetsGoOverlay(widget.repository)),
                             PageRouteBuilder(
                               opaque: false,
                               pageBuilder:
-                                  (_, __, ___) => LetsGoOverlay(
+                                  (_, __, ___) => OnboardingFifth(
                                     widget.repository,
                                     widget.auth,
                                   ),
