@@ -42,6 +42,9 @@ class FridgeLock extends StatelessWidget {
                           'Planned for next update',
                           style: Theme.of(context).textTheme.displayMedium,
                         ),
+                        SizedBox(height: 50),
+                        Text('[v.0.1 SPRINT 1.1]'),
+                        SizedBox(height: 4),
                         ElevatedButton(
                           onPressed: () async {
                             final prefs = await SharedPreferences.getInstance();

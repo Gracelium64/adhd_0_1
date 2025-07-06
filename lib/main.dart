@@ -14,7 +14,16 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:adhd_0_1/src/data/syncrepository.dart';
 
-final AuthRepository auth = FirebaseAuthRepository();
+/*
+There is A LOT of redundent code in this file.
+I know that it's there, it has been left there on purpose.
+It was before we started using a Firebase Repository, it was actually made in preration for it.
+Since this is an Offline First App, I've build it so that it would prefer the local Repository and back it up to the server when connected to the internet.
+Only a couple of days later I learned in class that this feature is default in Firebase anyway.
+Fuck it, the code stays.
+
+There will not be many comments in this project, you've just collected your first!  
+*/
 
 void initSyncListeners(SyncRepository repository) {
   final Connectivity connectivity = Connectivity();
@@ -27,15 +36,17 @@ void initSyncListeners(SyncRepository repository) {
 }
 
 Future<void> main() async {
-  await Future.delayed(const Duration(seconds: 2));
-  FlutterNativeSplash.remove;
-  WidgetsFlutterBinding.ensureInitialized();
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-
   WidgetsFlutterBinding.ensureInitialized();
   await SharedPreferencesInitializer.initializeDefaults();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
+  await Future.delayed(const Duration(seconds: 2));
+
+  FlutterNativeSplash.remove;
+  WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+  final auth = FirebaseAuthRepository();
   final mainRepo = MockDataBaseRepository();
   final backupRepo = SharedPreferencesRepository();
   final repository = SyncRepository(mainRepo: mainRepo, localRepo: backupRepo);
@@ -54,20 +65,20 @@ Future<void> main() async {
   //
 
   //  // // SPRINT 1 // //
-  //  // // SPRINT 1.1 // // ---------------------- UNTIL P21 (6.7.25 16:14) ---------------------- // //
+  //  // // SPRINT 1.1 // // ---------------------- UNTIL 6.7.25 ---------------------- // //
   // // MVP Functionality // //
-  //TODO: add task overlay - remove delete button, touch up and implement working overlay
-  //TODO: edit task overlay - based on add task overlay
   //TODO: weekly isDone
   //TODO: deadline isDone
   //TODO: quest isDone
   //TODO: click on task open edit task overlay
+  //TODO: add task overlay - remove delete button, touch up and implement working overlay
+  //TODO: edit task overlay - based on add task overlay
 
   //
   // v.0.1.11 //
   //
 
-  //  // // SPRINT 1.2 // // ---------------------- UNTIL (13.7.25 16:14) ---------------------- // //
+  //  // // SPRINT 1.2 // // ---------------------- UNTIL 13.7.25 ---------------------- // //
   // // ONBOARDING // //
   //TODO: on the last onboarding screen confirmation button opens main screen with tutorial overlay open
   // // MVP Visual // //
@@ -84,8 +95,7 @@ Future<void> main() async {
   // v.0.1.12 //
   //
 
-
-  //  // // SPRINT 2 // // ---------------------- UNTIL (20.7.25 16:14) ---------------------- // //
+  //  // // SPRINT 2 // // ---------------------- UNTIL 20.7.25 ---------------------- // //
   // Functionality // //
   //TODO: weather API
   //TODO: how to save files outside of shared memory / sharing files / save local backup of user data from local repository
@@ -108,8 +118,8 @@ Future<void> main() async {
   //TODO: recruit test subjects
   //TODO: automated testing (?)
   //
-  
-  //  // // SPRINT 3 // // ---------------------- UNTIL (26.7.25 16:14) ---------------------- // //
+
+  //  // // SPRINT 3 // // ---------------------- UNTIL 26.7.25 ---------------------- // //
   // // Non MVP // //
   //TODO: auto copy user unique id to clipboard when registring and aleart the user about it
   //TODO: translations

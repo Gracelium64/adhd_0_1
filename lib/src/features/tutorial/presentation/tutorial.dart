@@ -12,24 +12,8 @@ class Tutorial extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          ElevatedButton(
-            onPressed: () async {
-              final prefs = await SharedPreferences.getInstance();
-              await prefs.setBool('onboardingComplete', false);
-              debugPrint('Reset complete');
-            },
-            child: Text('Reset Cold Start Flag'),
-          ),
-
-          ElevatedButton(
-            onPressed: () async {
-              await auth.signOut();
-            },
-            child: Text('Log Out'),
-          ),
+      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+       
         ],
       ),
     );

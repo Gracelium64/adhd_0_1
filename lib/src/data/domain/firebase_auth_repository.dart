@@ -32,7 +32,7 @@ class FirebaseAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<void> sendVerificatiqonEmail() async {
+  Future<void> sendVerificationEmail() async {
     await FirebaseAuth.instance.currentUser?.sendEmailVerification();
   }
 }

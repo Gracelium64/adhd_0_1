@@ -20,13 +20,6 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
   bool? onboardingComplete;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadOnboardingStatus();
-  }
-
   Future<void> _loadOnboardingStatus() async {
     final prefs = await SharedPreferences.getInstance();
     final status = prefs.getBool('onboardingComplete') ?? false;
@@ -34,6 +27,12 @@ class _AppState extends State<App> {
     setState(() {
       onboardingComplete = status;
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadOnboardingStatus();
   }
 
   @override

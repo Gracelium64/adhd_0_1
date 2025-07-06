@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:adhd_0_1/main.dart';
 import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
+import 'package:adhd_0_1/src/data/domain/auth_repository.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/widgets/app_bg_coldstart.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/widgets/one_last_thing.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
@@ -9,7 +10,9 @@ import 'package:flutter/material.dart';
 
 class LetsGoOverlay extends StatelessWidget {
   final DataBaseRepository repository;
-  const LetsGoOverlay(this.repository, {super.key});
+  final AuthRepository auth;
+  
+  const LetsGoOverlay(this.repository, this.auth, {super.key});
 
   @override
   Widget build(BuildContext context) {

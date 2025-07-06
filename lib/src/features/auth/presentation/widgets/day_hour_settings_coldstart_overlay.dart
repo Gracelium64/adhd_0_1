@@ -136,7 +136,7 @@ class _DayHourSettingsColdstartOverlayState
                               opaque: false,
                               pageBuilder:
                                   (_, __, ___) =>
-                                      LocationChooseOverlay(widget.repository),
+                                      LocationChooseOverlay(widget.repository, widget.auth),
                               transitionsBuilder: (_, animation, __, child) {
                                 return FadeTransition(
                                   opacity: animation,
