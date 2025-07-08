@@ -77,11 +77,11 @@ Future<void> main() async {
   //
 
   //  // // SPRINT 1.2 // // ---------------------- UNTIL 13.7.25 ---------------------- // //
-  // // ONBOARDING // //
-  //TODO: on the last onboarding screen confirmation button opens main screen with tutorial overlay open
   // // MVP Visual // //
   //TODO: tutorial overlay
   //TODO: single prize overlay
+  // // ONBOARDING // //
+  //TODO: on the last onboarding screen confirmation button opens main screen with tutorial overlay open
   // // MVP Logic // //
   //TODO: Logic of isDone reset for daily and weekly tasks
   //TODO: Logic for weekly score counters - for each day seperatly, for the week, for special tasks

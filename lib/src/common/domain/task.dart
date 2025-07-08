@@ -17,23 +17,51 @@ class Task {
     this.isDone,
   );
 
-  Map<String, dynamic> toJson() => {
-    'taskId': taskId,
-    'taskCatagory': taskCatagory,
-    'taskDesctiption': taskDesctiption,
-    'deadlineDate': deadlineDate,
-    'deadlineTime': deadlineTime,
-    'dayOfWeek': dayOfWeek,
-    'isDone': isDone,
-  };
+  Map<String, dynamic> toJson() {
+    return {
+      'taskId': taskId,
+      'taskCatagory': taskCatagory,
+      'taskDesctiption': taskDesctiption,
+      'deadlineDate': deadlineDate,
+      'deadlineTime': deadlineTime,
+      'dayOfWeek': dayOfWeek,
+      'isDone': isDone,
+    };
+  }
 
-  factory Task.fromJson(Map<String, dynamic> json) => Task(
-    json['taskId'],
-    json['taskCatagory'],
-    json['taskDesctiption'],
-    json['deadlineDate'],
-    json['deadlineTime'],
-    json['dayOfWeek'],
-    json['isDone'],
-  );
+  factory Task.fromJson(Map<String, dynamic> json) {
+    return Task(
+      json['taskId'],
+      json['taskCatagory'],
+      json['taskDesctiption'],
+      json['deadlineDate'],
+      json['deadlineTime'],
+      json['dayOfWeek'],
+      json['isDone'],
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'taskId': taskId,
+      'taskCatagory': taskCatagory,
+      'taskDesctiption': taskDesctiption,
+      'deadlineDate': deadlineDate,
+      'deadlineTime': deadlineTime,
+      'dayOfWeek': dayOfWeek,
+      'isDone': isDone,
+    };
+  }
+
+  factory Task.fromMap(Map<String, dynamic> map) {
+    return Task(
+      map['taskId'],
+      map['taskCatagory'],
+      map['taskDesctiption'],
+      map['deadlineDate'],
+      map['deadlineTime'],
+      map['dayOfWeek'],
+      map['isDone'],
+    );
+  }
 }
