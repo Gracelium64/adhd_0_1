@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/auth_repository.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/app_bg_coldstart.dart';
+import 'package:adhd_0_1/src/features/task_management/domain/task.dart';
 import 'package:adhd_0_1/src/main_screen.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
@@ -10,8 +11,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 class OnboardingCompletion extends StatefulWidget {
   final DataBaseRepository repository;
   final AuthRepository auth;
+  final Task task;
 
-  const OnboardingCompletion(this.repository, this.auth, {super.key});
+  const OnboardingCompletion(
+    this.repository,
+    this.auth, {
+    super.key,
+    required this.task,
+  });
 
   @override
   State<OnboardingCompletion> createState() => _OnboardingCompletionState();
@@ -89,6 +96,8 @@ class _OnboardingCompletionState extends State<OnboardingCompletion> {
                                       (_, __, ___) => MainScreen(
                                         widget.repository,
                                         widget.auth,
+                                        task: widget.task,
+                                        onClose: () {},
                                       ),
                                 ),
                                 (route) => false,

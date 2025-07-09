@@ -1,17 +1,31 @@
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
 import 'package:adhd_0_1/src/data/auth_repository.dart';
+import 'package:adhd_0_1/src/features/task_management/domain/task.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/add_task_widget.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class FridgeLock extends StatelessWidget {
+class FridgeLock extends StatefulWidget {
   final DataBaseRepository repository;
   final AuthRepository auth;
+  final Task task;
+  final void Function() onClose;
 
-  const FridgeLock(this.repository, this.auth, {super.key});
+  const FridgeLock(
+    this.repository,
+    this.auth, {
+    super.key,
+    required this.task,
+    required this.onClose,
+  });
 
+  @override
+  State<FridgeLock> createState() => _FridgeLockState();
+}
+
+class _FridgeLockState extends State<FridgeLock> {
   @override
   Widget build(BuildContext context) {
     OverlayPortalController overlayController = OverlayPortalController();
@@ -56,7 +70,7 @@ class FridgeLock extends StatelessWidget {
 
                         ElevatedButton(
                           onPressed: () async {
-                            await auth.signOut();
+                            await widget.auth.signOut();
                           },
                           child: Text('Log Out'),
                         ),
@@ -74,9 +88,11 @@ class FridgeLock extends StatelessWidget {
                 controller: overlayController,
                 overlayChildBuilder: (BuildContext context) {
                   return AddTaskWidget(
-                    repository,
+                    widget.repository,
                     overlayController,
                     taskType: TaskType.daily,
+                    task: widget.task,
+                    onClose: () {},
                   );
                 },
                 child: AddTaskButton(),

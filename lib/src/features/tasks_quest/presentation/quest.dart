@@ -7,9 +7,11 @@ import 'package:adhd_0_1/src/features/tasks_quest/presentation/widgets/quest_tas
 import 'package:flutter/material.dart';
 
 class Quest extends StatefulWidget {
+  final Task task;
   final DataBaseRepository repository;
+  final void Function() onClose;
 
-  const Quest(this.repository, {super.key});
+  const Quest(this.repository, {super.key, required this.task, required this.onClose});
 
   @override
   State<Quest> createState() => _QuestState();
@@ -82,10 +84,12 @@ class _QuestState extends State<Quest> {
                     controller: overlayController,
                     overlayChildBuilder: (BuildContext context) {
                       return AddTaskWidget(
-                        widget.repository,
-                        overlayController,
-                        taskType: TaskType.quest,
-                      );
+                    widget.repository,
+                    overlayController,
+                    taskType: TaskType.daily,
+                    task: widget.task,
+                    onClose: () {},
+                  );
                     },
                     child: AddTaskButton(),
                   ),

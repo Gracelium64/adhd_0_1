@@ -2,20 +2,23 @@ import 'package:adhd_0_1/src/features/auth/presentation/onboarding_second_skin_s
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/auth_repository.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/onboarding_third_day_hour.dart';
+import 'package:adhd_0_1/src/features/task_management/domain/task.dart';
 import 'package:flutter/material.dart';
 
 class SkinChooseAuth extends StatefulWidget {
   final AuthRepository auth;
   final bool? appSkin;
   final String bGPath;
+  final Task task;
 
   const SkinChooseAuth({
     super.key,
+    required this.auth,
+    this.appSkin,
+    required this.bGPath,
+    required this.task,
     required this.widget,
     required this.mounted,
-    required this.appSkin,
-    required this.bGPath,
-    required this.auth,
   });
 
   final OnboardingSecondSkinSelection widget;
@@ -50,6 +53,7 @@ class _SkinChooseAuthState extends State<SkinChooseAuth> {
                   (_, __, ___) => OnboardingThirdDayHour(
                     widget.widget.repository,
                     widget.auth,
+                    widget.task,
                   ),
               transitionsBuilder: (_, animation, __, child) {
                 return FadeTransition(opacity: animation, child: child);

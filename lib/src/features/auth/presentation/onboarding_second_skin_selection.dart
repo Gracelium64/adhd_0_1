@@ -2,20 +2,29 @@ import 'dart:ui';
 import 'package:adhd_0_1/src/features/auth/presentation/widgets/skin_choose_auth.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/auth_repository.dart';
+import 'package:adhd_0_1/src/features/task_management/domain/task.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 class OnboardingSecondSkinSelection extends StatefulWidget {
   final DataBaseRepository repository;
   final AuthRepository auth;
+  final Task task;
 
-  const OnboardingSecondSkinSelection(this.repository, this.auth, {super.key});
+  const OnboardingSecondSkinSelection(
+    this.repository,
+    this.auth,
+    this.task, {
+    super.key,
+  });
 
   @override
-  State<OnboardingSecondSkinSelection> createState() => _OnboardingSecondSkinSelectionState();
+  State<OnboardingSecondSkinSelection> createState() =>
+      _OnboardingSecondSkinSelectionState();
 }
 
-class _OnboardingSecondSkinSelectionState extends State<OnboardingSecondSkinSelection> {
+class _OnboardingSecondSkinSelectionState
+    extends State<OnboardingSecondSkinSelection> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -79,6 +88,7 @@ class _OnboardingSecondSkinSelectionState extends State<OnboardingSecondSkinSele
                             appSkin: true,
                             bGPath: 'assets/img/buttons/skin_true.png',
                             auth: widget.auth,
+                            task: widget.task,
                           ),
                           SkinChooseAuth(
                             widget: widget,
@@ -86,6 +96,7 @@ class _OnboardingSecondSkinSelectionState extends State<OnboardingSecondSkinSele
                             appSkin: null,
                             bGPath: 'assets/img/buttons/skin_null.png',
                             auth: widget.auth,
+                            task: widget.task,
                           ),
                           SkinChooseAuth(
                             widget: widget,
@@ -93,6 +104,7 @@ class _OnboardingSecondSkinSelectionState extends State<OnboardingSecondSkinSele
                             appSkin: false,
                             bGPath: 'assets/img/buttons/skin_false.png',
                             auth: widget.auth,
+                            task: widget.task,
                           ),
                         ],
                       ),

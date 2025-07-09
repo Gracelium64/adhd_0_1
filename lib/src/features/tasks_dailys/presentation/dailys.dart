@@ -7,9 +7,11 @@ import 'package:adhd_0_1/src/features/tasks_dailys/presentation/widgets/daily_ta
 import 'package:flutter/material.dart';
 
 class Dailys extends StatefulWidget {
+  final Task task;
   final DataBaseRepository repository;
+  final void Function() onClose;
 
-  const Dailys(this.repository, {super.key});
+  const Dailys(this.repository, {super.key, required this.task, required this.onClose});
 
   @override
   State<Dailys> createState() => _DailysState();
@@ -89,10 +91,12 @@ class _DailysState extends State<Dailys> {
                     controller: overlayController,
                     overlayChildBuilder: (BuildContext context) {
                       return AddTaskWidget(
-                        widget.repository,
-                        overlayController,
-                        taskType: TaskType.daily,
-                      );
+                    widget.repository,
+                    overlayController,
+                    taskType: TaskType.daily,
+                    task: widget.task,
+                    onClose: () {},
+                  );
                     },
                     child: AddTaskButton(),
                   ),

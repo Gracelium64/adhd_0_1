@@ -4,14 +4,16 @@ import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/auth_repository.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/app_bg_coldstart.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/onboarding_fifth.dart';
+import 'package:adhd_0_1/src/features/task_management/domain/task.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 class OnboardingFourthLocation extends StatefulWidget {
   final DataBaseRepository repository;
   final AuthRepository auth;
+  final Task task;
 
-  const OnboardingFourthLocation(this.repository, this.auth, {super.key});
+  const OnboardingFourthLocation(this.repository, this.auth, this.task, {super.key});
 
   @override
   State<OnboardingFourthLocation> createState() =>
@@ -106,7 +108,7 @@ class _OnboardingFourthLocationState extends State<OnboardingFourthLocation> {
                               pageBuilder:
                                   (_, __, ___) => OnboardingFifth(
                                     widget.repository,
-                                    widget.auth,
+                                    widget.auth, task: widget.task,
                                   ),
                               transitionsBuilder: (_, animation, __, child) {
                                 return FadeTransition(

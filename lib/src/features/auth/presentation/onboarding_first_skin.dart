@@ -3,14 +3,16 @@ import 'package:adhd_0_1/src/features/auth/presentation/onboarding_second_skin_s
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/auth_repository.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/app_bg_coldstart.dart';
+import 'package:adhd_0_1/src/features/task_management/domain/task.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 class OnboardingFirstSkin extends StatelessWidget {
   final DataBaseRepository repository;
   final AuthRepository auth;
+  final Task task;
 
-  const OnboardingFirstSkin(this.repository, this.auth, {super.key});
+  const OnboardingFirstSkin(this.repository, this.auth, this.task, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +65,7 @@ class OnboardingFirstSkin extends StatelessWidget {
                             return OnboardingSecondSkinSelection(
                               repository,
                               auth,
+                              task,
                             );
                           },
                           child: Image.asset(

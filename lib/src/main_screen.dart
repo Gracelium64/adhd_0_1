@@ -1,6 +1,7 @@
 import 'package:adhd_0_1/src/common/presentation/app_bg.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/auth_repository.dart';
+import 'package:adhd_0_1/src/features/task_management/domain/task.dart';
 import 'package:adhd_0_1/src/features/tasks_dailys/presentation/dailys.dart';
 import 'package:adhd_0_1/src/features/tasks_deadlineys/presentation/deadlineys.dart';
 import 'package:adhd_0_1/src/features/fidget_screen/presentation/fidget_screen.dart';
@@ -16,8 +17,17 @@ import 'package:flutter/material.dart';
 class MainScreen extends StatefulWidget {
   final DataBaseRepository repository;
   final AuthRepository auth;
+  final Task task;
 
-  const MainScreen(this.repository, this.auth, {super.key});
+  final void Function() onClose;
+
+  const MainScreen(
+    this.repository,
+    this.auth, {
+    super.key,
+    required this.task,
+    required this.onClose,
+  });
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
@@ -31,14 +41,19 @@ class _MainScreenState extends State<MainScreen> {
 
     List<Widget> pages = [
       Tutorial(),
-      Dailys(widget.repository),
-      Weeklys(widget.repository),
-      Deadlineys(widget.repository),
-      Quest(widget.repository),
-      FridgeLock(widget.repository, widget.auth),
-      FidgetScreen(widget.repository),
-      Prizes(widget.repository),
-      Settings(widget.repository),
+      Dailys(widget.repository, task: widget.task, onClose: () {}),
+      Weeklys(widget.repository, task: widget.task, onClose: () {}),
+      Deadlineys(widget.repository, task: widget.task, onClose: () {}),
+      Quest(widget.repository, task: widget.task, onClose: () {}),
+      FridgeLock(
+        widget.repository,
+        widget.auth,
+        task: widget.task,
+        onClose: () {},
+      ),
+      FidgetScreen(widget.repository, task: widget.task, onClose: () {}),
+      Prizes(widget.repository, task: widget.task, onClose: () {}),
+      Settings(widget.repository, task: widget.task, onClose: () {}),
     ];
 
     return Stack(

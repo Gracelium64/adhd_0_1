@@ -8,8 +8,9 @@ import 'package:flutter/material.dart';
 
 class Weeklys extends StatefulWidget {
   final DataBaseRepository repository;
+  final Task task;
 
-  const Weeklys(this.repository, {super.key});
+  const Weeklys(this.repository, this.task, {super.key});
 
   @override
   State<Weeklys> createState() => _WeeklysState();
@@ -63,6 +64,7 @@ class _WeeklysState extends State<Weeklys> {
                             return WeeklyTaskWidget(
                               repository: widget.repository,
                               task: task,
+                              onClose: () {},
                             );
                           },
                         ),
@@ -80,7 +82,9 @@ class _WeeklysState extends State<Weeklys> {
                       return AddTaskWidget(
                         widget.repository,
                         overlayController,
+                        task: widget.task,
                         taskType: TaskType.weekly,
+                        onClose: () {},
                       );
                     },
                     child: AddTaskButton(),
