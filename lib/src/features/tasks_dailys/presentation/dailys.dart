@@ -3,26 +3,25 @@ import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/add_task_widget.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
-import 'package:adhd_0_1/src/features/Deadlineys/presentation/widgets/deadline_task_widget.dart';
+import 'package:adhd_0_1/src/features/tasks_dailys/presentation/widgets/daily_task_widget.dart';
 import 'package:flutter/material.dart';
-// import 'dart:io' show Platform;
 
-class Deadlineys extends StatefulWidget {
+class Dailys extends StatefulWidget {
   final DataBaseRepository repository;
 
-  const Deadlineys(this.repository, {super.key});
+  const Dailys(this.repository, {super.key});
 
   @override
-  State<Deadlineys> createState() => _DeadlineysState();
+  State<Dailys> createState() => _DailysState();
 }
 
-class _DeadlineysState extends State<Deadlineys> {
+class _DailysState extends State<Dailys> {
   late Future<List<Task>> myList;
 
   @override
   void initState() {
     super.initState();
-    myList = widget.repository.getDeadlineTasks();
+    myList = widget.repository.getDailyTasks();
   }
 
   @override
@@ -39,40 +38,42 @@ class _DeadlineysState extends State<Deadlineys> {
               return CircularProgressIndicator();
             } else if (snapshot.hasError) {
               return Text('Error: ${snapshot.error}');
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Text('No data available');
             }
 
             final data = snapshot.data!;
 
             return Column(
               children: [
-                SubTitle(sub: 'Deadlineys'),
+                SubTitle(sub: 'Dailys'),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(24, 48, 0, 0),
                     child: SingleChildScrollView(
                       scrollDirection: Axis.vertical,
-                      child: SizedBox(
-                        height: 492,
-                        width: 304,
-                        child: ListView.builder(
-                          itemCount: data.length,
-                          itemBuilder: (context, index) {
-                            final task = data[index];
-                            return DeadlineTaskWidget(
-                              task: task,
-                              repository: widget.repository,
-                              onDelete: () {
-                                setState(() {
-                                  data.removeAt(index);
-                                });
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: 492,
+                            width: 304,
+                            child: ListView.builder(
+                              itemCount: data.length,
+                              itemBuilder: (context, index) {
+                                final task = data[index];
+                                return DailyTaskWidget(
+                                  task: task,
+                                  repository: widget.repository,
+                                );
                               },
-                            );
-                          },
-                        ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ),
+
                 GestureDetector(
                   onTap: () {
                     overlayController.toggle();
@@ -83,7 +84,7 @@ class _DeadlineysState extends State<Deadlineys> {
                       return AddTaskWidget(
                         widget.repository,
                         overlayController,
-                        taskType: TaskType.deadline,
+                        taskType: TaskType.daily,
                       );
                     },
                     child: AddTaskButton(),

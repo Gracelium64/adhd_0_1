@@ -1,15 +1,15 @@
 import 'package:adhd_0_1/src/common/presentation/app_bg.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/auth_repository.dart';
-import 'package:adhd_0_1/src/features/dailys/presentation/dailys.dart';
-import 'package:adhd_0_1/src/features/deadlineys/presentation/deadlineys.dart';
+import 'package:adhd_0_1/src/features/tasks_dailys/presentation/dailys.dart';
+import 'package:adhd_0_1/src/features/tasks_deadlineys/presentation/deadlineys.dart';
 import 'package:adhd_0_1/src/features/fidget_screen/presentation/fidget_screen.dart';
 import 'package:adhd_0_1/src/features/fridge_lock/presentation/fridge_lock.dart';
 import 'package:adhd_0_1/src/features/prizes/presentation/prizes.dart';
-import 'package:adhd_0_1/src/features/quest/presentation/quest.dart';
+import 'package:adhd_0_1/src/features/tasks_quest/presentation/quest.dart';
 import 'package:adhd_0_1/src/features/settings/presentation/settings.dart';
 import 'package:adhd_0_1/src/features/tutorial/presentation/tutorial.dart';
-import 'package:adhd_0_1/src/features/weeklys/presentation/weeklys.dart';
+import 'package:adhd_0_1/src/features/tasks_weeklys/presentation/weeklys.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 

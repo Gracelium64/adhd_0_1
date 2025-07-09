@@ -3,25 +3,25 @@ import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/add_task_widget.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
-import 'package:adhd_0_1/src/features/Quest/presentation/widgets/quest_task_widget.dart';
+import 'package:adhd_0_1/src/features/tasks_weeklys/presentation/widgets/weekly_task_widget.dart';
 import 'package:flutter/material.dart';
 
-class Quest extends StatefulWidget {
+class Weeklys extends StatefulWidget {
   final DataBaseRepository repository;
 
-  const Quest(this.repository, {super.key});
+  const Weeklys(this.repository, {super.key});
 
   @override
-  State<Quest> createState() => _QuestState();
+  State<Weeklys> createState() => _WeeklysState();
 }
 
-class _QuestState extends State<Quest> {
+class _WeeklysState extends State<Weeklys> {
   late Future<List<Task>> myList;
 
   @override
   void initState() {
     super.initState();
-    myList = widget.repository.getQuestTasks();
+    myList = widget.repository.getWeeklyTasks();
   }
 
   @override
@@ -37,14 +37,17 @@ class _QuestState extends State<Quest> {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return CircularProgressIndicator();
             } else if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
+              return Text(('Error: ${snapshot.error}'));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Text('No data available');
             }
 
             final data = snapshot.data!;
 
             return Column(
               children: [
-                SubTitle(sub: 'Quest'),
+                SubTitle(sub: 'Weeklys'),
+
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(24, 48, 0, 0),
@@ -57,14 +60,9 @@ class _QuestState extends State<Quest> {
                           itemCount: data.length,
                           itemBuilder: (context, index) {
                             final task = data[index];
-                            return QuestTaskWidget(
-                              task: task,
+                            return WeeklyTaskWidget(
                               repository: widget.repository,
-                              onDelete: () {
-                                setState(() {
-                                  data.removeAt(index);
-                                });
-                              },
+                              task: task,
                             );
                           },
                         ),
@@ -82,7 +80,7 @@ class _QuestState extends State<Quest> {
                       return AddTaskWidget(
                         widget.repository,
                         overlayController,
-                        taskType: TaskType.quest,
+                        taskType: TaskType.weekly,
                       );
                     },
                     child: AddTaskButton(),

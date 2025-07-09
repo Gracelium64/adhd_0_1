@@ -215,7 +215,7 @@ class SharedPreferencesRepository implements DataBaseRepository {
       await _saveTasks(PrefsKeys.dailyKey, tasks);
     }
   }
-  
+
   @override
   Future<void> toggleWeekly(int dataTaskId, bool dataIsDone) async {
     final tasks = await _loadTasks(PrefsKeys.weeklyKey);
@@ -227,8 +227,6 @@ class SharedPreferencesRepository implements DataBaseRepository {
       await _saveTasks(PrefsKeys.weeklyKey, tasks);
     }
   }
-  
-
 }
 
 
