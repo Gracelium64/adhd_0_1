@@ -229,7 +229,7 @@ class MockDataBaseRepository implements DataBaseRepository {
     for (int i = 0; i < weeklyTasks.length; i++) {
       if (weeklyTasks[i].taskId == dataTaskId) {
         weeklyTasks[i].taskDesctiption = data;
-        weeklyTasks[i].dayOfWeek = day;
+        weeklyTasks[i].dayOfWeek = day.label;
       }
     }
   }
@@ -339,7 +339,7 @@ class MockDataBaseRepository implements DataBaseRepository {
       }
     }
   }
-  
+
   @override
   Future<void> toggleWeekly(int dataTaskId, bool dataIsDone) async {
     for (int i = 0; i < weeklyTasks.length; i++) {

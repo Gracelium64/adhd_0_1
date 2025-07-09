@@ -18,14 +18,14 @@ class Quest extends StatefulWidget {
 class _QuestState extends State<Quest> {
   late Future<List<Task>> myList;
 
-  @override
-  void initState() {
-    super.initState();
-    myList = widget.repository.getQuestTasks();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  // }
 
   @override
   Widget build(BuildContext context) {
+    myList = widget.repository.getQuestTasks();
     OverlayPortalController overlayController = OverlayPortalController();
 
     return Scaffold(
@@ -60,11 +60,13 @@ class _QuestState extends State<Quest> {
                             return QuestTaskWidget(
                               task: task,
                               repository: widget.repository,
-                              onDelete: () {
-                                setState(() {
-                                  data.removeAt(index);
-                                });
-                              },
+                             onClose: () {
+                                    debugPrint('dailys onClose triggered');
+                                    setState(() {
+                                      myList =
+                                          widget.repository.getDailyTasks();
+                                    });
+                                  },
                             );
                           },
                         ),

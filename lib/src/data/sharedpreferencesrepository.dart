@@ -7,6 +7,7 @@ import 'package:adhd_0_1/src/features/prizes/domain/prizes.dart';
 import 'package:adhd_0_1/src/features/settings/domain/settings.dart';
 import 'package:adhd_0_1/src/data/domain/prefs_keys.dart';
 
+
 class SharedPreferencesRepository implements DataBaseRepository {
   int taskIdCounter = 0;
 
@@ -32,7 +33,9 @@ class SharedPreferencesRepository implements DataBaseRepository {
   @override
   Future<void> addWeekly(String data, day) async {
     final list = await _loadTasks(PrefsKeys.weeklyKey);
-    list.add(Task(taskIdCounter++, 'Weekly', data, null, null, day, false));
+    list.add(
+      Task(taskIdCounter++, 'Weekly', data, null, null, day.label, false),
+    );
     await _saveTasks(PrefsKeys.weeklyKey, list);
   }
 
@@ -119,7 +122,7 @@ class SharedPreferencesRepository implements DataBaseRepository {
   Future<void> editWeekly(int taskId, String data, day) async =>
       _edit(PrefsKeys.weeklyKey, taskId, (t) {
         t.taskDesctiption = data;
-        t.dayOfWeek = day;
+        t.dayOfWeek = day.label;
       });
 
   @override

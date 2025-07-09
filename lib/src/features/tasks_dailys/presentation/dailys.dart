@@ -18,10 +18,10 @@ class Dailys extends StatefulWidget {
 class _DailysState extends State<Dailys> {
   late Future<List<Task>> myList;
 
-  @override
-  void initState() {
-    super.initState();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  // }
 
   @override
   Widget build(BuildContext context) {

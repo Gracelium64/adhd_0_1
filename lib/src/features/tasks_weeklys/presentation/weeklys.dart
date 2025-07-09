@@ -18,14 +18,14 @@ class Weeklys extends StatefulWidget {
 class _WeeklysState extends State<Weeklys> {
   late Future<List<Task>> myList;
 
-  @override
-  void initState() {
-    super.initState();
-    myList = widget.repository.getWeeklyTasks();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  // }
 
   @override
   Widget build(BuildContext context) {
+    myList = widget.repository.getWeeklyTasks();
     OverlayPortalController overlayController = OverlayPortalController();
 
     return Scaffold(
@@ -63,6 +63,13 @@ class _WeeklysState extends State<Weeklys> {
                             return WeeklyTaskWidget(
                               repository: widget.repository,
                               task: task,
+                              onClose: () {
+                                    debugPrint('dailys onClose triggered');
+                                    setState(() {
+                                      myList =
+                                          widget.repository.getDailyTasks();
+                                    });
+                                  },
                             );
                           },
                         ),

@@ -66,7 +66,7 @@ abstract class DataBaseRepository {
   Future<void> deleteDeadline(int dataTaskId);
   Future<void> deleteQuest(int dataTaskId);
   Future<void> editDaily(int dataTaskId, String data);
-  Future<void> editWeekly(int dataTaskId, String data, day);
+  Future<void> editWeekly(int dataTaskId, String data, Weekday day);
   Future<void> editDeadline(int dataTaskId, String data, date, time);
   Future<void> editQuest(int dataTaskId, String data);
   Future<void> setAppUser(String data);

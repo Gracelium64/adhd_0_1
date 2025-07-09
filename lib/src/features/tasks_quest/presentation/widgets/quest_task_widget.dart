@@ -1,18 +1,19 @@
 import 'package:adhd_0_1/src/features/task_management/domain/task.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
+import 'package:adhd_0_1/src/features/task_management/presentation/widgets/edit_task_widget.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 class QuestTaskWidget extends StatefulWidget {
   final Task task;
   final DataBaseRepository repository;
-  final VoidCallback onDelete;
+  final void Function() onClose;
 
   const QuestTaskWidget({
     super.key,
     required this.task,
     required this.repository,
-    required this.onDelete,
+    required this.onClose,
   });
 
   @override
@@ -34,8 +35,7 @@ class _QuestTaskWidgetState extends State<QuestTaskWidget> {
   void _toggleTask() async {
     final newStatus = !widget.task.isDone;
 
-    await widget.repository.completeQuest(widget.task.taskId);
-    widget.onDelete();
+    await widget.repository.toggleWeekly(widget.task.taskId, newStatus);
 
     setState(() {
       isDone = newStatus;
@@ -45,6 +45,8 @@ class _QuestTaskWidgetState extends State<QuestTaskWidget> {
 
   @override
   Widget build(BuildContext context) {
+    OverlayPortalController overlayController = OverlayPortalController();
+
     final double spreadEm = isDone ? -0.1 : -2;
     final String taskStatus =
         isDone
@@ -79,34 +81,52 @@ class _QuestTaskWidgetState extends State<QuestTaskWidget> {
           ),
         ),
         SizedBox(width: 1),
-        Container(
-          width: 257,
-          height: 60,
-          decoration: ShapeDecoration(
-            shadows: [
-              BoxShadow(color: Palette.boxShadow1),
-              BoxShadow(
-                color: Palette.monarchPurple2,
-                blurRadius: 11.8,
-                spreadRadius: -0.1,
-                blurStyle: BlurStyle.inner,
+        GestureDetector(
+          onTap: () {
+            overlayController.toggle();
+          },
+          child: OverlayPortal(
+            controller: overlayController,
+            overlayChildBuilder: (BuildContext context) {
+              return EditTaskWidget(
+                onClose: widget.onClose,
+                widget.repository,
+                overlayController,
+                task: widget.task,
+                taskType: TaskType.quest,
+              );
+            },
+
+            child: Container(
+              width: 257,
+              height: 60,
+              decoration: ShapeDecoration(
+                shadows: [
+                  BoxShadow(color: Palette.boxShadow1),
+                  BoxShadow(
+                    color: Palette.monarchPurple2,
+                    blurRadius: 11.8,
+                    spreadRadius: -0.1,
+                    blurStyle: BlurStyle.inner,
+                  ),
+                ],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(25),
+                    bottomRight: Radius.circular(25),
+                  ),
+                ),
               ),
-            ],
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.only(
-                topRight: Radius.circular(25),
-                bottomRight: Radius.circular(25),
+              child: Row(
+                children: [
+                  SizedBox(width: 8),
+                  Text(
+                    widget.task.taskDesctiption,
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ],
               ),
             ),
-          ),
-          child: Row(
-            children: [
-              SizedBox(width: 8),
-              Text(
-                widget.task.taskDesctiption,
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            ],
           ),
         ),
       ],

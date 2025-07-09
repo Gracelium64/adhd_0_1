@@ -1,4 +1,3 @@
-import 'package:adhd_0_1/src/common/domain/progress_triggers.dart';
 import 'package:adhd_0_1/src/common/presentation/cancel_button.dart';
 import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
 import 'package:adhd_0_1/src/common/presentation/delete_button.dart';
@@ -30,6 +29,25 @@ class EditTaskWidget extends StatefulWidget {
 }
 
 class _EditTaskWidgetState extends State<EditTaskWidget> {
+  DateTime? selectedDate;
+  TimeOfDay? selectedTime;
+
+  String formatDate(DateTime? date) {
+    if (date == null) return 'DAY';
+    final day = date.day.toString().padLeft(2, '0');
+    final month = date.month.toString().padLeft(2, '0');
+    final year = date.year % 100;
+    return '$day/$month/$year';
+  }
+
+  String formatTime(TimeOfDay? time) {
+    if (time == null) return 'HH:MM';
+    final h = time.hour.toString().padLeft(2, '0');
+    final m = time.minute.toString().padLeft(2, '0');
+    return '$h:$m';
+  }
+
+  Weekday? selectedWeekday;
   final formKey = GlobalKey<FormState>();
   bool isButtonEnabled = true;
 
@@ -46,7 +64,7 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
   late TextEditingController userInput;
 
   Color activeButtonColor = Palette.darkTeal;
-  Color passiveButtonColor = Palette.lightTeal;
+  Color passiveButtonColor = Palette.peasantGrey2;
 
   late TaskType selectedType;
 
@@ -59,6 +77,9 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final isWeekly = selectedType == TaskType.weekly;
+    final isDeadline = selectedType == TaskType.deadline;
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Padding(
@@ -150,11 +171,91 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            ElevatedButton(
-                              onPressed: () {},
-                              child: Text('Click here'),
+                            GestureDetector(
+                              onTap: () {},
+                              child: AbsorbPointer(
+                                absorbing: !isWeekly,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color:
+                                        isWeekly
+                                            ? Palette.monarchPurple2.withAlpha(
+                                              100,
+                                            )
+                                            : Palette.monarchPurple2.withAlpha(
+                                              50,
+                                            ),
+                                    borderRadius: BorderRadius.circular(15),
+                                    border: Border.all(
+                                      color:
+                                          isWeekly
+                                              ? Palette.basicBitchBlack
+                                              : Palette.basicBitchBlack
+                                                  .withAlpha(85),
+                                    ),
+                                  ),
+                                  child: PopupMenuButton<Weekday>(
+                                    initialValue: selectedWeekday,
+                                    onSelected: (Weekday value) {
+                                      setState(() {
+                                        selectedWeekday = value;
+                                      });
+                                    },
+                                    color: Palette.monarchPurple2,
+                                    itemBuilder: (context) {
+                                      return Weekday.values.map((day) {
+                                        final label =
+                                            day.label[0].toUpperCase() +
+                                            day.label.substring(1);
+                                        return PopupMenuItem<Weekday>(
+                                          value: day,
+                                          child: Text(
+                                            label,
+                                            style: TextStyle(
+                                              color: Palette.basicBitchWhite,
+                                            ),
+                                          ),
+                                        );
+                                      }).toList();
+                                    },
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          selectedWeekday != null
+                                              ? selectedWeekday!.label[0]
+                                                      .toUpperCase() +
+                                                  selectedWeekday!.label
+                                                      .substring(1)
+                                              : 'Select Day',
+                                          style: TextStyle(
+                                            color:
+                                                isWeekly
+                                                    ? Palette.basicBitchWhite
+                                                    : Palette.basicBitchWhite
+                                                        .withAlpha(85),
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                        Icon(
+                                          Icons.arrow_drop_down,
+                                          color:
+                                              isWeekly
+                                                  ? Palette.basicBitchWhite
+                                                  : Palette.basicBitchWhite
+                                                      .withAlpha(85),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
-                            ////// TODO: DayPick Overlay
                           ],
                         ),
                         Text(
@@ -165,89 +266,133 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            TextButton(
-                              style: TextButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(8),
-                                  ),
-                                  side: BorderSide(
-                                    color: Palette.basicBitchWhite,
-                                    width: 1,
+                            AbsorbPointer(
+                              absorbing: !isDeadline,
+                              child: TextButton(
+                                style: TextButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(8),
+                                    ),
+                                    side: BorderSide(
+                                      color:
+                                          isDeadline
+                                              ? Palette.basicBitchWhite
+                                              : Palette.basicBitchWhite
+                                                  .withAlpha(85),
+                                      width: 1,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              onPressed: () {},
-                              child: Text(
-                                'DAY',
-                                style: TextStyle(
-                                  color: Palette.basicBitchWhite,
+                                onPressed: () async {
+                                  final picked = await showDatePicker(
+                                    context: context,
+                                    initialDate: selectedDate ?? DateTime.now(),
+                                    firstDate: DateTime(2020),
+                                    lastDate: DateTime(2100),
+                                  );
+                                  if (picked != null) {
+                                    setState(() => selectedDate = picked);
+                                  }
+                                },
+                                child: Text(
+                                  formatDate(selectedDate),
+                                  style: TextStyle(
+                                    color:
+                                        isDeadline
+                                            ? Palette.basicBitchWhite
+                                            : Palette.basicBitchWhite.withAlpha(
+                                              127,
+                                            ),
+                                  ),
                                 ),
                               ),
                             ),
-
-                            ////// TODO: replace textbutton with DropdownMenu
-                            TextButton(
-                              style: TextButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(8),
-                                  ),
-                                  side: BorderSide(
-                                    color: Palette.basicBitchWhite,
-                                    width: 1,
+                            AbsorbPointer(
+                              absorbing: !isDeadline,
+                              child: TextButton(
+                                style: TextButton.styleFrom(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(8),
+                                    ),
+                                    side: BorderSide(
+                                      color:
+                                          isDeadline
+                                              ? Palette.basicBitchWhite
+                                              : Palette.basicBitchWhite
+                                                  .withAlpha(85),
+                                      width: 1,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              onPressed: () {},
-                              child: Text(
-                                'HH:MM',
-                                style: TextStyle(
-                                  color: Palette.basicBitchWhite,
+                                onPressed: () async {
+                                  final picked = await showTimePicker(
+                                    context: context,
+                                    initialTime:
+                                        selectedTime ?? TimeOfDay.now(),
+                                  );
+                                  if (picked != null) {
+                                    setState(() => selectedTime = picked);
+                                  }
+                                },
+                                child: Text(
+                                  formatTime(selectedTime),
+                                  style: TextStyle(
+                                    color:
+                                        isDeadline
+                                            ? Palette.basicBitchWhite
+                                            : Palette.basicBitchWhite.withAlpha(
+                                              127,
+                                            ),
+                                  ),
                                 ),
                               ),
                             ),
-                            ////// TODO: replace textbutton with TimeInput
                           ],
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
                           children: [
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  selectedType = TaskType.daily;
-                                });
-                              },
-                              child: Container(
-                                height: 40,
-                                width: 130,
-                                decoration: BoxDecoration(
-                                  color:
-                                      selectedType == TaskType.daily
-                                          ? activeButtonColor
-                                          : passiveButtonColor,
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(15),
+                            AbsorbPointer(
+                              absorbing: selectedType == TaskType.daily,
+                              child: GestureDetector(
+                                onTap: () {
+                                  // setState(() {
+                                  //   selectedType = TaskType.daily;
+                                  // });
+                                },
+                                child: Container(
+                                  height: 40,
+                                  width: 130,
+                                  decoration: BoxDecoration(
+                                    color:
+                                        selectedType == TaskType.daily
+                                            ? activeButtonColor
+                                            : passiveButtonColor,
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(15),
+                                    ),
                                   ),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10),
-                                  child: Text(
-                                    'Dailys',
-                                    style:
-                                        Theme.of(context).textTheme.bodyMedium,
-                                    textAlign: TextAlign.center,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10),
+                                    child: Text(
+                                      'Dailys',
+                                      style:
+                                          Theme.of(
+                                            context,
+                                          ).textTheme.bodyMedium,
+                                      textAlign: TextAlign.center,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                             GestureDetector(
                               onTap: () {
-                                setState(() {
-                                  selectedType = TaskType.weekly;
-                                });
+                                // setState(() {
+                                //   selectedType = TaskType.weekly;
+                                // });
                               },
                               child: Container(
                                 height: 40,
@@ -280,9 +425,9 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
                           children: [
                             GestureDetector(
                               onTap: () {
-                                setState(() {
-                                  selectedType = TaskType.deadline;
-                                });
+                                // setState(() {
+                                //   selectedType = TaskType.deadline;
+                                // });
                               },
                               child: Container(
                                 height: 40,
@@ -309,9 +454,9 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
                             ),
                             GestureDetector(
                               onTap: () {
-                                setState(() {
-                                  selectedType = TaskType.quest;
-                                });
+                                // setState(() {
+                                //   selectedType = TaskType.quest;
+                                // });
                               },
                               child: Container(
                                 height: 40,
@@ -403,29 +548,82 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
                               onPressed:
                                   isButtonEnabled
                                       ? () {}
-                                      : () {
+                                      : () async {
                                         if (selectedType == TaskType.daily) {
-                                          widget.repository.editDaily(
+                                          await widget.repository.editDaily(
                                             widget.task.taskId,
                                             userInput.text,
                                           );
                                           widget.controller.toggle();
                                           setState(() {
                                             debugPrint(
-                                              'edit task widget onClose',
+                                              'edit task daily widget onClose',
                                             );
                                             widget.onClose();
                                           });
+                                        } else if (selectedType ==
+                                                TaskType.weekly &&
+                                            selectedWeekday != null) {
+                                          await widget.repository.editWeekly(
+                                            widget.task.taskId,
+                                            userInput.text,
+                                            selectedWeekday!,
+                                          );
+                                          widget.controller.toggle();
+                                          setState(() {
+                                            debugPrint(
+                                              'edit task weekly widget onClose',
+                                            );
+                                            widget.onClose();
+                                          });
+                                        } else if (selectedType ==
+                                                TaskType.deadline &&
+                                            selectedDate != null &&
+                                            selectedTime != null) {
+                                          final dateStr = formatDate(
+                                            selectedDate,
+                                          );
+                                          final timeStr = formatTime(
+                                            selectedTime,
+                                          );
+
+                                          await widget.repository.editDeadline(
+                                            widget.task.taskId,
+                                            userInput.text,
+                                            dateStr,
+                                            timeStr,
+                                          );
+                                          widget.controller.toggle();
+                                          setState(() {
+                                            debugPrint(
+                                              'edit task deadline widget onClose',
+                                            );
+                                            widget.onClose();
+                                          });
+                                        } else if (selectedType ==
+                                            TaskType.quest) {
+                                          await widget.repository.editQuest(
+                                            widget.task.taskId,
+                                            userInput.text,
+                                          );
+                                          widget.controller.toggle();
+                                          setState(() {
+                                            debugPrint(
+                                              'edit task quest onClose',
+                                            );
+                                            widget.onClose();
+                                          });
+                                        } else {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                'Please complete all required fields',
+                                              ),
+                                            ),
+                                          );
                                         }
-                                        // if (selectedType == TaskType.weekly) {
-                                        //   widget.repository.editWeekly(widget.task.taskId, data, day);
-                                        // }
-                                        // if (selectedType == TaskType.deadline) {
-                                        //   widget.repository.editDeadline(widget.task.taskId, data, date, time);
-                                        // }
-                                        // if (selectedType == TaskType.quest) {
-                                        //   widget.repository.editQuest(widget.task.taskId, userInput.text);
-                                        // }
                                       },
                             ),
                           ],

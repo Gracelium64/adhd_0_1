@@ -5,7 +5,6 @@ import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/tasks_deadlineys/presentation/widgets/deadline_task_widget.dart';
 import 'package:flutter/material.dart';
-// import 'dart:io' show Platform;
 
 class Deadlineys extends StatefulWidget {
   final DataBaseRepository repository;
@@ -19,14 +18,14 @@ class Deadlineys extends StatefulWidget {
 class _DeadlineysState extends State<Deadlineys> {
   late Future<List<Task>> myList;
 
-  @override
-  void initState() {
-    super.initState();
-    myList = widget.repository.getDeadlineTasks();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  // }
 
   @override
   Widget build(BuildContext context) {
+    myList = widget.repository.getDeadlineTasks();
     OverlayPortalController overlayController = OverlayPortalController();
 
     return Scaffold(
@@ -61,11 +60,13 @@ class _DeadlineysState extends State<Deadlineys> {
                             return DeadlineTaskWidget(
                               task: task,
                               repository: widget.repository,
-                              onDelete: () {
-                                setState(() {
-                                  data.removeAt(index);
-                                });
-                              },
+                              onClose: () {
+                                    debugPrint('dailys onClose triggered');
+                                    setState(() {
+                                      myList =
+                                          widget.repository.getDailyTasks();
+                                    });
+                                  },
                             );
                           },
                         ),

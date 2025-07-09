@@ -14,8 +14,6 @@ import 'package:adhd_0_1/src/data/syncrepository.dart';
 // import 'package:flutter/foundation.dart';
 // import 'package:device_preview/device_preview.dart';
 
-
-
 /*
 There is A LOT of redundent code in this file.
 I know that it's there, it has been left there on purpose.
@@ -26,7 +24,6 @@ Fuck it, the code stays.
 
 There will not be many comments in this project, you've just collected your first!  
 */
-
 
 void initSyncListeners(SyncRepository repository) {
   final Connectivity connectivity = Connectivity();
@@ -68,10 +65,8 @@ Future<void> main() async {
   //  // // SPRINT 1 // //
   //  // // SPRINT 1.1 // // ---------------------- UNTIL 6.7.25 ---------------------- // //
   // // MVP Functionality // //
-  //TODO: click on task open edit task overlay
-  //TODO: add task overlay - remove delete button, touch up and implement working overlay
-  //TODO: edit task overlay - based on add task overlay
-
+    //TODO: add task overlay - remove delete button, touch up and implement working overlay
+  
   //
   // v.0.1.11 //
   //
@@ -106,6 +101,8 @@ Future<void> main() async {
   //TODO: about overlay
   // // Logic // //
   //TODO: remove initializer for shared preferences
+  //TODO: BUG - confirm button in edit_task_widget.dart only works when taskDescription is changed
+  //TODO: weeklyTask - if day is "any" don't show it
   // // SECURITY // //
   //TODO: Autogenerate random password to replace current default
   //TODO: auto copy user unique id and password to clipboard when registring and aleart the user about it
