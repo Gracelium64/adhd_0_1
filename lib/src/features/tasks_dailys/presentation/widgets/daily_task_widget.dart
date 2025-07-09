@@ -6,14 +6,15 @@ import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 class DailyTaskWidget extends StatefulWidget {
-  
   final Task task;
   final DataBaseRepository repository;
+  final void Function() onClose;
 
   const DailyTaskWidget({
     super.key,
     required this.task,
     required this.repository,
+    required this.onClose,
   });
 
   @override
@@ -95,11 +96,11 @@ class _DailyTaskWidgetState extends State<DailyTaskWidget> {
             controller: overlayController,
             overlayChildBuilder: (BuildContext context) {
               return EditTaskWidget(
+                onClose: widget.onClose,
                 widget.repository,
                 overlayController,
                 task: widget.task,
                 taskType: TaskType.daily,
-                
               );
             },
             child: Container(

@@ -21,11 +21,11 @@ class _DailysState extends State<Dailys> {
   @override
   void initState() {
     super.initState();
-    myList = widget.repository.getDailyTasks(); ///// stream instead of future?
   }
 
   @override
   Widget build(BuildContext context) {
+    myList = widget.repository.getDailyTasks();
     OverlayPortalController overlayController = OverlayPortalController();
 
     return Scaffold(
@@ -63,7 +63,14 @@ class _DailysState extends State<Dailys> {
                                 final task = data[index];
                                 return DailyTaskWidget(
                                   task: task,
-                                  repository: widget.repository, onClose: () {  },
+                                  repository: widget.repository,
+                                  onClose: () {
+                                    debugPrint('dailys onClose triggered');
+                                    setState(() {
+                                      myList =
+                                          widget.repository.getDailyTasks();
+                                    });
+                                  },
                                 );
                               },
                             ),
