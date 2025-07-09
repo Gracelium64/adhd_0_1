@@ -1,29 +1,45 @@
+import 'package:adhd_0_1/src/common/domain/progress_triggers.dart';
 import 'package:adhd_0_1/src/common/presentation/cancel_button.dart';
 import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
 import 'package:adhd_0_1/src/common/presentation/delete_button.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
+import 'package:adhd_0_1/src/features/task_management/domain/task.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 enum TaskType { daily, weekly, deadline, quest }
 
-class AddTaskWidget extends StatefulWidget {
+class EditTaskWidget extends StatefulWidget {
   final DataBaseRepository repository;
   final OverlayPortalController controller;
+  final Task task;
   final TaskType taskType;
 
-  const AddTaskWidget(
+  const EditTaskWidget(
     this.repository,
     this.controller, {
     super.key,
+    required this.task,
     required this.taskType,
   });
 
   @override
-  State<AddTaskWidget> createState() => _AddTaskWidgetState();
+  State<EditTaskWidget> createState() => _EditTaskWidgetState();
 }
 
-class _AddTaskWidgetState extends State<AddTaskWidget> {
+class _EditTaskWidgetState extends State<EditTaskWidget> {
+  String? _taskLengthValidator(String? userInput) {
+    if (userInput == null || userInput.isEmpty) {
+      return 'Every adventure needs a name';
+    }
+    if (userInput.length >= 36) {
+      return 'But not a name that long!';
+    }
+    return null;
+  }
+
+  late TextEditingController userInput;
+
   Color activeButtonColor = Palette.darkTeal;
   Color passiveButtonColor = Palette.lightTeal;
 
@@ -32,6 +48,7 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
   @override
   void initState() {
     super.initState();
+    userInput = TextEditingController(text: widget.task.taskDesctiption);
     selectedType = widget.taskType;
   }
 
@@ -79,7 +96,36 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
                         style: Theme.of(context).textTheme.displayMedium,
                         textAlign: TextAlign.center,
                       ),
-                      TextFormField(maxLength: 36),
+                      TextFormField(
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                        validator: _taskLengthValidator,
+                        controller: userInput,
+                        style: TextStyle(color: Palette.basicBitchWhite),
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Palette.monarchPurple2.withAlpha(100),
+
+                          contentPadding: EdgeInsets.only(bottom: 14),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide.none,
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Palette.basicBitchBlack,
+                              width: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          hintStyle: TextStyle(
+                            color: Palette.basicBitchBlack,
+                            fontFamily: 'Inter',
+                            fontSize: 12,
+                          ),
+                        ),
+                        textAlign: TextAlign.center,
+                        textAlignVertical: TextAlignVertical.center,
+                      ),
 
                       Text(
                         'Day of the week',
@@ -273,12 +319,32 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
+                          DeleteButton(onPressed: () {}),
                           CancelButton(
                             onPressed: () {
                               widget.controller.toggle();
                             },
                           ),
-                          ConfirmButton(onPressed: () {}),
+                          ConfirmButton(
+                            onPressed: () {
+                              if (selectedType == TaskType.daily) {
+                                widget.repository.editDaily(
+                                  widget.task.taskId,
+                                  userInput.text,
+                                );
+                                widget.controller.toggle();
+                              }
+                              // if (selectedType == TaskType.weekly) {
+                              //   widget.repository.editWeekly(widget.task.taskId, data, day);
+                              // }
+                              // if (selectedType == TaskType.deadline) {
+                              //   widget.repository.editDeadline(widget.task.taskId, data, date, time);
+                              // }
+                              // if (selectedType == TaskType.quest) {
+                              //   widget.repository.editQuest(widget.task.taskId, userInput.text);
+                              // }
+                            },
+                          ),
                         ],
                       ),
                     ],

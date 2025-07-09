@@ -21,7 +21,7 @@ class _DailysState extends State<Dailys> {
   @override
   void initState() {
     super.initState();
-    myList = widget.repository.getDailyTasks();
+    myList = widget.repository.getDailyTasks(); ///// stream instead of future?
   }
 
   @override
@@ -63,7 +63,7 @@ class _DailysState extends State<Dailys> {
                                 final task = data[index];
                                 return DailyTaskWidget(
                                   task: task,
-                                  repository: widget.repository,
+                                  repository: widget.repository, onClose: () {  },
                                 );
                               },
                             ),
