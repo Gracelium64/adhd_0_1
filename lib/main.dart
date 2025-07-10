@@ -63,12 +63,13 @@ Future<void> main() async {
   //
   //
 
-  
   //
   // v.0.1.11 //
   //
 
-  //  // // SPRINT 1.2 // // ---------------------- UNTIL 13.7.25 ---------------------- // //
+  //  // // SPRINT 1.2 // // ---------------------- UNTIL 13.7.25 / 18.7.25 ---------------------- // //
+  // // P.22 // //
+  //TODO: FireBaseRepository
   // // MVP Visual // //
   //TODO: tutorial overlay
   //TODO: single prize overlay
@@ -86,7 +87,7 @@ Future<void> main() async {
   // v.0.1.12 //
   //
 
-  //  // // SPRINT 2 // // ---------------------- UNTIL 20.7.25 ---------------------- // //
+  //  // // SPRINT 2 // // ---------------------- UNTIL 20.7.25 / 23.7.25 ---------------------- // //
   // Functionality // //
   //TODO: weather API
   //TODO: how to save files outside of shared memory / sharing files / save local backup of user data from local repository
@@ -113,7 +114,7 @@ Future<void> main() async {
   //TODO: automated testing (?)
   //
 
-  //  // // SPRINT 3 // // ---------------------- UNTIL 26.7.25 ---------------------- // //
+  //  // // SPRINT 3 // // ---------------------- UNTIL 26.7.25 / 29.7.25 ---------------------- // //
   // // Non MVP // //
   //TODO: UNDO Button in SncakBar when completing a Quest or Deadline Tasks
   //TODO: eastereggs
@@ -124,6 +125,7 @@ Future<void> main() async {
   //TODO: repurpose FridgeLock (?)
   //TODO: tasks with multiple subtasks
   //TODO: animated splash screen
+  //TODO: user console area through settings, console looks and user input. delete user information, backup user information from file, backup user information to file, back to app
 
   //
   // v.0.1.3 //
