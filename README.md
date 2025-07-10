@@ -13,5 +13,5 @@ Good luck.
 // v.0.1.11 //          10/7/25
 basic functionality of adding and editing tasks works (small bugs), progress bars work, coldstart procedure works
 
-18/5/2025 - v0.1
-Most HiFi screens programmed in, no function.
+// v.0.1   //           18/5/2025
+most HiFi screens programmed in, no function.
