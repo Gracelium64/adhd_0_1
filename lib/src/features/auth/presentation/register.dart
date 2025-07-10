@@ -126,6 +126,7 @@ class _RegisterState extends State<Register> {
                           value: '$userId@adventurer.adhd',
                         );
                         await storage.write(key: 'password', value: 'password');
+                        await storage.write(key: 'userId', value: userId);
                         await onSubmit('$userId@adventurer.adhd', 'password');
 
                         if (!context.mounted) return;

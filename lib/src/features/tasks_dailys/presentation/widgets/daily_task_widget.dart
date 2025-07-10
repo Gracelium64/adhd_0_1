@@ -1,5 +1,5 @@
 import 'package:adhd_0_1/src/common/domain/progress_triggers.dart';
-import 'package:adhd_0_1/src/features/task_management/domain/task.dart';
+import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/edit_task_widget.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';

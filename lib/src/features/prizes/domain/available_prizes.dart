@@ -1,4 +1,4 @@
-import 'package:adhd_0_1/src/features/prizes/domain/prizes.dart';
+import 'package:adhd_0_1/src/common/domain/prizes.dart';
 
 List<Prizes> availablePrizes = [
   Prizes(prizeId: 001, prizeUrl: 'assets/img/prizes/Sticker1.png'),

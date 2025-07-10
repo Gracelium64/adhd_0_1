@@ -1,5 +1,5 @@
 import 'package:adhd_0_1/src/data/databaserepository.dart';
-import 'package:adhd_0_1/src/features/prizes/domain/prizes.dart';
+import 'package:adhd_0_1/src/common/domain/prizes.dart';
 import 'package:flutter/material.dart';
 
 class PrizesWidget extends StatefulWidget {
