@@ -48,67 +48,67 @@ class SyncRepository implements DataBaseRepository {
   // }
 
   @override
-  Future<void> completeDeadline(int dataTaskId) async {
+  Future<void> completeDeadline(String dataTaskId) async {
     await localRepo.completeDeadline(dataTaskId);
     triggerSync();
   }
 
   @override
-  Future<void> completeQuest(int dataTaskId) async {
+  Future<void> completeQuest(String dataTaskId) async {
     await localRepo.completeQuest(dataTaskId);
     triggerSync();
   }
 
   // @override
-  // Future<void> completeWeekly(int dataTaskId) async {
+  // Future<void> completeWeekly(String dataTaskId) async {
   //   await localRepo.completeWeekly(dataTaskId);
   //   triggerSync();
   // }
 
   @override
-  Future<void> deleteDaily(int dataTaskId) async {
+  Future<void> deleteDaily(String dataTaskId) async {
     await localRepo.deleteDaily(dataTaskId);
     triggerSync();
   }
 
   @override
-  Future<void> deleteDeadline(int dataTaskId) async {
+  Future<void> deleteDeadline(String dataTaskId) async {
     await localRepo.deleteDeadline(dataTaskId);
     triggerSync();
   }
 
   @override
-  Future<void> deleteQuest(int dataTaskId) async {
+  Future<void> deleteQuest(String dataTaskId) async {
     await localRepo.deleteQuest(dataTaskId);
     triggerSync();
   }
 
   @override
-  Future<void> deleteWeekly(int dataTaskId) async {
+  Future<void> deleteWeekly(String dataTaskId) async {
     await localRepo.deleteWeekly(dataTaskId);
     triggerSync();
   }
 
   @override
-  Future<void> editDaily(int dataTaskId, String data) async {
+  Future<void> editDaily(String dataTaskId, String data) async {
     await localRepo.editDaily(dataTaskId, data);
     triggerSync();
   }
 
   @override
-  Future<void> editDeadline(int dataTaskId, String data, date, time) async {
+  Future<void> editDeadline(String dataTaskId, String data, date, time) async {
     await localRepo.editDeadline(dataTaskId, data, date, time);
     triggerSync();
   }
 
   @override
-  Future<void> editQuest(int dataTaskId, String data) async {
+  Future<void> editQuest(String dataTaskId, String data) async {
     await localRepo.editQuest(dataTaskId, data);
     triggerSync();
   }
 
   @override
-  Future<void> editWeekly(int dataTaskId, String data, day) async {
+  Future<void> editWeekly(String dataTaskId, String data, day) async {
     await localRepo.editWeekly(dataTaskId, data, day);
     triggerSync();
   }
@@ -175,13 +175,13 @@ class SyncRepository implements DataBaseRepository {
   }
 
   @override
-  Future<void> toggleDaily(int taskId, bool isDone) async {
+  Future<void> toggleDaily(String taskId, bool isDone) async {
     await localRepo.toggleDaily(taskId, isDone);
     triggerSync();
   }
 
   @override
-  Future<void> toggleWeekly(int dataTaskId, bool dataIsDone) async {
+  Future<void> toggleWeekly(String dataTaskId, bool dataIsDone) async {
     await localRepo.toggleWeekly(dataTaskId, dataIsDone);
     triggerSync();
   }

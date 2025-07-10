@@ -51,7 +51,7 @@ class _AppBgState extends State<AppBg> {
       final skin = settings?.appSkinColor;
       return appBgSkin(skin);
     } catch (e) {
-      return appBgSkin(true);
+      return appBgSkin(null);
     }
   }
 

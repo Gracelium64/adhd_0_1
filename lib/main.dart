@@ -94,17 +94,18 @@ Future<void> main() async {
   //TODO: how to save files outside of shared memory / sharing files / save local backup of user data from local repository
   // // Visual // //
   //TODO: responsive design - this design is problematic for up- and downscaling
+  //TODO: weeklyTaskWidget - if day is "any" don't show it
   //TODO: week summery overlay
   //TODO: good morning overlay
   //TODO: backup overlays
   //TODO: about overlay
+  //TODO: when setting appSkinColor to null it still displays pink
   // // Logic // //
   //TODO: remove initializer for shared preferences
   //TODO: BUG - confirm button in edit_task_widget.dart only works when taskDescription is changed
-  //TODO: weeklyTaskWidget - if day is "any" don't show it
   // // SECURITY // //
   //TODO: Autogenerate random password to replace current default
-  //TODO: aleart user to it's userId through the settings menu and make it clickable copy to clipboard
+  //TODO: aleart user to it's userId and password through the settings menu and make it clickable copy to clipboard
 
   //
   // v.0.1.2 //
@@ -120,13 +121,20 @@ Future<void> main() async {
   //TODO: UNDO Button in SncakBar when completing a Quest or Deadline Tasks
   //TODO: eastereggs
   //TODO: translations
-  //TODO: display tasks for today (optional for update)
+  //TODO: display tasks for today
   //TODO: make more AI abominations for prizes
-  //TODO: add more items to tip of the day
+  //TODO: review tip of the day
   //TODO: repurpose FridgeLock (?)
   //TODO: tasks with multiple subtasks
   //TODO: animated splash screen
-  //TODO: user console area through settings, console looks and user input. delete user information, backup user information from file, backup user information to file, back to app
+  //TODO: user console area through settings, console looks and user input
+  //  [
+  //delete user information,
+  //load user information from file,
+  //load user information of existing user
+  //(copy in database from one user document with another with entering a valid unique userId),
+  //backup user information to file, back to app
+  //  ]
 
   //
   // v.0.1.3 //

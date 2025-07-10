@@ -26,7 +26,7 @@ class SharedPreferencesRepository implements DataBaseRepository {
   @override
   Future<void> addDaily(String data) async {
     final list = await _loadTasks(PrefsKeys.dailyKey);
-    list.add(Task(taskIdCounter++, 'Daily', data, null, null, null, false));
+    list.add(Task({taskIdCounter++}.toString(), 'Daily', data, null, null, null, false));
     await _saveTasks(PrefsKeys.dailyKey, list);
   }
 
@@ -34,7 +34,7 @@ class SharedPreferencesRepository implements DataBaseRepository {
   Future<void> addWeekly(String data, day) async {
     final list = await _loadTasks(PrefsKeys.weeklyKey);
     list.add(
-      Task(taskIdCounter++, 'Weekly', data, null, null, day.label, false),
+      Task({taskIdCounter++}.toString(), 'Weekly', data, null, null, day.label, false),
     );
     await _saveTasks(PrefsKeys.weeklyKey, list);
   }
@@ -42,14 +42,14 @@ class SharedPreferencesRepository implements DataBaseRepository {
   @override
   Future<void> addDeadline(String data, date, time) async {
     final list = await _loadTasks(PrefsKeys.deadlineKey);
-    list.add(Task(taskIdCounter++, 'Deadline', data, date, time, null, false));
+    list.add(Task({taskIdCounter++}.toString(), 'Deadline', data, date, time, null, false));
     await _saveTasks(PrefsKeys.deadlineKey, list);
   }
 
   @override
   Future<void> addQuest(String data) async {
     final list = await _loadTasks(PrefsKeys.questKey);
-    list.add(Task(taskIdCounter++, 'Quest', data, null, null, null, false));
+    list.add(Task({taskIdCounter++}.toString(), 'Quest', data, null, null, null, false));
     await _saveTasks(PrefsKeys.questKey, list);
   }
 
@@ -68,20 +68,20 @@ class SharedPreferencesRepository implements DataBaseRepository {
   }
 
   // @override
-  // Future<void> completeDaily(int dataTaskId) async =>
+  // Future<void> completeDaily(String dataTaskId) async =>
   //     _markComplete(PrefsKeys.dailyKey, dataTaskId);
 
   // @override
-  // Future<void> completeWeekly(int dataTaskId) async =>
+  // Future<void> completeWeekly(String dataTaskId) async =>
   //     _markComplete(PrefsKeys.weeklyKey, dataTaskId);
 
   @override
-  Future<void> completeDeadline(int dataTaskId) async =>
-      _markComplete(PrefsKeys.deadlineKey, dataTaskId, remove: true);
+  Future<void> completeDeadline(String dataTaskId) async =>
+      _markComplete(PrefsKeys.deadlineKey, int.parse(dataTaskId), remove: true);
 
   @override
-  Future<void> completeQuest(int dataTaskId) async =>
-      _markComplete(PrefsKeys.questKey, dataTaskId, remove: true);
+  Future<void> completeQuest(String dataTaskId) async =>
+      _markComplete(PrefsKeys.questKey, int.parse(dataTaskId), remove: true);
 
   Future<void> _delete(String key, int taskId) async {
     final list = await _loadTasks(key);
@@ -90,20 +90,20 @@ class SharedPreferencesRepository implements DataBaseRepository {
   }
 
   @override
-  Future<void> deleteDaily(int dataTaskId) async =>
-      _delete(PrefsKeys.dailyKey, dataTaskId);
+  Future<void> deleteDaily(String dataTaskId) async =>
+      _delete(PrefsKeys.dailyKey, int.parse(dataTaskId));
 
   @override
-  Future<void> deleteWeekly(int dataTaskId) async =>
-      _delete(PrefsKeys.weeklyKey, dataTaskId);
+  Future<void> deleteWeekly(String dataTaskId) async =>
+      _delete(PrefsKeys.weeklyKey, int.parse(dataTaskId));
 
   @override
-  Future<void> deleteDeadline(int dataTaskId) async =>
-      _delete(PrefsKeys.deadlineKey, dataTaskId);
+  Future<void> deleteDeadline(String dataTaskId) async =>
+      _delete(PrefsKeys.deadlineKey, int.parse(dataTaskId));
 
   @override
-  Future<void> deleteQuest(int dataTaskId) async =>
-      _delete(PrefsKeys.questKey, dataTaskId);
+  Future<void> deleteQuest(String dataTaskId) async =>
+      _delete(PrefsKeys.questKey, int.parse(dataTaskId));
 
   Future<void> _edit(String key, int taskId, void Function(Task) modify) async {
     final list = await _loadTasks(key);
@@ -115,27 +115,27 @@ class SharedPreferencesRepository implements DataBaseRepository {
   }
 
   @override
-  Future<void> editDaily(int taskId, String data) async =>
-      _edit(PrefsKeys.dailyKey, taskId, (t) => t.taskDesctiption = data);
+  Future<void> editDaily(String taskId, String data) async =>
+      _edit(PrefsKeys.dailyKey, int.parse(taskId), (t) => t.taskDesctiption = data);
 
   @override
-  Future<void> editWeekly(int taskId, String data, day) async =>
-      _edit(PrefsKeys.weeklyKey, taskId, (t) {
+  Future<void> editWeekly(String taskId, String data, day) async =>
+      _edit(PrefsKeys.weeklyKey, int.parse(taskId), (t) {
         t.taskDesctiption = data;
         t.dayOfWeek = day.label;
       });
 
   @override
-  Future<void> editDeadline(int taskId, String data, date, time) async =>
-      _edit(PrefsKeys.deadlineKey, taskId, (t) {
+  Future<void> editDeadline(String taskId, String data, date, time) async =>
+      _edit(PrefsKeys.deadlineKey, int.parse(taskId), (t) {
         t.taskDesctiption = data;
         t.deadlineDate = date;
         t.deadlineTime = time;
       });
 
   @override
-  Future<void> editQuest(int taskId, String data) async =>
-      _edit(PrefsKeys.questKey, taskId, (t) => t.taskDesctiption = data);
+  Future<void> editQuest(String taskId, String data) async =>
+      _edit(PrefsKeys.questKey, int.parse(taskId), (t) => t.taskDesctiption = data);
 
   @override
   Future<List<Task>> getDailyTasks() => _loadTasks(PrefsKeys.dailyKey);
@@ -208,7 +208,7 @@ class SharedPreferencesRepository implements DataBaseRepository {
   }
 
   @override
-  Future<void> toggleDaily(int dataTaskId, bool dataIsDone) async {
+  Future<void> toggleDaily(String dataTaskId, bool dataIsDone) async {
     final tasks = await _loadTasks(PrefsKeys.dailyKey);
     final index = tasks.indexWhere((t) {
       return t.taskId == dataTaskId;
@@ -220,7 +220,7 @@ class SharedPreferencesRepository implements DataBaseRepository {
   }
 
   @override
-  Future<void> toggleWeekly(int dataTaskId, bool dataIsDone) async {
+  Future<void> toggleWeekly(String dataTaskId, bool dataIsDone) async {
     final tasks = await _loadTasks(PrefsKeys.weeklyKey);
     final index = tasks.indexWhere((t) {
       return t.taskId == dataTaskId;

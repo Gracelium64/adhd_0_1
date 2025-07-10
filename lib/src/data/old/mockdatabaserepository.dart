@@ -1,3 +1,5 @@
+// ignore_for_file: unrelated_type_equality_checks
+
 import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/common/domain/prizes.dart';
@@ -138,7 +140,7 @@ class MockDataBaseRepository implements DataBaseRepository {
   }
 
   // @override
-  // Future<void> completeDaily(int dataTaskId) async {
+  // Future<void> completeDaily(String dataTaskId) async {
   //   for (int i = 0; i < dailyTasks.length; i++) {
   //     if (dailyTasks[i].taskId == dataTaskId) {
   //       dailyTasks[i].isDone = true;
@@ -148,7 +150,7 @@ class MockDataBaseRepository implements DataBaseRepository {
   // }
 
   // @override
-  // Future<void> completeWeekly(int dataTaskId) async {
+  // Future<void> completeWeekly(String dataTaskId) async {
   //   for (int i = 0; i < weeklyTasks.length; i++) {
   //     if (weeklyTasks[i].taskId == dataTaskId) {
   //       weeklyTasks[i].isDone = true;
@@ -158,7 +160,7 @@ class MockDataBaseRepository implements DataBaseRepository {
   // }
 
   @override
-  Future<void> completeDeadline(int dataTaskId) async {
+  Future<void> completeDeadline(String dataTaskId) async {
     for (int i = 0; i < deadlineTasks.length; i++) {
       if (deadlineTasks[i].taskId == dataTaskId) {
         deadlineTasks[i].isDone = true;
@@ -169,7 +171,7 @@ class MockDataBaseRepository implements DataBaseRepository {
   }
 
   @override
-  Future<void> completeQuest(int dataTaskId) async {
+  Future<void> completeQuest(String dataTaskId) async {
     for (int i = 0; i < questTasks.length; i++) {
       if (questTasks[i].taskId == dataTaskId) {
         questTasks[i].isDone = true;
@@ -180,7 +182,7 @@ class MockDataBaseRepository implements DataBaseRepository {
   }
 
   @override
-  Future<void> deleteDaily(int dataTaskId) async {
+  Future<void> deleteDaily(String dataTaskId) async {
     for (int i = 0; i < dailyTasks.length; i++) {
       if (dailyTasks[i].taskId == dataTaskId) {
         dailyTasks.remove(dailyTasks[i]);
@@ -189,7 +191,7 @@ class MockDataBaseRepository implements DataBaseRepository {
   }
 
   @override
-  Future<void> deleteWeekly(int dataTaskId) async {
+  Future<void> deleteWeekly(String dataTaskId) async {
     for (int i = 0; i < weeklyTasks.length; i++) {
       if (weeklyTasks[i].taskId == dataTaskId) {
         weeklyTasks.remove(weeklyTasks[i]);
@@ -198,7 +200,7 @@ class MockDataBaseRepository implements DataBaseRepository {
   }
 
   @override
-  Future<void> deleteDeadline(int dataTaskId) async {
+  Future<void> deleteDeadline(String dataTaskId) async {
     for (int i = 0; i < deadlineTasks.length; i++) {
       if (deadlineTasks[i].taskId == dataTaskId) {
         deadlineTasks.remove(deadlineTasks[i]);
@@ -207,7 +209,7 @@ class MockDataBaseRepository implements DataBaseRepository {
   }
 
   @override
-  Future<void> deleteQuest(int dataTaskId) async {
+  Future<void> deleteQuest(String dataTaskId) async {
     for (int i = 0; i < questTasks.length; i++) {
       if (questTasks[i].taskId == dataTaskId) {
         questTasks.remove(questTasks[i]);
@@ -216,7 +218,7 @@ class MockDataBaseRepository implements DataBaseRepository {
   }
 
   @override
-  Future<void> editDaily(int dataTaskId, String data) async {
+  Future<void> editDaily(String dataTaskId, String data) async {
     for (int i = 0; i < dailyTasks.length; i++) {
       if (dailyTasks[i].taskId == dataTaskId) {
         dailyTasks[i].taskDesctiption = data;
@@ -225,7 +227,7 @@ class MockDataBaseRepository implements DataBaseRepository {
   }
 
   @override
-  Future<void> editWeekly(int dataTaskId, String data, day) async {
+  Future<void> editWeekly(String dataTaskId, String data, day) async {
     for (int i = 0; i < weeklyTasks.length; i++) {
       if (weeklyTasks[i].taskId == dataTaskId) {
         weeklyTasks[i].taskDesctiption = data;
@@ -235,7 +237,7 @@ class MockDataBaseRepository implements DataBaseRepository {
   }
 
   @override
-  Future<void> editDeadline(int dataTaskId, String data, date, time) async {
+  Future<void> editDeadline(String dataTaskId, String data, date, time) async {
     for (int i = 0; i < deadlineTasks.length; i++) {
       if (deadlineTasks[i].taskId == dataTaskId) {
         deadlineTasks[i].taskDesctiption = data;
@@ -246,9 +248,9 @@ class MockDataBaseRepository implements DataBaseRepository {
   }
 
   @override
-  Future<void> editQuest(int dataTaskID, String data) async {
+  Future<void> editQuest(String dataTaskId, String data) async {
     for (int i = 0; i < questTasks.length; i++) {
-      if (questTasks[i].taskId == dataTaskID) {
+      if (questTasks[i].taskId == dataTaskId) {
         questTasks[i].taskDesctiption = data;
       }
     }
@@ -332,7 +334,7 @@ class MockDataBaseRepository implements DataBaseRepository {
   }
 
   @override
-  Future<void> toggleDaily(int dataTaskId, bool dataIsDone) async {
+  Future<void> toggleDaily(String dataTaskId, bool dataIsDone) async {
     for (int i = 0; i < dailyTasks.length; i++) {
       if (dailyTasks[i].taskId == dataTaskId) {
         dailyTasks[i].isDone = dataIsDone;
@@ -341,7 +343,7 @@ class MockDataBaseRepository implements DataBaseRepository {
   }
 
   @override
-  Future<void> toggleWeekly(int dataTaskId, bool dataIsDone) async {
+  Future<void> toggleWeekly(String dataTaskId, bool dataIsDone) async {
     for (int i = 0; i < weeklyTasks.length; i++) {
       if (weeklyTasks[i].taskId == dataTaskId) {
         weeklyTasks[i].isDone = dataIsDone;

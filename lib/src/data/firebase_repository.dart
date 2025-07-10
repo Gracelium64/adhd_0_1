@@ -1,14 +1,7 @@
 import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/common/domain/prizes.dart';
-import 'package:adhd_0_1/src/common/domain/settings.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:adhd_0_1/src/common/domain/app_user.dart';
-import 'package:adhd_0_1/src/common/domain/prizes.dart';
-import 'package:adhd_0_1/src/common/domain/settings.dart';
-import 'package:adhd_0_1/src/common/domain/task.dart';
-import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class FirebaseRepository implements DataBaseRepository {
@@ -180,7 +173,7 @@ class FirebaseRepository implements DataBaseRepository {
   }
 
   @override
-  Future<void> completeDeadline(int dataTaskId) async {
+  Future<void> completeDeadline(String dataTaskId) async {
     final String? userId = await loadUserId();
 
     final query =
@@ -201,16 +194,16 @@ class FirebaseRepository implements DataBaseRepository {
   }
 
   @override
-  Future<void> completeQuest(int dataTaskId) async {}
+  Future<void> completeQuest(String dataTaskId) async {}
 
   @override
-  Future<void> deleteDaily(int dataTaskId) async {}
+  Future<void> deleteDaily(String dataTaskId) async {}
 
   @override
-  Future<void> deleteWeekly(int dataTaskId) async {}
+  Future<void> deleteWeekly(String dataTaskId) async {}
 
   @override
-  Future<void> deleteDeadline(int dataTaskId) async {
+  Future<void> deleteDeadline(String dataTaskId) async {
     final String? userId = await loadUserId();
 
     final query =
@@ -229,66 +222,66 @@ class FirebaseRepository implements DataBaseRepository {
     }
   }
 
-  @override
-  Future<void> deleteQuest(int dataTaskId) async {}
+  // @override
+  // Future<void> deleteQuest(int dataTaskId) async {}
 
-  @override
-  Future<void> editDaily(int dataTaskId, String data) async {}
+  // @override
+  // Future<void> editDaily(int dataTaskId, String data) async {}
 
-  @override
-  Future<void> editWeekly(int dataTaskId, String data, day) async {}
+  // @override
+  // Future<void> editWeekly(int dataTaskId, String data, day) async {}
 
-  @override
-  Future<void> editDeadline(int dataTaskId, String data, date, time) async {}
+  // @override
+  // Future<void> editDeadline(int dataTaskId, String data, date, time) async {}
 
-  @override
-  Future<void> editQuest(int dataTaskID, String data) async {}
+  // @override
+  // Future<void> editQuest(int dataTaskID, String data) async {}
 
-  @override
-  Future<Settings> setSettings(
-    bool? dataAppSkinColor,
-    String dataLanguage,
-    String dataLocation,
-    TimeOfDay dataStartOfDay,
-    Weekday dataStartOfWeek,
-  ) async {}
+//   @override
+//   Future<Settings> setSettings(
+//     bool? dataAppSkinColor,
+//     String dataLanguage,
+//     String dataLocation,
+//     TimeOfDay dataStartOfDay,
+//     Weekday dataStartOfWeek,
+//   ) async {}
 
-  @override
-  Future<List<Task>> getDailyTasks() async {}
+//   @override
+//   Future<List<Task>> getDailyTasks() async {}
 
-  @override
-  Future<List<Task>> getWeeklyTasks() async {}
+//   @override
+//   Future<List<Task>> getWeeklyTasks() async {}
 
-  @override
-  Future<List<Task>> getDeadlineTasks() async {}
+//   @override
+//   Future<List<Task>> getDeadlineTasks() async {}
 
-  @override
-  Future<List<Task>> getQuestTasks() async {}
+//   @override
+//   Future<List<Task>> getQuestTasks() async {}
 
-  @override
-  Future<List<Prizes>> getPrizes() async {}
+//   @override
+//   Future<List<Prizes>> getPrizes() async {}
 
-  @override
-  Future<Settings?> getSettings() async {}
+//   @override
+//   Future<Settings?> getSettings() async {}
 
-  @override
-  Future<void> setAppUser(
-    String userId,
-    userName,
-    email,
-    password,
-    bool isPowerUser,
-  ) async {}
+//   @override
+//   Future<void> setAppUser(
+//     String userId,
+//     userName,
+//     email,
+//     password,
+//     bool isPowerUser,
+//   ) async {}
 
-  @override
-  Future<String?> getAppUser() async {}
+//   @override
+//   Future<String?> getAppUser() async {}
 
-  @override
-  Future<void> toggleDaily(int dataTaskId, bool dataIsDone) async {}
+//   @override
+//   Future<void> toggleDaily(int dataTaskId, bool dataIsDone) async {}
 
-  @override
-  Future<void> toggleWeekly(int dataTaskId, bool dataIsDone) async {}
-}
+//   @override
+//   Future<void> toggleWeekly(int dataTaskId, bool dataIsDone) async {}
+// }
 
 
 
@@ -341,3 +334,4 @@ class FirebaseRepository implements DataBaseRepository {
 //         ░▓███████   ▒ ██▒    ███  █ ███    █████▒
 //                 █████     ████░███     █████
 //                 ░  ▒█████▓      
+}
