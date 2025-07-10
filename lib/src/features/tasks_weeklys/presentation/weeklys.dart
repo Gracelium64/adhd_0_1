@@ -7,11 +7,9 @@ import 'package:adhd_0_1/src/features/tasks_weeklys/presentation/widgets/weekly_
 import 'package:flutter/material.dart';
 
 class Weeklys extends StatefulWidget {
-  final Task task;
   final DataBaseRepository repository;
-  final void Function() onClose;
 
-  const Weeklys(this.repository, {super.key, required this.task, required this.onClose});
+  const Weeklys(this.repository, {super.key});
 
   @override
   State<Weeklys> createState() => _WeeklysState();
@@ -66,12 +64,11 @@ class _WeeklysState extends State<Weeklys> {
                               repository: widget.repository,
                               task: task,
                               onClose: () {
-                                    debugPrint('dailys onClose triggered');
-                                    setState(() {
-                                      myList =
-                                          widget.repository.getDailyTasks();
-                                    });
-                                  },
+                                debugPrint('dailys onClose triggered');
+                                setState(() {
+                                  myList = widget.repository.getWeeklyTasks();
+                                });
+                              },
                             );
                           },
                         ),
@@ -87,12 +84,16 @@ class _WeeklysState extends State<Weeklys> {
                     controller: overlayController,
                     overlayChildBuilder: (BuildContext context) {
                       return AddTaskWidget(
-                    widget.repository,
-                    overlayController,
-                    taskType: TaskType.daily,
-                    task: widget.task,
-                    onClose: () {},
-                  );
+                        widget.repository,
+                        overlayController,
+                        taskType: TaskType.daily,
+                        onClose: () {
+                          debugPrint('dailys onClose triggered');
+                          setState(() {
+                            myList = widget.repository.getWeeklyTasks();
+                          });
+                        },
+                      );
                     },
                     child: AddTaskButton(),
                   ),

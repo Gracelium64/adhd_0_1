@@ -4,7 +4,7 @@ import 'package:adhd_0_1/src/data/firebase_auth_repository.dart';
 import 'package:adhd_0_1/src/data/domain/sharedpreferencesinitializer.dart';
 import 'package:adhd_0_1/src/data/old/mockdatabaserepository.dart';
 import 'package:adhd_0_1/src/data/sharedpreferencesrepository.dart';
-import 'package:adhd_0_1/src/features/task_management/domain/task.dart';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -45,15 +45,13 @@ Future<void> main() async {
   FlutterNativeSplash.remove;
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
-  final Task task = Task(0, 'Task', 'Task 1', null, null, null, false);
-  
   final auth = FirebaseAuthRepository();
   final mainRepo = MockDataBaseRepository();
   final localRepo = SharedPreferencesRepository();
   final repository = SyncRepository(mainRepo: mainRepo, localRepo: localRepo);
 
   initSyncListeners(repository);
-  runApp(App(repository, auth, task));
+  runApp(App(repository, auth));
 
   // runApp(
   //   DevicePreview(
@@ -64,13 +62,8 @@ Future<void> main() async {
 
   //
   //
+
   
-
-  //  // // SPRINT 1 // //
-  //  // // SPRINT 1.1 // // ---------------------- UNTIL 6.7.25 ---------------------- // //
-  // // MVP Functionality // //
-  //TODO: add task overlay - remove delete button, touch up and implement working overlay
-
   //
   // v.0.1.11 //
   //

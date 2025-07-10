@@ -1,5 +1,4 @@
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
-import 'package:adhd_0_1/src/features/task_management/domain/task.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/add_task_widget.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
@@ -8,16 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:simple_gradient_text/simple_gradient_text.dart';
 
 class Settings extends StatefulWidget {
-  final Task task;
   final DataBaseRepository repository;
-  final void Function() onClose;
 
-  const Settings(
-    this.repository, {
-    super.key,
-    required this.task,
-    required this.onClose,
-  });
+  const Settings(this.repository, {super.key});
 
   @override
   State<Settings> createState() => _SettingsState();
@@ -259,7 +251,6 @@ class _SettingsState extends State<Settings> {
                     widget.repository,
                     overlayController,
                     taskType: TaskType.daily,
-                    task: widget.task,
                     onClose: () {},
                   );
                 },

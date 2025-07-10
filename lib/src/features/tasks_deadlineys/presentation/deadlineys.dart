@@ -7,16 +7,9 @@ import 'package:adhd_0_1/src/features/tasks_deadlineys/presentation/widgets/dead
 import 'package:flutter/material.dart';
 
 class Deadlineys extends StatefulWidget {
-  final Task task;
   final DataBaseRepository repository;
-  final void Function() onClose;
 
-  const Deadlineys(
-    this.repository, {
-    super.key,
-    required this.task,
-    required this.onClose,
-  });
+  const Deadlineys(this.repository, {super.key});
 
   @override
   State<Deadlineys> createState() => _DeadlineysState();
@@ -70,7 +63,7 @@ class _DeadlineysState extends State<Deadlineys> {
                               onClose: () {
                                 debugPrint('dailys onClose triggered');
                                 setState(() {
-                                  myList = widget.repository.getDailyTasks();
+                                  myList = widget.repository.getDeadlineTasks();
                                 });
                               },
                             );
@@ -91,8 +84,12 @@ class _DeadlineysState extends State<Deadlineys> {
                         widget.repository,
                         overlayController,
                         taskType: TaskType.daily,
-                        task: widget.task,
-                        onClose: () {},
+                        onClose: () {
+                          debugPrint('dailys onClose triggered');
+                          setState(() {
+                            myList = widget.repository.getDeadlineTasks();
+                          });
+                        },
                       );
                     },
                     child: AddTaskButton(),

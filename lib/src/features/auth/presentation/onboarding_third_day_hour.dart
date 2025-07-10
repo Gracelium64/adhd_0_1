@@ -4,21 +4,14 @@ import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/auth_repository.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/app_bg_coldstart.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/onboarding_fourth_location.dart';
-import 'package:adhd_0_1/src/features/task_management/domain/task.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 class OnboardingThirdDayHour extends StatefulWidget {
   final DataBaseRepository repository;
   final AuthRepository auth;
-  final Task task;
 
-  const OnboardingThirdDayHour(
-    this.repository,
-    this.auth,
-    this.task, {
-    super.key,
-  });
+  const OnboardingThirdDayHour(this.repository, this.auth, {super.key});
 
   @override
   State<OnboardingThirdDayHour> createState() => _OnboardingThirdDayHourState();
@@ -139,7 +132,6 @@ class _OnboardingThirdDayHourState extends State<OnboardingThirdDayHour> {
                                   (_, __, ___) => OnboardingFourthLocation(
                                     widget.repository,
                                     widget.auth,
-                                    widget.task,
                                   ),
                               transitionsBuilder: (_, animation, __, child) {
                                 return FadeTransition(

@@ -1,5 +1,4 @@
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
-import 'package:adhd_0_1/src/features/task_management/domain/task.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/add_task_widget.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
@@ -7,16 +6,9 @@ import 'package:adhd_0_1/src/features/prizes/presentation/widgets/prizes_widget.
 import 'package:flutter/material.dart';
 
 class Prizes extends StatefulWidget {
-  final Task task;
   final DataBaseRepository repository;
-  final void Function() onClose;
 
-  const Prizes(
-    this.repository, {
-    super.key,
-    required this.task,
-    required this.onClose,
-  });
+  const Prizes(this.repository, {super.key});
 
   @override
   State<Prizes> createState() => _PrizesState();
@@ -64,7 +56,6 @@ class _PrizesState extends State<Prizes> {
                     widget.repository,
                     overlayController,
                     taskType: TaskType.daily,
-                    task: widget.task,
                     onClose: () {},
                   );
                 },

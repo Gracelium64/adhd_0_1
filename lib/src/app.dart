@@ -1,6 +1,5 @@
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/auth_repository.dart';
-import 'package:adhd_0_1/src/features/task_management/domain/task.dart';
 import 'package:adhd_0_1/src/main_screen.dart';
 import 'package:adhd_0_1/src/cold_start.dart';
 import 'package:adhd_0_1/src/theme/app_theme.dart';
@@ -12,9 +11,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 class App extends StatefulWidget {
   final DataBaseRepository repository;
   final AuthRepository auth;
-  final Task task;
 
-  const App(this.repository, this.auth, this.task, {super.key});
+  const App(this.repository, this.auth, {super.key});
 
   @override
   State<App> createState() => _AppState();
@@ -58,15 +56,10 @@ class _AppState extends State<App> {
           themeMode: ThemeMode.dark,
           home:
               snapshot.data == null
-                  ? ColdStart(widget.repository, widget.auth, widget.task)
+                  ? ColdStart(widget.repository, widget.auth)
                   : onboardingComplete!
-                  ? MainScreen(
-                    widget.repository,
-                    widget.auth,
-                    task: widget.task,
-                    onClose: () {},
-                  )
-                  : ColdStart(widget.repository, widget.auth, widget.task),
+                  ? MainScreen(widget.repository, widget.auth)
+                  : ColdStart(widget.repository, widget.auth),
         );
       },
     );

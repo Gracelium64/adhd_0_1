@@ -4,21 +4,14 @@ import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/auth_repository.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/app_bg_coldstart.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/onboarding_completeion.dart';
-import 'package:adhd_0_1/src/features/task_management/domain/task.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 class OnboardingFifth extends StatelessWidget {
   final DataBaseRepository repository;
   final AuthRepository auth;
-  final Task task;
 
-  const OnboardingFifth(
-    this.repository,
-    this.auth, {
-    super.key,
-    required this.task,
-  });
+  const OnboardingFifth(this.repository, this.auth, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +88,6 @@ class OnboardingFifth extends StatelessWidget {
                                       (_, __, ___) => OnboardingCompletion(
                                         repository,
                                         auth,
-                                        task: task,
                                       ),
                                   transitionsBuilder: (
                                     _,

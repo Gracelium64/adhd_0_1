@@ -7,11 +7,9 @@ import 'package:adhd_0_1/src/features/tasks_quest/presentation/widgets/quest_tas
 import 'package:flutter/material.dart';
 
 class Quest extends StatefulWidget {
-  final Task task;
   final DataBaseRepository repository;
-  final void Function() onClose;
 
-  const Quest(this.repository, {super.key, required this.task, required this.onClose});
+  const Quest(this.repository, {super.key});
 
   @override
   State<Quest> createState() => _QuestState();
@@ -62,13 +60,12 @@ class _QuestState extends State<Quest> {
                             return QuestTaskWidget(
                               task: task,
                               repository: widget.repository,
-                             onClose: () {
-                                    debugPrint('dailys onClose triggered');
-                                    setState(() {
-                                      myList =
-                                          widget.repository.getDailyTasks();
-                                    });
-                                  },
+                              onClose: () {
+                                debugPrint('dailys onClose triggered');
+                                setState(() {
+                                  myList = widget.repository.getQuestTasks();
+                                });
+                              },
                             );
                           },
                         ),
@@ -84,12 +81,16 @@ class _QuestState extends State<Quest> {
                     controller: overlayController,
                     overlayChildBuilder: (BuildContext context) {
                       return AddTaskWidget(
-                    widget.repository,
-                    overlayController,
-                    taskType: TaskType.daily,
-                    task: widget.task,
-                    onClose: () {},
-                  );
+                        widget.repository,
+                        overlayController,
+                        taskType: TaskType.daily,
+                        onClose: () {
+                          debugPrint('dailys onClose triggered');
+                          setState(() {
+                            myList = widget.repository.getQuestTasks();
+                          });
+                        },
+                      );
                     },
                     child: AddTaskButton(),
                   ),

@@ -4,7 +4,6 @@ import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/auth_repository.dart';
 import 'package:adhd_0_1/src/features/auth/domain/validators.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/register_confirmation.dart';
-import 'package:adhd_0_1/src/features/task_management/domain/task.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -12,9 +11,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class Register extends StatefulWidget {
   final DataBaseRepository repository;
   final AuthRepository auth;
-  final Task task;
 
-  const Register(this.repository, this.auth, this.task, {super.key});
+  const Register(this.repository, this.auth, {super.key});
 
   @override
   State<Register> createState() => _RegisterState();
@@ -115,7 +113,6 @@ class _RegisterState extends State<Register> {
                       repository: widget.repository,
                       auth: widget.auth,
                       userName: userName.text,
-                      task: widget.task,
                     );
                   },
                   child: ConfirmButton(
