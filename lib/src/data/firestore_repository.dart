@@ -77,7 +77,7 @@ class FirestoreRepository implements DataBaseRepository {
       data,
       null,
       null,
-      day,
+      day.toString(),
       false,
     );
     await docRef.set(task.toMap());

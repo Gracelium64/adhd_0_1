@@ -511,7 +511,7 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
                                             selectedWeekday != null) {
                                           await widget.repository.addWeekly(
                                             userInput.text,
-                                            selectedWeekday,
+                                            selectedWeekday.toString(),
                                           );
                                           widget.controller.toggle();
                                           setState(() {

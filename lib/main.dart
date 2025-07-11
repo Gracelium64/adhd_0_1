@@ -54,12 +54,13 @@ Future<void> main() async {
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   final auth = FirebaseAuthRepository();
-  final mainRepo = FirestoreRepository();
+  // final mainRepo = FirestoreRepository();
   // final mainRepo = MockDataBaseRepository();
   final localRepo = SharedPreferencesRepository();
-  final repository = SyncRepository(mainRepo: mainRepo, localRepo: localRepo);
+  // final repository = SyncRepository(mainRepo: mainRepo, localRepo: localRepo);
+  final repository = FirestoreRepository();
 
-  
+  // initSyncListeners(repository);
   runApp(App(repository, auth));
 
   // runApp(
@@ -88,14 +89,15 @@ Future<void> main() async {
   //TODO: Logic of isDone reset for daily and weekly tasks
   //TODO: Logic for weekly score counters - for each day seperatly, for the week, for special tasks
   //TODO: Logic for prize system
-  //TODO: BUG - deadline (deadline deletes when toggled on and another deadlineTask is deleted) and quest tasks are being deleted and than the toggle light on the item next on the list lights up green - FIX: after delete loop in list and turn all to isDone = false
-  //TODO: BUG - weekly confirm button crashes app
+  //TODO: BUG - deadline and quest complete quest, something got messed up in the code of all of this
 
   //
   // v.0.1.12 //
   //
 
   //  // // SPRINT 2 // // ---------------------- UNTIL 20.7.25 / 23.7.25 ---------------------- // //
+  // // OFFLINE FIRST // //
+  // TODO: make sync and firestore repositories play nice with each other
   // Functionality // //
   //TODO: weather API
   //TODO: how to save files outside of shared memory / sharing files / save local backup of user data from local repository
