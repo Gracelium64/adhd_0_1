@@ -1,3 +1,4 @@
+import 'package:adhd_0_1/src/common/domain/app_user.dart';
 import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/common/domain/prizes.dart';
@@ -58,12 +59,6 @@ class SyncRepository implements DataBaseRepository {
     await localRepo.completeQuest(dataTaskId);
     triggerSync();
   }
-
-  // @override
-  // Future<void> completeWeekly(String dataTaskId) async {
-  //   await localRepo.completeWeekly(dataTaskId);
-  //   triggerSync();
-  // }
 
   @override
   Future<void> deleteDaily(String dataTaskId) async {
@@ -164,13 +159,19 @@ class SyncRepository implements DataBaseRepository {
   }
 
   @override
-  Future<void> setAppUser(String data) async {
-    await localRepo.setAppUser(data);
+  Future<void> setAppUser(
+    String userId,
+    userName,
+    email,
+    password,
+    isPowerUser,
+  ) async {
+    await localRepo.setAppUser(userId, userName, email, password, isPowerUser);
     triggerSync();
   }
 
   @override
-  Future<String?> getAppUser() async {
+  Future<AppUser?> getAppUser() async {
     return await localRepo.getAppUser();
   }
 

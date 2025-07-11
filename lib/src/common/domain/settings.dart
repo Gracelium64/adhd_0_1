@@ -23,12 +23,12 @@ class Settings {
 
   Map<String, dynamic> toJson() {
     return {
-    'appSkinColor': appSkinColor,
-    'language': language,
-    'location': location,
-    'startOfDay': '${startOfDay.hour}:${startOfDay.minute}',
-    'startOfWeek': startOfWeek.name,
-  };
+      'appSkinColor': appSkinColor,
+      'language': language,
+      'location': location,
+      'startOfDay': '${startOfDay.hour}:${startOfDay.minute}',
+      'startOfWeek': startOfWeek.name,
+    };
   }
 
   factory Settings.fromJson(Map<String, dynamic> json) {

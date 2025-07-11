@@ -1,7 +1,10 @@
+import 'package:adhd_0_1/src/common/domain/app_user.dart';
+import 'package:adhd_0_1/src/common/domain/settings.dart';
 import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/common/domain/prizes.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' hide Settings;
+import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class FirebaseRepository implements DataBaseRepository {
@@ -101,20 +104,14 @@ class FirebaseRepository implements DataBaseRepository {
 
     int currentCounter = counterSnapshot.get('taskIdCounter') ?? 0;
     int taskIdCounter = currentCounter + 1;
-///
+
+    ///
     final String taskId = '${taskIdCounter}_$userId';
-///
+
+    ///
     final docRef =
         fs.collection('users').doc(userId).collection('deadlineTasks').doc();
-    final Task task = Task(
-      taskId,
-      'Deadline',
-      data,
-      date,
-      time,
-      null,
-      false,
-    );
+    final Task task = Task(taskId, 'Deadline', data, date, time, null, false);
     await docRef.set(task.toMap());
 
     await fs
@@ -194,13 +191,65 @@ class FirebaseRepository implements DataBaseRepository {
   }
 
   @override
-  Future<void> completeQuest(String dataTaskId) async {}
+  Future<void> completeQuest(String dataTaskId) async {
+    final String? userId = await loadUserId();
+
+    final query =
+        await fs
+            .collection('users')
+            .doc(userId)
+            .collection('questTasks')
+            .where('taskId', isEqualTo: dataTaskId.toString())
+            .limit(1)
+            .get();
+
+    if (query.docs.isNotEmpty) {
+      await query.docs.first.reference.update({'isDone': true});
+      await query.docs.first.reference.delete();
+    } else {
+      throw Exception('Task with ID $dataTaskId not found');
+    }
+  }
 
   @override
-  Future<void> deleteDaily(String dataTaskId) async {}
+  Future<void> deleteDaily(String dataTaskId) async {
+    final String? userId = await loadUserId();
+
+    final query =
+        await fs
+            .collection('users')
+            .doc(userId)
+            .collection('dailyTasks')
+            .where('taskId', isEqualTo: dataTaskId.toString())
+            .limit(1)
+            .get();
+
+    if (query.docs.isNotEmpty) {
+      await query.docs.first.reference.delete();
+    } else {
+      throw Exception('Task with ID $dataTaskId not found');
+    }
+  }
 
   @override
-  Future<void> deleteWeekly(String dataTaskId) async {}
+  Future<void> deleteWeekly(String dataTaskId) async {
+    final String? userId = await loadUserId();
+
+    final query =
+        await fs
+            .collection('users')
+            .doc(userId)
+            .collection('weeklyTasks')
+            .where('taskId', isEqualTo: dataTaskId.toString())
+            .limit(1)
+            .get();
+
+    if (query.docs.isNotEmpty) {
+      await query.docs.first.reference.delete();
+    } else {
+      throw Exception('Task with ID $dataTaskId not found');
+    }
+  }
 
   @override
   Future<void> deleteDeadline(String dataTaskId) async {
@@ -222,116 +271,367 @@ class FirebaseRepository implements DataBaseRepository {
     }
   }
 
-  // @override
-  // Future<void> deleteQuest(int dataTaskId) async {}
+  @override
+  Future<void> deleteQuest(String dataTaskId) async {
+    final String? userId = await loadUserId();
 
-  // @override
-  // Future<void> editDaily(int dataTaskId, String data) async {}
+    final query =
+        await fs
+            .collection('users')
+            .doc(userId)
+            .collection('questTasks')
+            .where('taskId', isEqualTo: dataTaskId.toString())
+            .limit(1)
+            .get();
 
-  // @override
-  // Future<void> editWeekly(int dataTaskId, String data, day) async {}
+    if (query.docs.isNotEmpty) {
+      await query.docs.first.reference.delete();
+    } else {
+      throw Exception('Task with ID $dataTaskId not found');
+    }
+  }
 
-  // @override
-  // Future<void> editDeadline(int dataTaskId, String data, date, time) async {}
+  @override
+  Future<void> editDaily(String dataTaskId, String data) async {
+    final String? userId = await loadUserId();
 
-  // @override
-  // Future<void> editQuest(int dataTaskID, String data) async {}
+    final query =
+        await fs
+            .collection('users')
+            .doc(userId)
+            .collection('dailyTasks')
+            .where('taskId', isEqualTo: dataTaskId)
+            .limit(1)
+            .get();
 
-//   @override
-//   Future<Settings> setSettings(
-//     bool? dataAppSkinColor,
-//     String dataLanguage,
-//     String dataLocation,
-//     TimeOfDay dataStartOfDay,
-//     Weekday dataStartOfWeek,
-//   ) async {}
+    if (query.docs.isNotEmpty) {
+      final docRef = query.docs.first.reference;
+      await docRef.update({'taskDesctiption': data});
+    } else {
+      throw Exception('Task with ID $dataTaskId not found');
+    }
+  }
 
-//   @override
-//   Future<List<Task>> getDailyTasks() async {}
+  @override
+  Future<void> editWeekly(String dataTaskId, String data, day) async {
+    final String? userId = await loadUserId();
 
-//   @override
-//   Future<List<Task>> getWeeklyTasks() async {}
+    final query =
+        await fs
+            .collection('users')
+            .doc(userId)
+            .collection('weeklyTasks')
+            .where('taskId', isEqualTo: dataTaskId)
+            .limit(1)
+            .get();
 
-//   @override
-//   Future<List<Task>> getDeadlineTasks() async {}
+    if (query.docs.isNotEmpty) {
+      final docRef = query.docs.first.reference;
+      await docRef.update({'taskDesctiption': data, 'dayOfWeek': day.name});
+    } else {
+      throw Exception('Task with ID $dataTaskId not found');
+    }
+  }
 
-//   @override
-//   Future<List<Task>> getQuestTasks() async {}
+  @override
+  Future<void> editDeadline(String dataTaskId, String data, date, time) async {
+    final String? userId = await loadUserId();
 
-//   @override
-//   Future<List<Prizes>> getPrizes() async {}
+    final query =
+        await fs
+            .collection('users')
+            .doc(userId)
+            .collection('deadlineTasks')
+            .where('taskId', isEqualTo: dataTaskId)
+            .limit(1)
+            .get();
 
-//   @override
-//   Future<Settings?> getSettings() async {}
+    if (query.docs.isNotEmpty) {
+      final docRef = query.docs.first.reference;
+      await docRef.update({
+        'taskDesctiption': data,
+        'dayOfWeek': date,
+        'time': time,
+      });
+    } else {
+      throw Exception('Task with ID $dataTaskId not found');
+    }
+  }
 
-//   @override
-//   Future<void> setAppUser(
-//     String userId,
-//     userName,
-//     email,
-//     password,
-//     bool isPowerUser,
-//   ) async {}
+  @override
+  Future<void> editQuest(String dataTaskId, String data) async {
+    final String? userId = await loadUserId();
 
-//   @override
-//   Future<String?> getAppUser() async {}
+    final query =
+        await fs
+            .collection('users')
+            .doc(userId)
+            .collection('questTasks')
+            .where('taskId', isEqualTo: dataTaskId)
+            .limit(1)
+            .get();
 
-//   @override
-//   Future<void> toggleDaily(int dataTaskId, bool dataIsDone) async {}
+    if (query.docs.isNotEmpty) {
+      final docRef = query.docs.first.reference;
+      await docRef.update({'taskDesctiption': data});
+    } else {
+      throw Exception('Task with ID $dataTaskId not found');
+    }
+  }
 
-//   @override
-//   Future<void> toggleWeekly(int dataTaskId, bool dataIsDone) async {}
-// }
+  @override
+  Future<List<Task>> getDailyTasks() async {
+    final String? userId = await loadUserId();
 
+    final query =
+        await fs.collection('users').doc(userId).collection('dailyTasks').get();
 
+    return query.docs.map((e) {
+      return Task.fromMap(e.data());
+    }).toList();
+  }
 
-//                                               ▒███████
-//           ██                                 ████     ██▒
-//         ▒█▒ ██▒                           ████   █████ ██▒
-//         ██    ███▓                      ███   ████████  ██
-//       ▓██   ▓  ███                   ███▓  ███████████ ██░
-//       ███    ▓▓  ███                ███  ▓███      ███ ██
-//       ▓█▒     ▓▓▓  ▒██            ███  ▒▒██     ░░  ██ ██
-//       ██  ░    ▓▓▓▓  ███         ░██  ▓░██     ░    ██ ██░
-//       ██  ░     ▒▒▒▓▓  ██       ███ ░▓░██    ▒░    ░█  ██ 
-//       ░██  ░      ░▒▒▓▓  ██     ░██  ▓▒░█           ██ ▒█▒
-//       ░██          ▓▒░▒▓  ██    ███ ▓▒░██    ░      ██ ██ 
-//       ██  ░       ▒▓▓▓▓▓  ██  ▓██  ▓░░█           ██  █▓
-//       ██  ░           ▒▓▓ ██████░ ▓▒░▒█          ▓██ ██░
-//       ███ ░       ░            █  ▓▒░█          ░██ ▒█░
-//       ▓██            ▒            ▒▒░█         ▓██  █░
-//       ▒██  ▒▒    ▓▓▓▓▓         ░▓▓▒░▓█    ░   ███  █▓
-//         ██  ▒   ▓▓▓▒▒       █▓  ▓▒▒▒░█       ████  █▒
-//           ██   ▓▓▒▒▒▒▒ ▒   ███  ▓▒░░░░▒▓    ░███  ██
-//           ███  ▒▓▒▒    ▓  █████ ▓▒░░░░░░▒▓ ▒▓██   ██
-//           ▓██  ▒▓▓▓▓▓▓▓  ███████▓░▒▓▓▒░░░░▒▓▓▓  ░██
-//           ███  ░       ▓▓█████████▒   ▒░░░░░▒▒ ███
-//         ░██  ░▓▓█  █   ██████████▒▓▓▓▓▓▓▓▒▒░▓  █▓
-//         ███  ▓▓▒░█       ██████████       ░▓░▒░ ██
-//       ▓███  ▓▓▒░░▓       █████████    ██    ▒░▓ ░█▒
-//   ▒██████     ░▓█████▓▓ ▓███████         █ ▓░░▓░ ██                              
-// ░████████  ███▓▓   █████  ▓ ░███░     ██▓▒░░▒░▓  █▒                             
-//       ██  ▓█████▒ ░ ███░    ▒██████▓▓▒░░░░▒▓▓▓▓  █                             
-//     █████     ██████░ ███ █████    ░░░███▓▒       ██                            
-//   ███░  ███▒  █▓█████        ░███▒   ██▓   █▓▒   ░█
-//   █░ ██▒  ███    ▒█████████▓█████████   █████   ██░
-//     ▒▒   ███           ██████████████████▓     █░██
-//       ▓██▒      ░▒░                          ██░░
-//       ███       ░   ░████████▓░       ░▒▓▓▒▒   ██
-//     ██▒     ▓▓██████████████████████████████▓  ██
-//     ██▓     ▒▓░ █████████████████████████████▒   ██░
-//   ▒██ ░▓   ▒▓▒▓░ ░███████████████████████████▒    █▓
-//   ▓█  ▓▓    ▓░░ ██████████████████████████▓▒░▓  ▓  █▒
-//   ██ ▓▓██   ▓▒░░░░▒  █████████████████████▓░▒▓ ▒▓▒ ██
-// ▒██ █████  ▓▓░░░░░▒▒█░ ████████████████░ ░░▓  ███  █▒
-//   ██ ░▓▒██▒  ▓▒░░░▒  ░▒▒█▓ ██████▓██▓██░▒░░▒▓  ███  █▒
-//   ▓█  ▓▒▓▒ ▒  ▓▒░░░▒░   ░░  ██  ▒░▓▒    ░░▒▓  ████  █▒
-//   ▒██  █░  ▒█  ▓▒░░▒▒▒    ▒    ░▒     ▒▒▒▒▓  ▒░███ ░█▒
-//   ▓██    ░     ▓▓▒▒░▒▒▒  █░   █   ▒▓▓▒▒▒▒   ▓ ▒█  ██
-//     ██       ▒    ▓▓▓░░░▒▒  █████ ░▓▒▒▓▓▓▓         ██
-//     ░██     ▓▓ ▓▓    ▓███▓         ░▓       ▓▓   ███
-//       ████        ██  ██ ██▒ ███ ██▓ ██ ██      ██░
-//         ░▓███████   ▒ ██▒    ███  █ ███    █████▒
-//                 █████     ████░███     █████
-//                 ░  ▒█████▓      
+  @override
+  Future<List<Task>> getWeeklyTasks() async {
+    final String? userId = await loadUserId();
+
+    final query =
+        await fs
+            .collection('users')
+            .doc(userId)
+            .collection('weeklyTasks')
+            .get();
+
+    return query.docs.map((e) {
+      return Task.fromMap(e.data());
+    }).toList();
+  }
+
+  @override
+  Future<List<Task>> getDeadlineTasks() async {
+    final String? userId = await loadUserId();
+
+    final query =
+        await fs
+            .collection('users')
+            .doc(userId)
+            .collection('deadlineTasks')
+            .get();
+
+    return query.docs.map((e) {
+      return Task.fromMap(e.data());
+    }).toList();
+  }
+
+  @override
+  Future<List<Task>> getQuestTasks() async {
+    final String? userId = await loadUserId();
+
+    final query =
+        await fs.collection('users').doc(userId).collection('questTasks').get();
+
+    return query.docs.map((e) {
+      return Task.fromMap(e.data());
+    }).toList();
+  }
+
+  @override
+  Future<List<Prizes>> getPrizes() async {
+    final String? userId = await loadUserId();
+
+    final query =
+        await fs.collection('users').doc(userId).collection('prizesWon').get();
+
+    return query.docs.map((e) {
+      return Prizes.fromMap(e.data());
+    }).toList();
+  }
+
+  @override
+  Future<Settings> setSettings(
+    bool? dataAppSkinColor,
+    String dataLanguage,
+    String dataLocation,
+    TimeOfDay dataStartOfDay,
+    Weekday dataStartOfWeek,
+  ) async {
+    final String? userId = await loadUserId();
+    if (userId == null) throw Exception('User ID not found');
+
+    final settings = Settings(
+      appSkinColor: dataAppSkinColor,
+      language: dataLanguage,
+      location: dataLocation,
+      startOfDay: dataStartOfDay,
+      startOfWeek: dataStartOfWeek,
+    );
+
+    final settingsRef = fs
+        .collection('users')
+        .doc(userId)
+        .collection('userSettings')
+        .doc('userSettings');
+
+    final query = await settingsRef.get();
+
+    if (query.exists) {
+      await settingsRef.update(settings.toMap());
+    } else {
+      await settingsRef.set(settings.toMap());
+    }
+
+    return settings;
+  }
+
+  @override
+  Future<Settings?> getSettings() async {
+    final String? userId = await loadUserId();
+    if (userId == null) throw Exception('User ID not found');
+
+    final query =
+        await fs
+            .collection('users')
+            .doc(userId)
+            .collection('userSettings')
+            .doc('userSettings')
+            .get();
+
+    if (!query.exists) {
+      return Settings(
+        appSkinColor: null,
+        language: 'English',
+        location: 'Berlin',
+        startOfDay: TimeOfDay(hour: 07, minute: 15),
+        startOfWeek: Weekday.mon,
+      );
+    }
+
+    final data = query.data();
+    if (data == null) return null;
+
+    return Settings.fromMap(data);
+  }
+
+  @override
+  Future<void> setAppUser(
+    String userId,
+    userName,
+    email,
+    password,
+    bool isPowerUser,
+  ) async {
+    final AppUser user = AppUser(
+      userId: userId,
+      userName: userName,
+      email: email,
+      password: password,
+      isPowerUser: isPowerUser,
+    );
+
+    await fs.collection('users').doc(userId).set(user.toMap());
+  }
+
+  @override
+  Future<AppUser?> getAppUser() async {
+    final String? userId = await storage.read(key: 'userId');
+    if (userId == null) return null;
+
+    final snapshot = await fs.collection('users').doc(userId).get();
+    if (!snapshot.exists) return null;
+
+    return AppUser.fromMap(snapshot.data()!);
+  }
+
+  @override
+  Future<void> toggleDaily(String dataTaskId, bool dataIsDone) async {
+    final String? userId = await loadUserId();
+    if (userId == null) throw Exception('User ID not found');
+
+    final query =
+        await fs
+            .collection('users')
+            .doc(userId)
+            .collection('dailyTasks')
+            .where('taskId', isEqualTo: dataTaskId)
+            .limit(1)
+            .get();
+
+    if (query.docs.isNotEmpty) {
+      await query.docs.first.reference.update({'isDone': dataIsDone});
+    } else {
+      throw Exception('Daily task not found');
+    }
+  }
+
+  @override
+  Future<void> toggleWeekly(String dataTaskId, bool dataIsDone) async {
+    final String? userId = await loadUserId();
+    if (userId == null) throw Exception('User ID not found');
+
+    final query =
+        await fs
+            .collection('users')
+            .doc(userId)
+            .collection('weeklyTasks')
+            .where('taskId', isEqualTo: dataTaskId)
+            .limit(1)
+            .get();
+
+    if (query.docs.isNotEmpty) {
+      await query.docs.first.reference.update({'isDone': dataIsDone});
+    } else {
+      throw Exception('Weekly task not found');
+    }
+  }
 }
+
+  //                                               ▒███████
+  //           ██                                 ████     ██▒
+  //         ▒█▒ ██▒                           ████   █████ ██▒
+  //         ██    ███▓                      ███   ████████  ██
+  //       ▓██   ▓  ███                   ███▓  ███████████ ██░
+  //       ███    ▓▓  ███                ███  ▓███      ███ ██
+  //       ▓█▒     ▓▓▓  ▒██            ███  ▒▒██     ░░  ██ ██
+  //       ██  ░    ▓▓▓▓  ███         ░██  ▓░██     ░    ██ ██░
+  //       ██  ░     ▒▒▒▓▓  ██       ███ ░▓░██    ▒░    ░█  ██
+  //       ░██  ░      ░▒▒▓▓  ██     ░██  ▓▒░█           ██ ▒█▒
+  //       ░██          ▓▒░▒▓  ██    ███ ▓▒░██    ░      ██ ██
+  //       ██  ░       ▒▓▓▓▓▓  ██  ▓██  ▓░░█           ██  █▓
+  //       ██  ░           ▒▓▓ ██████░ ▓▒░▒█          ▓██ ██░
+  //       ███ ░       ░            █  ▓▒░█          ░██ ▒█░
+  //       ▓██            ▒            ▒▒░█         ▓██  █░
+  //       ▒██  ▒▒    ▓▓▓▓▓         ░▓▓▒░▓█    ░   ███  █▓
+  //         ██  ▒   ▓▓▓▒▒       █▓  ▓▒▒▒░█       ████  █▒
+  //           ██   ▓▓▒▒▒▒▒ ▒   ███  ▓▒░░░░▒▓    ░███  ██
+  //           ███  ▒▓▒▒    ▓  █████ ▓▒░░░░░░▒▓ ▒▓██   ██
+  //           ▓██  ▒▓▓▓▓▓▓▓  ███████▓░▒▓▓▒░░░░▒▓▓▓  ░██
+  //           ███  ░       ▓▓█████████▒   ▒░░░░░▒▒ ███
+  //         ░██  ░▓▓█  █   ██████████▒▓▓▓▓▓▓▓▒▒░▓  █▓
+  //         ███  ▓▓▒░█       ██████████       ░▓░▒░ ██
+  //       ▓███  ▓▓▒░░▓       █████████    ██    ▒░▓ ░█▒
+  //   ▒██████     ░▓█████▓▓ ▓███████         █ ▓░░▓░ ██
+  // ░████████  ███▓▓   █████  ▓ ░███░     ██▓▒░░▒░▓  █▒
+  //       ██  ▓█████▒ ░ ███░    ▒██████▓▓▒░░░░▒▓▓▓▓  █
+  //     █████     ██████░ ███ █████    ░░░███▓▒       ██
+  //   ███░  ███▒  █▓█████        ░███▒   ██▓   █▓▒   ░█
+  //   █░ ██▒  ███    ▒█████████▓█████████   █████   ██░
+  //     ▒▒   ███           ██████████████████▓     █░██
+  //       ▓██▒      ░▒░                          ██░░
+  //       ███       ░   ░████████▓░       ░▒▓▓▒▒   ██
+  //     ██▒     ▓▓██████████████████████████████▓  ██
+  //     ██▓     ▒▓░ █████████████████████████████▒   ██░
+  //   ▒██ ░▓   ▒▓▒▓░ ░███████████████████████████▒    █▓
+  //   ▓█  ▓▓    ▓░░ ██████████████████████████▓▒░▓  ▓  █▒
+  //   ██ ▓▓██   ▓▒░░░░▒  █████████████████████▓░▒▓ ▒▓▒ ██
+  // ▒██ █████  ▓▓░░░░░▒▒█░ ████████████████░ ░░▓  ███  █▒
+  //   ██ ░▓▒██▒  ▓▒░░░▒  ░▒▒█▓ ██████▓██▓██░▒░░▒▓  ███  █▒
+  //   ▓█  ▓▒▓▒ ▒  ▓▒░░░▒░   ░░  ██  ▒░▓▒    ░░▒▓  ████  █▒
+  //   ▒██  █░  ▒█  ▓▒░░▒▒▒    ▒    ░▒     ▒▒▒▒▓  ▒░███ ░█▒
+  //   ▓██    ░     ▓▓▒▒░▒▒▒  █░   █   ▒▓▓▒▒▒▒   ▓ ▒█  ██
+  //     ██       ▒    ▓▓▓░░░▒▒  █████ ░▓▒▒▓▓▓▓         ██
+  //     ░██     ▓▓ ▓▓    ▓███▓         ░▓       ▓▓   ███
+  //       ████        ██  ██ ██▒ ███ ██▓ ██ ██      ██░
+  //         ░▓███████   ▒ ██▒    ███  █ ███    █████▒
+  //                 █████     ████░███     █████
+  //                 ░  ▒█████▓
+

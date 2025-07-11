@@ -1,3 +1,4 @@
+import 'package:adhd_0_1/src/common/domain/app_user.dart';
 import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/common/domain/prizes.dart';
 import 'package:adhd_0_1/src/common/domain/settings.dart';
@@ -39,11 +40,6 @@ abstract class DataBaseRepository {
   Future<List<Task>> getDeadlineTasks();
   Future<List<Task>> getQuestTasks();
   Future<List<Prizes>> getPrizes();
-  // int getTaskIdCounter();
-  // int getCompletedDailyTasks();
-  // int getCompletedWeeklyTasks();
-  // int getCompletedDeadlineTasks();
-  // int getCompletedQuestTasks();
   Future<Settings?> getSettings();
   Future<Settings> setSettings(
     bool? dataAppSkinColor,
@@ -67,8 +63,14 @@ abstract class DataBaseRepository {
   Future<void> editWeekly(String dataTaskId, String data, Weekday day);
   Future<void> editDeadline(String dataTaskId, String data, date, time);
   Future<void> editQuest(String dataTaskId, String data);
-  Future<void> setAppUser(String data);
-  Future<String?> getAppUser();
+  Future<void> setAppUser(
+    String userId,
+    String userName,
+    String email,
+    String password,
+    bool isPowerUser,
+  );
+  Future<AppUser?> getAppUser();
   Future<void> toggleDaily(String dataTaskId, bool dataIsDone);
   Future<void> toggleWeekly(String dataTaskId, bool dataIsDone);
 }

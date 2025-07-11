@@ -18,7 +18,7 @@ import 'package:adhd_0_1/src/data/syncrepository.dart';
 /*
 There is A LOT of redundent code in this file.
 I know that it's there, it has been left there on purpose.
-It was before we started using a Firebase Repository, it was actually made in preration for it.
+It was before we started using a Firebase Repository, it was actually made in preparation for it.
 Since this is an Offline First App, I've build it so that it would prefer the local Repository and back it up to the server when connected to the internet.
 Only a couple of days later I learned in class that this feature is default in Firebase anyway.
 Fuck it, the code stays.
@@ -68,15 +68,14 @@ Future<void> main() async {
   //
 
   //  // // SPRINT 1.2 // // ---------------------- UNTIL 13.7.25 / 18.7.25 ---------------------- // //
-  // // P.22 // //
-  //TODO: FireBaseRepository
+
+  // // API SECURITY // //
+  //TODO: SECURE API KEYS REVOKE CURRENT
   // // MVP Visual // //
   //TODO: tutorial overlay
   //TODO: single prize overlay
   // // ONBOARDING // //
   //TODO: on the last onboarding screen confirmation button opens main screen with tutorial overlay open
-  // // API SECURITY // //
-  //TODO: SECURE API KEYS REVOKE CURRENT
   // // MVP Logic // //
   //TODO: Logic of isDone reset for daily and weekly tasks
   //TODO: Logic for weekly score counters - for each day seperatly, for the week, for special tasks
@@ -99,7 +98,7 @@ Future<void> main() async {
   //TODO: good morning overlay
   //TODO: backup overlays
   //TODO: about overlay
-  //TODO: when setting appSkinColor to null it still displays pink
+  //TODO: when setting appSkinColor to null it still displays pink *************************
   // // Logic // //
   //TODO: remove initializer for shared preferences
   //TODO: BUG - confirm button in edit_task_widget.dart only works when taskDescription is changed

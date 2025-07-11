@@ -1,5 +1,6 @@
 // ignore_for_file: unrelated_type_equality_checks
 
+import 'package:adhd_0_1/src/common/domain/app_user.dart';
 import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/common/domain/prizes.dart';
@@ -104,7 +105,7 @@ class MockDataBaseRepository implements DataBaseRepository {
     startOfWeek: Weekday.mon,
   );
 
-  String? appUser;
+  AppUser? appUser;
 
   @override
   Future<void> addDaily(String data) async {
@@ -323,15 +324,36 @@ class MockDataBaseRepository implements DataBaseRepository {
     return userSettings;
   }
 
-  @override
-  Future<void> setAppUser(String data) async {
-    appUser = data;
-  }
+@override
+Future<void> setAppUser(
+  String userId,
+  String userName,
+  String email,
+  String password,
+  bool isPowerUser,
+) async {
+  appUser = AppUser(
+    userId: userId,
+    userName: userName,
+    email: email,
+    password: password,
+    isPowerUser: isPowerUser,
+  );
+}
 
-  @override
-  Future<String?> getAppUser() async {
-    return appUser;
-  }
+@override
+Future<AppUser?> getAppUser() async {
+  return appUser;
+}
+  // @override
+  // Future<void> setAppUser(String data) async {
+  //   appUser = data;
+  // }
+
+  // @override
+  // Future<String?> getAppUser() async {
+  //   return appUser;
+  // }
 
   @override
   Future<void> toggleDaily(String dataTaskId, bool dataIsDone) async {

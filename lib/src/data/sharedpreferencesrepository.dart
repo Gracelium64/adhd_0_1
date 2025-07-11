@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:adhd_0_1/src/common/domain/app_user.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:adhd_0_1/src/common/domain/task.dart';
@@ -6,7 +7,6 @@ import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/common/domain/prizes.dart';
 import 'package:adhd_0_1/src/common/domain/settings.dart';
 import 'package:adhd_0_1/src/data/domain/prefs_keys.dart';
-
 
 class SharedPreferencesRepository implements DataBaseRepository {
   int taskIdCounter = 0;
@@ -26,7 +26,17 @@ class SharedPreferencesRepository implements DataBaseRepository {
   @override
   Future<void> addDaily(String data) async {
     final list = await _loadTasks(PrefsKeys.dailyKey);
-    list.add(Task({taskIdCounter++}.toString(), 'Daily', data, null, null, null, false));
+    list.add(
+      Task(
+        {taskIdCounter++}.toString(),
+        'Daily',
+        data,
+        null,
+        null,
+        null,
+        false,
+      ),
+    );
     await _saveTasks(PrefsKeys.dailyKey, list);
   }
 
@@ -34,7 +44,15 @@ class SharedPreferencesRepository implements DataBaseRepository {
   Future<void> addWeekly(String data, day) async {
     final list = await _loadTasks(PrefsKeys.weeklyKey);
     list.add(
-      Task({taskIdCounter++}.toString(), 'Weekly', data, null, null, day.label, false),
+      Task(
+        {taskIdCounter++}.toString(),
+        'Weekly',
+        data,
+        null,
+        null,
+        day.toString(),
+        false,
+      ),
     );
     await _saveTasks(PrefsKeys.weeklyKey, list);
   }
@@ -42,20 +60,40 @@ class SharedPreferencesRepository implements DataBaseRepository {
   @override
   Future<void> addDeadline(String data, date, time) async {
     final list = await _loadTasks(PrefsKeys.deadlineKey);
-    list.add(Task({taskIdCounter++}.toString(), 'Deadline', data, date, time, null, false));
+    list.add(
+      Task(
+        {taskIdCounter++}.toString(),
+        'Deadline',
+        data,
+        date,
+        time,
+        null,
+        false,
+      ),
+    );
     await _saveTasks(PrefsKeys.deadlineKey, list);
   }
 
   @override
   Future<void> addQuest(String data) async {
     final list = await _loadTasks(PrefsKeys.questKey);
-    list.add(Task({taskIdCounter++}.toString(), 'Quest', data, null, null, null, false));
+    list.add(
+      Task(
+        {taskIdCounter++}.toString(),
+        'Quest',
+        data,
+        null,
+        null,
+        null,
+        false,
+      ),
+    );
     await _saveTasks(PrefsKeys.questKey, list);
   }
 
   Future<void> _markComplete(
     String key,
-    int taskId, {
+    String taskId, {
     bool remove = false,
   }) async {
     final list = await _loadTasks(key);
@@ -77,13 +115,13 @@ class SharedPreferencesRepository implements DataBaseRepository {
 
   @override
   Future<void> completeDeadline(String dataTaskId) async =>
-      _markComplete(PrefsKeys.deadlineKey, int.parse(dataTaskId), remove: true);
+      _markComplete(PrefsKeys.deadlineKey, dataTaskId, remove: true);
 
   @override
   Future<void> completeQuest(String dataTaskId) async =>
-      _markComplete(PrefsKeys.questKey, int.parse(dataTaskId), remove: true);
+      _markComplete(PrefsKeys.questKey, dataTaskId, remove: true);
 
-  Future<void> _delete(String key, int taskId) async {
+  Future<void> _delete(String key, String taskId) async {
     final list = await _loadTasks(key);
     list.removeWhere((t) => t.taskId == taskId);
     await _saveTasks(key, list);
@@ -91,21 +129,25 @@ class SharedPreferencesRepository implements DataBaseRepository {
 
   @override
   Future<void> deleteDaily(String dataTaskId) async =>
-      _delete(PrefsKeys.dailyKey, int.parse(dataTaskId));
+      _delete(PrefsKeys.dailyKey, dataTaskId);
 
   @override
   Future<void> deleteWeekly(String dataTaskId) async =>
-      _delete(PrefsKeys.weeklyKey, int.parse(dataTaskId));
+      _delete(PrefsKeys.weeklyKey, dataTaskId);
 
   @override
   Future<void> deleteDeadline(String dataTaskId) async =>
-      _delete(PrefsKeys.deadlineKey, int.parse(dataTaskId));
+      _delete(PrefsKeys.deadlineKey, dataTaskId);
 
   @override
   Future<void> deleteQuest(String dataTaskId) async =>
-      _delete(PrefsKeys.questKey, int.parse(dataTaskId));
+      _delete(PrefsKeys.questKey, dataTaskId);
 
-  Future<void> _edit(String key, int taskId, void Function(Task) modify) async {
+  Future<void> _edit(
+    String key,
+    String taskId,
+    void Function(Task) modify,
+  ) async {
     final list = await _loadTasks(key);
     final index = list.indexWhere((t) => t.taskId == taskId);
     if (index != -1) {
@@ -115,19 +157,20 @@ class SharedPreferencesRepository implements DataBaseRepository {
   }
 
   @override
-  Future<void> editDaily(String taskId, String data) async =>
-      _edit(PrefsKeys.dailyKey, int.parse(taskId), (t) => t.taskDesctiption = data);
+  Future<void> editDaily(String taskId, String data) async {
+    return _edit(PrefsKeys.dailyKey, taskId, (t) => t.taskDesctiption = data);
+  }
 
   @override
   Future<void> editWeekly(String taskId, String data, day) async =>
-      _edit(PrefsKeys.weeklyKey, int.parse(taskId), (t) {
+      _edit(PrefsKeys.weeklyKey, taskId, (t) {
         t.taskDesctiption = data;
         t.dayOfWeek = day.label;
       });
 
   @override
   Future<void> editDeadline(String taskId, String data, date, time) async =>
-      _edit(PrefsKeys.deadlineKey, int.parse(taskId), (t) {
+      _edit(PrefsKeys.deadlineKey, taskId, (t) {
         t.taskDesctiption = data;
         t.deadlineDate = date;
         t.deadlineTime = time;
@@ -135,7 +178,7 @@ class SharedPreferencesRepository implements DataBaseRepository {
 
   @override
   Future<void> editQuest(String taskId, String data) async =>
-      _edit(PrefsKeys.questKey, int.parse(taskId), (t) => t.taskDesctiption = data);
+      _edit(PrefsKeys.questKey, taskId, (t) => t.taskDesctiption = data);
 
   @override
   Future<List<Task>> getDailyTasks() => _loadTasks(PrefsKeys.dailyKey);
@@ -196,15 +239,22 @@ class SharedPreferencesRepository implements DataBaseRepository {
   }
 
   @override
-  Future<void> setAppUser(String data) async {
+
+  Future<void> setAppUser(String userId,
+    userName,
+    email,
+    password,
+    bool isPowerUser,) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(PrefsKeys.appUserKey, data);
+    await prefs.setString(PrefsKeys.appUserKey, jsonEncode(AppUser(userId: userId, userName: userName, email: email, password: password, isPowerUser: isPowerUser).toJson()));
   }
 
   @override
-  Future<String?> getAppUser() async {
+  Future<AppUser?> getAppUser() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(PrefsKeys.appUserKey);
+    final str = prefs.getString(PrefsKeys.appUserKey);
+    if (str == null) return null;
+    return AppUser.fromJson(jsonDecode(str));
   }
 
   @override
