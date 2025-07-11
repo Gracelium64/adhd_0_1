@@ -4,6 +4,7 @@ import 'package:adhd_0_1/src/features/task_management/presentation/widgets/add_t
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class FridgeLock extends StatefulWidget {
@@ -17,6 +18,8 @@ class FridgeLock extends StatefulWidget {
 }
 
 class _FridgeLockState extends State<FridgeLock> {
+  final storage = FlutterSecureStorage();
+
   @override
   Widget build(BuildContext context) {
     OverlayPortalController overlayController = OverlayPortalController();
@@ -50,6 +53,14 @@ class _FridgeLockState extends State<FridgeLock> {
                         SizedBox(height: 50),
                         Text('[v.0.1 SPRINT 1.1]'),
                         SizedBox(height: 4),
+                        ElevatedButton(
+                          onPressed: () async {
+                            await storage.write(key: 'userId', value: null);
+
+                            debugPrint('Reset complete');
+                          },
+                          child: Text('Reset userId to null'),
+                        ),
                         ElevatedButton(
                           onPressed: () async {
                             final prefs = await SharedPreferences.getInstance();

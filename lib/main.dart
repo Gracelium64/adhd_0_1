@@ -13,6 +13,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:adhd_0_1/src/data/syncrepository.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // import 'package:flutter/foundation.dart';
 // import 'package:device_preview/device_preview.dart';
@@ -40,14 +41,13 @@ void initSyncListeners(SyncRepository repository) {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+  await SharedPreferencesInitializer.initializeDefaults();
+
   final storage = FlutterSecureStorage();
   String? userId = await storage.read(key: 'userId');
-  // await FirestoreInitializer.initializeDefaults(userId);
 
-  await SharedPreferencesInitializer.initializeDefaults();
-  // await FirestoreInitializer.initializeDefaults(userId);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await FirestoreInitializer.initializeDefaults(userId);
 
   await Future.delayed(const Duration(seconds: 2));
   FlutterNativeSplash.remove;
@@ -59,7 +59,7 @@ Future<void> main() async {
   final localRepo = SharedPreferencesRepository();
   final repository = SyncRepository(mainRepo: mainRepo, localRepo: localRepo);
 
-  initSyncListeners(repository);
+  
   runApp(App(repository, auth));
 
   // runApp(

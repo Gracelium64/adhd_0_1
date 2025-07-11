@@ -10,6 +10,8 @@ class SyncRepository implements DataBaseRepository {
   final DataBaseRepository localRepo;
   bool isSyncing = false;
 
+  
+
   SyncRepository({required this.mainRepo, required this.localRepo});
 
   @override
