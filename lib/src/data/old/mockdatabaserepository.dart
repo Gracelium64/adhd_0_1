@@ -9,87 +9,95 @@ import 'package:flutter/material.dart';
 
 class MockDataBaseRepository implements DataBaseRepository {
   List<Task> dailyTasks = [
-    Task('001', 'Daily', 'Daily 1', null, null, null, false),
-    Task('002', 'Daily', 'Daily 2', null, null, null, false),
-    Task('003', 'Daily', 'Daily 3', null, null, null, false),
-    Task('004', 'Daily', 'Daily 4', null, null, null, false),
-    Task('005', 'Daily', 'Daily 5', null, null, null, false),
-    Task('006', 'Daily', 'Daily 6', null, null, null, false),
-    Task('007', 'Daily', 'Daily 7', null, null, null, false),
-    Task('008', 'Daily', 'Daily 8', null, null, null, false),
-    Task('009', 'Daily', 'Daily 9', null, null, null, false),
-    Task('010', 'Daily', 'Daily 10', null, null, null, false),
-    Task('011', 'Daily', 'Daily 11', null, null, null, false),
+    // Task('001', 'Daily', 'Daily 1', null, null, null, false),
+    // Task('002', 'Daily', 'Daily 2', null, null, null, false),
+    // Task('003', 'Daily', 'Daily 3', null, null, null, false),
+    // Task('004', 'Daily', 'Daily 4', null, null, null, false),
+    // Task('005', 'Daily', 'Daily 5', null, null, null, false),
+    // Task('006', 'Daily', 'Daily 6', null, null, null, false),
+    // Task('007', 'Daily', 'Daily 7', null, null, null, false),
+    // Task('008', 'Daily', 'Daily 8', null, null, null, false),
+    // Task('009', 'Daily', 'Daily 9', null, null, null, false),
+    // Task('010', 'Daily', 'Daily 10', null, null, null, false),
+    // Task('011', 'Daily', 'Daily 11', null, null, null, false),
   ];
   List<Task> weeklyTasks = [
-    Task('012', 'Weekly', 'Weekly 1', null, null, 'Mon', false),
-    Task('013', 'Weekly', 'Weeklysdf 2', null, null, 'Mon', false),
-    Task('014', 'Weekly', 'Weekly 3', null, null, '', false),
-    Task('015', 'Weekly', 'Weekly 4', null, null, '', false),
-    Task('016', 'Weekly', 'Weekly 5', null, null, '', false),
-    Task('017', 'Weekly', 'Weekly 6', null, null, 'Thu', false),
-    Task('018', 'Weekly', 'Weekly 7', null, null, 'Fri', false),
-    Task('019', 'Weekly', 'Weekly 8', null, null, '', false),
+    // Task('012', 'Weekly', 'Weekly 1', null, null, 'Mon', false),
+    // Task('013', 'Weekly', 'Weeklysdf 2', null, null, 'Mon', false),
+    // Task('014', 'Weekly', 'Weekly 3', null, null, '', false),
+    // Task('015', 'Weekly', 'Weekly 4', null, null, '', false),
+    // Task('016', 'Weekly', 'Weekly 5', null, null, '', false),
+    // Task('017', 'Weekly', 'Weekly 6', null, null, 'Thu', false),
+    // Task('018', 'Weekly', 'Weekly 7', null, null, 'Fri', false),
+    // Task('019', 'Weekly', 'Weekly 8', null, null, '', false),
   ];
   List<Task> deadlineTasks = [
-    Task('020', 'Deadline', 'Overlays', '18/05/25', '16:15', null, false),
-    Task('021', 'Deadline', 'Theming', '18/05/25', '16:15', null, false),
-    Task('022', 'Deadline', 'ListView.builder', '18/05/25', '16:15', null, false),
-    Task(
-      '023',
-      'Deadline',
-      'Add Task Button functionality',
-      '18/05/25',
-      '16:15',
-      null,
-      false,
-    ),
-    Task(
-      '024',
-      'Deadline',
-      'NavigationBar Highlight',
-      '18/05/25',
-      '16:15',
-      null,
-      false,
-    ),
-    Task(
-      '025',
-      'Deadline',
-      'setLimit of 36 characters for task',
-      '18/05/25',
-      '16:15',
-      null,
-      false,
-    ),
+    // Task('020', 'Deadline', 'Overlays', '18/05/25', '16:15', null, false),
+    // Task('021', 'Deadline', 'Theming', '18/05/25', '16:15', null, false),
+    // Task(
+    //   '022',
+    //   'Deadline',
+    //   'ListView.builder',
+    //   '18/05/25',
+    //   '16:15',
+    //   null,
+    //   false,
+    // ),
+    // Task(
+    //   '023',
+    //   'Deadline',
+    //   'Add Task Button functionality',
+    //   '18/05/25',
+    //   '16:15',
+    //   null,
+    //   false,
+    // ),
+    // Task(
+    //   '024',
+    //   'Deadline',
+    //   'NavigationBar Highlight',
+    //   '18/05/25',
+    //   '16:15',
+    //   null,
+    //   false,
+    // ),
+    // Task(
+    //   '025',
+    //   'Deadline',
+    //   'setLimit of 36 characters for task',
+    //   '18/05/25',
+    //   '16:15',
+    //   null,
+    //   false,
+    // ),
   ];
   List<Task> questTasks = [
-    Task('025', 'Quest', 'Quest 1', null, null, null, false),
-    Task('026', 'Quest', 'Quest 2', null, null, null, false),
-    Task('027', 'Quest', 'Quest 3', null, null, null, false),
-    Task('028', 'Quest', 'Quest 4', null, null, null, false),
-    Task('029', 'Quest', 'Quest 5', null, null, null, false),
+    // Task('025', 'Quest', 'Quest 1', null, null, null, false),
+    // Task('026', 'Quest', 'Quest 2', null, null, null, false),
+    // Task('027', 'Quest', 'Quest 3', null, null, null, false),
+    // Task('028', 'Quest', 'Quest 4', null, null, null, false),
+    // Task('029', 'Quest', 'Quest 5', null, null, null, false),
   ];
   List<Prizes> prizesWon = [
-    Prizes(prizeId: 015, prizeUrl: 'assets/img/prizes/Sticker15.png'),
-    Prizes(prizeId: 016, prizeUrl: 'assets/img/prizes/Sticker16.png'),
-    Prizes(prizeId: 017, prizeUrl: 'assets/img/prizes/Sticker17.png'),
-    Prizes(prizeId: 018, prizeUrl: 'assets/img/prizes/Sticker18.png'),
-    Prizes(prizeId: 019, prizeUrl: 'assets/img/prizes/Sticker19.png'),
-    Prizes(prizeId: 020, prizeUrl: 'assets/img/prizes/Sticker20.png'),
-    Prizes(prizeId: 021, prizeUrl: 'assets/img/prizes/Sticker21.png'),
-    Prizes(prizeId: 022, prizeUrl: 'assets/img/prizes/Sticker22.png'),
-    Prizes(prizeId: 023, prizeUrl: 'assets/img/prizes/Sticker23.png'),
-    Prizes(prizeId: 024, prizeUrl: 'assets/img/prizes/Sticker24.png'),
-    Prizes(prizeId: 025, prizeUrl: 'assets/img/prizes/Sticker25.png'),
-    Prizes(prizeId: 026, prizeUrl: 'assets/img/prizes/Sticker26.png'),
-    Prizes(prizeId: 027, prizeUrl: 'assets/img/prizes/Sticker27.png'),
-    Prizes(prizeId: 028, prizeUrl: 'assets/img/prizes/Sticker28.png'),
-    Prizes(prizeId: 029, prizeUrl: 'assets/img/prizes/Sticker29.png'),
-    Prizes(prizeId: 030, prizeUrl: 'assets/img/prizes/Sticker30.png'),
-    Prizes(prizeId: 031, prizeUrl: 'assets/img/prizes/Sticker31.png'),
-    Prizes(prizeId: 032, prizeUrl: 'assets/img/prizes/Sticker32.png'),
-    Prizes(prizeId: 033, prizeUrl: 'assets/img/prizes/Sticker33.png'),
+    // Prizes(prizeId: 015, prizeUrl: 'assets/img/prizes/Sticker15.png'),
+    // Prizes(prizeId: 016, prizeUrl: 'assets/img/prizes/Sticker16.png'),
+    // Prizes(prizeId: 017, prizeUrl: 'assets/img/prizes/Sticker17.png'),
+    // Prizes(prizeId: 018, prizeUrl: 'assets/img/prizes/Sticker18.png'),
+    // Prizes(prizeId: 019, prizeUrl: 'assets/img/prizes/Sticker19.png'),
+    // Prizes(prizeId: 020, prizeUrl: 'assets/img/prizes/Sticker20.png'),
+    // Prizes(prizeId: 021, prizeUrl: 'assets/img/prizes/Sticker21.png'),
+    // Prizes(prizeId: 022, prizeUrl: 'assets/img/prizes/Sticker22.png'),
+    // Prizes(prizeId: 023, prizeUrl: 'assets/img/prizes/Sticker23.png'),
+    // Prizes(prizeId: 024, prizeUrl: 'assets/img/prizes/Sticker24.png'),
+    // Prizes(prizeId: 025, prizeUrl: 'assets/img/prizes/Sticker25.png'),
+    // Prizes(prizeId: 026, prizeUrl: 'assets/img/prizes/Sticker26.png'),
+    // Prizes(prizeId: 027, prizeUrl: 'assets/img/prizes/Sticker27.png'),
+    // Prizes(prizeId: 028, prizeUrl: 'assets/img/prizes/Sticker28.png'),
+    // Prizes(prizeId: 029, prizeUrl: 'assets/img/prizes/Sticker29.png'),
+    // Prizes(prizeId: 030, prizeUrl: 'assets/img/prizes/Sticker30.png'),
+    // Prizes(prizeId: 031, prizeUrl: 'assets/img/prizes/Sticker31.png'),
+    // Prizes(prizeId: 032, prizeUrl: 'assets/img/prizes/Sticker32.png'),
+    // Prizes(prizeId: 033, prizeUrl: 'assets/img/prizes/Sticker33.png'),
   ];
   int taskIdCounter = 0;
   int dailyCompleted = 0;
@@ -109,7 +117,9 @@ class MockDataBaseRepository implements DataBaseRepository {
 
   @override
   Future<void> addDaily(String data) async {
-    dailyTasks.add(Task(taskIdCounter.toString(), 'Daily', data, null, null, null, false));
+    dailyTasks.add(
+      Task(taskIdCounter.toString(), 'Daily', data, null, null, null, false),
+    );
     taskIdCounter++;
   }
 
@@ -131,7 +141,9 @@ class MockDataBaseRepository implements DataBaseRepository {
 
   @override
   Future<void> addQuest(String data) async {
-    questTasks.add(Task(taskIdCounter.toString(), 'Quest', data, null, null, null, false));
+    questTasks.add(
+      Task(taskIdCounter.toString(), 'Quest', data, null, null, null, false),
+    );
     taskIdCounter++;
   }
 
@@ -324,27 +336,27 @@ class MockDataBaseRepository implements DataBaseRepository {
     return userSettings;
   }
 
-@override
-Future<void> setAppUser(
-  String userId,
-  String userName,
-  String email,
-  String password,
-  bool isPowerUser,
-) async {
-  appUser = AppUser(
-    userId: userId,
-    userName: userName,
-    email: email,
-    password: password,
-    isPowerUser: isPowerUser,
-  );
-}
+  @override
+  Future<void> setAppUser(
+    String userId,
+    String userName,
+    String email,
+    String password,
+    bool isPowerUser,
+  ) async {
+    appUser = AppUser(
+      userId: userId,
+      userName: userName,
+      email: email,
+      password: password,
+      isPowerUser: isPowerUser,
+    );
+  }
 
-@override
-Future<AppUser?> getAppUser() async {
-  return appUser;
-}
+  @override
+  Future<AppUser?> getAppUser() async {
+    return appUser;
+  }
   // @override
   // Future<void> setAppUser(String data) async {
   //   appUser = data;

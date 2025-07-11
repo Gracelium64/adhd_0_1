@@ -3,18 +3,19 @@ import 'package:adhd_0_1/src/common/domain/settings.dart';
 import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/common/domain/prizes.dart';
+import 'package:adhd_0_1/src/data/domain/functions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' hide Settings;
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-class FirebaseRepository implements DataBaseRepository {
+class FirestoreRepository implements DataBaseRepository {
   final fs = FirebaseFirestore.instance;
   final storage = FlutterSecureStorage();
 
-  Future<String?> loadUserId() async {
-    String? storedValue = await storage.read(key: 'userId');
-    return storedValue;
-  }
+  // Future<String?> loadUserId() async {
+  //   String? storedValue = await storage.read(key: 'userId');
+  //   return storedValue;
+  // }
 
   @override
   Future<void> addDaily(String data) async {

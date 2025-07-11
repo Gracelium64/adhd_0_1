@@ -1,16 +1,18 @@
 import 'package:adhd_0_1/firebase_options.dart';
 import 'package:adhd_0_1/src/app.dart';
+import 'package:adhd_0_1/src/data/domain/firestore_initializer.dart';
 import 'package:adhd_0_1/src/data/firebase_auth_repository.dart';
-import 'package:adhd_0_1/src/data/domain/sharedpreferencesinitializer.dart';
+import 'package:adhd_0_1/src/data/domain/sharedpreferences_initializer.dart';
+import 'package:adhd_0_1/src/data/firestore_repository.dart';
 import 'package:adhd_0_1/src/data/old/mockdatabaserepository.dart';
 import 'package:adhd_0_1/src/data/sharedpreferencesrepository.dart';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:adhd_0_1/src/data/syncrepository.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 // import 'package:flutter/foundation.dart';
 // import 'package:device_preview/device_preview.dart';
@@ -38,7 +40,13 @@ void initSyncListeners(SyncRepository repository) {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  final storage = FlutterSecureStorage();
+  String? userId = await storage.read(key: 'userId');
+  // await FirestoreInitializer.initializeDefaults(userId);
+
   await SharedPreferencesInitializer.initializeDefaults();
+  // await FirestoreInitializer.initializeDefaults(userId);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await Future.delayed(const Duration(seconds: 2));
@@ -46,7 +54,8 @@ Future<void> main() async {
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   final auth = FirebaseAuthRepository();
-  final mainRepo = MockDataBaseRepository();
+  final mainRepo = FirestoreRepository();
+  // final mainRepo = MockDataBaseRepository();
   final localRepo = SharedPreferencesRepository();
   final repository = SyncRepository(mainRepo: mainRepo, localRepo: localRepo);
 
@@ -79,7 +88,7 @@ Future<void> main() async {
   //TODO: Logic of isDone reset for daily and weekly tasks
   //TODO: Logic for weekly score counters - for each day seperatly, for the week, for special tasks
   //TODO: Logic for prize system
-  //TODO: BUG - deadline and quest tasks are being deleted and than the toggle light on the item next on the list lights up green - FIX: after delete loop in list and turn all to isDone = false
+  //TODO: BUG - deadline (deadline deletes when toggled on and another deadlineTask is deleted) and quest tasks are being deleted and than the toggle light on the item next on the list lights up green - FIX: after delete loop in list and turn all to isDone = false
   //TODO: BUG - weekly confirm button crashes app
 
   //
