@@ -41,7 +41,7 @@ void initSyncListeners(SyncRepository repository) {
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await SharedPreferencesInitializer.initializeDefaults();
+  // await SharedPreferencesInitializer.initializeDefaults();
 
   final storage = FlutterSecureStorage();
   String? userId = await storage.read(key: 'userId');
@@ -54,13 +54,11 @@ Future<void> main() async {
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
   final auth = FirebaseAuthRepository();
-  // final mainRepo = FirestoreRepository();
-  // final mainRepo = MockDataBaseRepository();
+  final mainRepo = FirestoreRepository();
   final localRepo = SharedPreferencesRepository();
-  // final repository = SyncRepository(mainRepo: mainRepo, localRepo: localRepo);
-  final repository = FirestoreRepository();
+  final repository = SyncRepository(mainRepo: mainRepo, localRepo: localRepo);
 
-  // initSyncListeners(repository);
+  initSyncListeners(repository);
   runApp(App(repository, auth));
 
   // runApp(

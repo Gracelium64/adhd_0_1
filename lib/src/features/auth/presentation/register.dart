@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:adhd_0_1/main.dart';
 import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/auth_repository.dart';
@@ -127,6 +128,7 @@ class _RegisterState extends State<Register> {
                         );
                         await storage.write(key: 'password', value: 'password');
                         await storage.write(key: 'userId', value: userId);
+
                         await onSubmit('$userId@adventurer.adhd', 'password');
 
                         if (!context.mounted) return;

@@ -42,12 +42,6 @@ class SyncRepository implements DataBaseRepository {
     triggerSync();
   }
 
-  // @override
-  // Future<void> completeDaily(int dataTaskId) async {
-  //   await localRepo.completeDaily(dataTaskId);
-  //   triggerSync();
-  // }
-
   @override
   Future<void> completeDeadline(String dataTaskId) async {
     await localRepo.completeDeadline(dataTaskId);
