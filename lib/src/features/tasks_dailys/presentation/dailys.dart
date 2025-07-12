@@ -38,9 +38,10 @@ class _DailysState extends State<Dailys> {
               return CircularProgressIndicator();
             } else if (snapshot.hasError) {
               return Text('Error: ${snapshot.error}');
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Text('No data available');
             }
+            // else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            //   return Text('No data available');
+            // }
 
             final data = snapshot.data!;
 
@@ -80,7 +81,6 @@ class _DailysState extends State<Dailys> {
                     ),
                   ),
                 ),
-
                 GestureDetector(
                   onTap: () {
                     overlayController.toggle();
@@ -92,7 +92,6 @@ class _DailysState extends State<Dailys> {
                         widget.repository,
                         overlayController,
                         taskType: TaskType.daily,
-
                         onClose: () {
                           debugPrint('dailys onClose triggered');
                           setState(() {

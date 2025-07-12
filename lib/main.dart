@@ -4,7 +4,6 @@ import 'package:adhd_0_1/src/data/domain/firestore_initializer.dart';
 import 'package:adhd_0_1/src/data/firebase_auth_repository.dart';
 import 'package:adhd_0_1/src/data/domain/sharedpreferences_initializer.dart';
 import 'package:adhd_0_1/src/data/firestore_repository.dart';
-import 'package:adhd_0_1/src/data/old/mockdatabaserepository.dart';
 import 'package:adhd_0_1/src/data/sharedpreferencesrepository.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -13,7 +12,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:adhd_0_1/src/data/syncrepository.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 // import 'package:flutter/foundation.dart';
 // import 'package:device_preview/device_preview.dart';
@@ -94,8 +92,6 @@ Future<void> main() async {
   //
 
   //  // // SPRINT 2 // // ---------------------- UNTIL 20.7.25 / 23.7.25 ---------------------- // //
-  // // OFFLINE FIRST // //
-  // TODO: make sync and firestore repositories play nice with each other
   // Functionality // //
   //TODO: weather API
   //TODO: how to save files outside of shared memory / sharing files / save local backup of user data from local repository
@@ -108,7 +104,6 @@ Future<void> main() async {
   //TODO: about overlay
   //TODO: when setting appSkinColor to null it still displays pink *************************
   // // Logic // //
-  //TODO: remove initializer for shared preferences
   //TODO: BUG - confirm button in edit_task_widget.dart only works when taskDescription is changed
   // // SECURITY // //
   //TODO: Autogenerate random password to replace current default

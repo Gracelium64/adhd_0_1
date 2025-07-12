@@ -38,9 +38,10 @@ class _WeeklysState extends State<Weeklys> {
               return CircularProgressIndicator();
             } else if (snapshot.hasError) {
               return Text(('Error: ${snapshot.error}'));
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Text('No data available');
             }
+            //  else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            //   return Text('No data available');
+            // }
 
             final data = snapshot.data!;
 
