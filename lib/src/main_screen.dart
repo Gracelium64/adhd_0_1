@@ -1,3 +1,4 @@
+import 'package:adhd_0_1/DebugPrefsOverlay.dart';
 import 'package:adhd_0_1/src/common/presentation/app_bg.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/auth_repository.dart';
@@ -43,6 +44,7 @@ class _MainScreenState extends State<MainScreen> {
 
     return Stack(
       children: [
+        
         AppBg(widget.repository),
         Scaffold(
           backgroundColor: Colors.transparent,

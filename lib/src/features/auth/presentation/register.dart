@@ -128,6 +128,7 @@ class _RegisterState extends State<Register> {
                         );
                         await storage.write(key: 'password', value: 'password');
                         await storage.write(key: 'userId', value: userId);
+                        await storage.write(key: 'name', value: userName.text);
 
                         await onSubmit('$userId@adventurer.adhd', 'password');
 

@@ -34,7 +34,7 @@ class FirestoreRepository implements DataBaseRepository {
     int taskIdCounter = currentCounter + 1;
 
     final docRef =
-        fs.collection('users').doc(userId).collection('dailyTasks').doc();
+        fs.collection('users').doc(userId).collection('dailyTasks').doc(taskIdCounter.toString());
     final Task task = Task(
       taskIdCounter.toString() + userId,
       'Daily',
@@ -70,7 +70,7 @@ class FirestoreRepository implements DataBaseRepository {
     int taskIdCounter = currentCounter + 1;
 
     final docRef =
-        fs.collection('users').doc(userId).collection('weeklyTasks').doc();
+        fs.collection('users').doc(userId).collection('weeklyTasks').doc(taskIdCounter.toString());
     final Task task = Task(
       taskIdCounter.toString() + userId,
       'Weekly',
@@ -111,7 +111,7 @@ class FirestoreRepository implements DataBaseRepository {
 
     ///
     final docRef =
-        fs.collection('users').doc(userId).collection('deadlineTasks').doc();
+        fs.collection('users').doc(userId).collection('deadlineTasks').doc(taskIdCounter.toString());
     final Task task = Task(taskId, 'Deadline', data, date, time, null, false);
     await docRef.set(task.toMap());
 
@@ -139,7 +139,7 @@ class FirestoreRepository implements DataBaseRepository {
     int taskIdCounter = currentCounter + 1;
 
     final docRef =
-        fs.collection('users').doc(userId).collection('questTasks').doc();
+        fs.collection('users').doc(userId).collection('questTasks').doc(taskIdCounter.toString());
     final Task task = Task(
       taskIdCounter.toString() + userId,
       'Quest',

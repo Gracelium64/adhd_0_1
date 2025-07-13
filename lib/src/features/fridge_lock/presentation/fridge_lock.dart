@@ -1,3 +1,4 @@
+import 'package:adhd_0_1/DebugPrefsOverlay.dart';
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
 import 'package:adhd_0_1/src/data/auth_repository.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/add_task_widget.dart';
@@ -23,6 +24,7 @@ class _FridgeLockState extends State<FridgeLock> {
   @override
   Widget build(BuildContext context) {
     OverlayPortalController overlayController = OverlayPortalController();
+    OverlayPortalController overlayControllerDebug = OverlayPortalController();
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -102,6 +104,13 @@ class _FridgeLockState extends State<FridgeLock> {
             SizedBox(height: 40),
           ],
         ),
+      ),
+      floatingActionButton: Stack(
+        alignment: Alignment.bottomRight,
+        children: [
+          const DebugPrefsOverlay(),
+
+        ],
       ),
     );
   }
