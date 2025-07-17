@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:adhd_0_1/src/common/domain/app_user.dart';
+import 'package:adhd_0_1/src/data/domain/functions.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:adhd_0_1/src/common/domain/task.dart';
@@ -9,7 +10,7 @@ import 'package:adhd_0_1/src/common/domain/settings.dart';
 import 'package:adhd_0_1/src/data/domain/prefs_keys.dart';
 
 class SharedPreferencesRepository implements DataBaseRepository {
-  int taskIdCounter = 0;
+  int taskIdCounter = 1;
 
   Future<List<Task>> _loadTasks(String key) async {
     final prefs = await SharedPreferences.getInstance();
@@ -25,10 +26,12 @@ class SharedPreferencesRepository implements DataBaseRepository {
 
   @override
   Future<void> addDaily(String data) async {
+    final String? userId = await loadUserId();
+    if (userId == null) throw Exception('User ID not found');
     final list = await _loadTasks(PrefsKeys.dailyKey);
     list.add(
       Task(
-        {taskIdCounter++}.toString(),
+        (taskIdCounter++).toString() + userId,
         'Daily',
         data,
         null,
@@ -42,10 +45,13 @@ class SharedPreferencesRepository implements DataBaseRepository {
 
   @override
   Future<void> addWeekly(String data, day) async {
+    final String? userId = await loadUserId();
+    if (userId == null) throw Exception('User ID not found');
+
     final list = await _loadTasks(PrefsKeys.weeklyKey);
     list.add(
       Task(
-        {taskIdCounter++}.toString(),
+        (taskIdCounter++).toString() + userId,
         'Weekly',
         data,
         null,
@@ -59,10 +65,13 @@ class SharedPreferencesRepository implements DataBaseRepository {
 
   @override
   Future<void> addDeadline(String data, date, time) async {
+    final String? userId = await loadUserId();
+    if (userId == null) throw Exception('User ID not found');
+
     final list = await _loadTasks(PrefsKeys.deadlineKey);
     list.add(
       Task(
-        {taskIdCounter++}.toString(),
+        (taskIdCounter++).toString() + userId,
         'Deadline',
         data,
         date,
@@ -76,10 +85,13 @@ class SharedPreferencesRepository implements DataBaseRepository {
 
   @override
   Future<void> addQuest(String data) async {
+    final String? userId = await loadUserId();
+    if (userId == null) throw Exception('User ID not found');
+
     final list = await _loadTasks(PrefsKeys.questKey);
     list.add(
       Task(
-        {taskIdCounter++}.toString(),
+        (taskIdCounter++).toString() + userId,
         'Quest',
         data,
         null,
@@ -239,14 +251,26 @@ class SharedPreferencesRepository implements DataBaseRepository {
   }
 
   @override
-
-  Future<void> setAppUser(String userId,
+  Future<void> setAppUser(
+    String userId,
     userName,
     email,
     password,
-    bool isPowerUser,) async {
+    bool isPowerUser,
+  ) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(PrefsKeys.appUserKey, jsonEncode(AppUser(userId: userId, userName: userName, email: email, password: password, isPowerUser: isPowerUser).toJson()));
+    await prefs.setString(
+      PrefsKeys.appUserKey,
+      jsonEncode(
+        AppUser(
+          userId: userId,
+          userName: userName,
+          email: email,
+          password: password,
+          isPowerUser: isPowerUser,
+        ).toJson(),
+      ),
+    );
   }
 
   @override
