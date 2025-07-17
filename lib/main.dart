@@ -81,11 +81,12 @@ Future<void> main() async {
   //TODO: single prize overlay
   // // ONBOARDING // //
   //TODO: on the last onboarding screen confirmation button opens main screen with tutorial overlay open
+  //TODO: initialize userStatistics right after onboarding completes
   // // MVP Logic // //
   //TODO: Logic of isDone reset for daily and weekly tasks
   //TODO: Logic for weekly score counters - for each day seperatly, for the week, for special tasks
   //TODO: Logic for prize system
-  //TODO: BUG - deadline and quest complete quest, something got messed up in the code of all of this
+  //TODO: BUG - deadline and quest complete quest, refresh UI needed
 
   //
   // v.0.1.12 //
@@ -97,7 +98,7 @@ Future<void> main() async {
   //TODO: how to save files outside of shared memory / sharing files / save local backup of user data from local repository
   // // Visual // //
   //TODO: responsive design - this design is problematic for up- and downscaling
-  //TODO: weeklyTaskWidget - if day is "any" don't show it
+  //TODO: BUG - weeklyTaskWidget - if day is "any" don't show it
   //TODO: week summery overlay
   //TODO: good morning overlay
   //TODO: backup overlays
@@ -119,6 +120,8 @@ Future<void> main() async {
   //
 
   //  // // SPRINT 3 // // ---------------------- UNTIL 26.7.25 / 29.7.25 ---------------------- // //
+  // // SYNCREPOSITORY // //
+  //TODO: BUG - syncrepository duplicates and wrecks havoc on the firestore repository. i still want to have it anyway.
   // // Non MVP // //
   //TODO: UNDO Button in SncakBar when completing a Quest or Deadline Tasks
   //TODO: eastereggs
