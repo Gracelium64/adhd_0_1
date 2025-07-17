@@ -35,7 +35,7 @@ class _QuestTaskWidgetState extends State<QuestTaskWidget> {
   void _toggleTask() async {
     final newStatus = !widget.task.isDone;
 
-    await widget.repository.toggleWeekly(widget.task.taskId, newStatus);
+    await widget.repository.completeQuest(widget.task.taskId);
 
     setState(() {
       isDone = newStatus;

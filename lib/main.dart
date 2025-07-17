@@ -53,11 +53,11 @@ Future<void> main() async {
 
   final auth = FirebaseAuthRepository();
   final mainRepo = FirestoreRepository();
-  final localRepo = SharedPreferencesRepository();
-  final repository = SyncRepository(mainRepo: mainRepo, localRepo: localRepo);
+  // final localRepo = SharedPreferencesRepository();
+  // final repository = SyncRepository(mainRepo: mainRepo, localRepo: localRepo);
 
-  initSyncListeners(repository);
-  runApp(App(repository, auth));
+  // initSyncListeners(repository);
+  runApp(App(mainRepo, auth));
 
   // runApp(
   //   DevicePreview(

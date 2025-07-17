@@ -190,73 +190,112 @@ class SyncRepository implements DataBaseRepository {
       debugPrint("Sync started...");
 
       try {
-        final dailyTasks = await localRepo.getDailyTasks();
-        for (final task in dailyTasks) {
-          try {
+        final localDailies = await localRepo.getDailyTasks();
+        final remoteDailies = await mainRepo.getDailyTasks();
+        final remoteDailyMap = {for (var t in remoteDailies) t.taskId: t};
+
+        for (final task in localDailies) {
+          final remote = remoteDailyMap[task.taskId];
+          if (remote == null) {
             await mainRepo.addDaily(task.taskDesctiption);
-          } catch (e) {
-            debugPrint("Failed to sync daily task ${task.taskId}: $e");
+          } else {
+            if (task.taskDesctiption != remote.taskDesctiption) {
+              await mainRepo.editDaily(task.taskId, task.taskDesctiption);
+            }
+            if (task.isDone != remote.isDone) {
+              await mainRepo.toggleDaily(task.taskId, task.isDone);
+            }
           }
         }
 
-        final weeklyTasks = await localRepo.getWeeklyTasks();
-        for (final task in weeklyTasks) {
-          try {
+        final localWeeklies = await localRepo.getWeeklyTasks();
+        final remoteWeeklies = await mainRepo.getWeeklyTasks();
+        final remoteWeeklyMap = {for (var t in remoteWeeklies) t.taskId: t};
+
+        for (final task in localWeeklies) {
+          final remote = remoteWeeklyMap[task.taskId];
+          if (remote == null) {
             await mainRepo.addWeekly(task.taskDesctiption, task.dayOfWeek);
-          } catch (e) {
-            debugPrint("Failed to sync weekly task ${task.taskId}: $e");
+          } else {
+            if (task.taskDesctiption != remote.taskDesctiption ||
+                task.dayOfWeek != remote.dayOfWeek) {
+              await mainRepo.editWeekly(
+                task.taskId,
+                task.taskDesctiption,
+                Weekday.values.firstWhere((w) => w.name == task.dayOfWeek),
+              );
+            }
+            if (task.isDone != remote.isDone) {
+              await mainRepo.toggleWeekly(task.taskId, task.isDone);
+            }
           }
         }
 
-        final deadlineTasks = await localRepo.getDeadlineTasks();
-        for (final task in deadlineTasks) {
-          try {
+        final localDeadlines = await localRepo.getDeadlineTasks();
+        final remoteDeadlines = await mainRepo.getDeadlineTasks();
+        final remoteDeadlineMap = {for (var t in remoteDeadlines) t.taskId: t};
+
+        for (final task in localDeadlines) {
+          final remote = remoteDeadlineMap[task.taskId];
+          if (remote == null) {
             await mainRepo.addDeadline(
               task.taskDesctiption,
               task.deadlineDate,
               task.deadlineTime,
             );
-          } catch (e) {
-            debugPrint("Failed to sync deadline task ${task.taskId}: $e");
+          } else {
+            if (task.taskDesctiption != remote.taskDesctiption ||
+                task.deadlineDate != remote.deadlineDate ||
+                task.deadlineTime != remote.deadlineTime) {
+              await mainRepo.editDeadline(
+                task.taskId,
+                task.taskDesctiption,
+                task.deadlineDate,
+                task.deadlineTime,
+              );
+            }
           }
         }
 
-        final questTasks = await localRepo.getQuestTasks();
-        for (final task in questTasks) {
-          try {
+        final localQuests = await localRepo.getQuestTasks();
+        final remoteQuests = await mainRepo.getQuestTasks();
+        final remoteQuestMap = {for (var t in remoteQuests) t.taskId: t};
+
+        for (final task in localQuests) {
+          final remote = remoteQuestMap[task.taskId];
+          if (remote == null) {
             await mainRepo.addQuest(task.taskDesctiption);
-          } catch (e) {
-            debugPrint("Failed to sync quest task ${task.taskId}: $e");
+          } else {
+            if (task.taskDesctiption != remote.taskDesctiption) {
+              await mainRepo.editQuest(task.taskId, task.taskDesctiption);
+            }
           }
         }
 
         final prizes = await localRepo.getPrizes();
+        final remotePrizes = await mainRepo.getPrizes();
+        final remotePrizeIds = remotePrizes.map((p) => p.prizeId).toSet();
+
         for (final prize in prizes) {
-          try {
+          if (!remotePrizeIds.contains(prize.prizeId)) {
             await mainRepo.addPrize(prize.prizeId, prize.prizeUrl);
-          } catch (e) {
-            debugPrint("Failed to sync prize ${prize.prizeId}: $e");
           }
         }
 
         final settings = await localRepo.getSettings();
         if (settings != null) {
-          try {
-            await mainRepo.setSettings(
-              settings.appSkinColor,
-              settings.language,
-              settings.location,
-              settings.startOfDay,
-              settings.startOfWeek,
-            );
-          } catch (e) {
-            debugPrint("Failed to sync settings: $e");
-          }
+          await mainRepo.setSettings(
+            settings.appSkinColor,
+            settings.language,
+            settings.location,
+            settings.startOfDay,
+            settings.startOfWeek,
+          );
         }
 
-        debugPrint("Sync finished.");
-      } catch (e) {
-        debugPrint("General sync error: $e");
+        debugPrint("✅ Sync finished.");
+      } catch (e, stack) {
+        debugPrint("❌ Sync error: $e\n$stack");
       }
     } finally {
       isSyncing = false;
