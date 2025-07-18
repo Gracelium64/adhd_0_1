@@ -5,6 +5,7 @@ import 'package:adhd_0_1/src/data/firebase_auth_repository.dart';
 import 'package:adhd_0_1/src/data/domain/sharedpreferences_initializer.dart';
 import 'package:adhd_0_1/src/data/firestore_repository.dart';
 import 'package:adhd_0_1/src/data/sharedpreferencesrepository.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +24,9 @@ I know that it's there, it has been left there on purpose.
 It was before we started using a Firebase Repository, it was actually made in preparation for it.
 Since this is an Offline First App, I've build it so that it would prefer the local Repository and back it up to the server when connected to the internet.
 Only a couple of days later I learned in class that this feature is default in Firebase anyway.
-Fuck it, the code stays.
+Fuck it, the code stays*.
+
+
 
 There will not be many comments in this project, you've just collected your first!  
 */
@@ -54,6 +57,12 @@ Future<void> main() async {
       rethrow;
     }
   }
+// not sure what happened here to require try-catch after reciting the black_speech //
+
+
+FirebaseFirestore.instance.settings = const Settings(
+  persistenceEnabled: false,
+);
   await FirestoreInitializer.initializeDefaults(userId);
 
   await Future.delayed(const Duration(seconds: 2));
