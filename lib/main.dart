@@ -9,6 +9,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:adhd_0_1/src/data/syncrepository.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -40,11 +41,19 @@ void initSyncListeners(SyncRepository repository) {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // await SharedPreferencesInitializer.initializeDefaults();
+  await dotenv.load(fileName: 'black_speech.env');
 
   final storage = FlutterSecureStorage();
   String? userId = await storage.read(key: 'userId');
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  try {
+    await Firebase.initializeApp(options: FirebaseEnvOptions.currentPlatform);
+  } catch (e) {
+    if (e.toString().contains('already exists')) {
+    } else {
+      rethrow;
+    }
+  }
   await FirestoreInitializer.initializeDefaults(userId);
 
   await Future.delayed(const Duration(seconds: 2));
@@ -74,8 +83,6 @@ Future<void> main() async {
   //
 
   //  // // SPRINT 1.2 // // ---------------------- UNTIL 13.7.25 / 18.7.25 ---------------------- // //
-  // // API SECURITY // //
-  //TODO: SECURE API KEYS REVOKE CURRENT
   // // MVP Visual // //
   //TODO: tutorial overlay
   //TODO: single prize overlay
@@ -93,6 +100,7 @@ Future<void> main() async {
   //
 
   //  // // SPRINT 2 // // ---------------------- UNTIL 20.7.25 / 23.7.25 ---------------------- // //
+  // // P23 PROVIDER // //
   // Functionality // //
   //TODO: weather API
   //TODO: how to save files outside of shared memory / sharing files / save local backup of user data from local repository
@@ -109,6 +117,7 @@ Future<void> main() async {
   // // SECURITY // //
   //TODO: Autogenerate random password to replace current default
   //TODO: aleart user to it's userId and password through the settings menu and make it clickable copy to clipboard
+  //TODO: SECURITY RULES FIRESTORE
 
   //
   // v.0.1.2 //
