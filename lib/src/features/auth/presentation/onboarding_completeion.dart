@@ -1,10 +1,12 @@
 import 'dart:ui';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/auth_repository.dart';
+import 'package:adhd_0_1/src/data/domain/firestore_initializer.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/app_bg_coldstart.dart';
 import 'package:adhd_0_1/src/main_screen.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class OnboardingCompletion extends StatefulWidget {
@@ -78,6 +80,12 @@ class _OnboardingCompletionState extends State<OnboardingCompletion> {
                             final prefs = await SharedPreferences.getInstance();
                             await prefs.setBool('onboardingComplete', true);
 
+                            final storage = FlutterSecureStorage();
+                            String? userId = await storage.read(key: 'userId');
+                            await FirestoreInitializer.initializeDefaults(
+                              userId,
+                            );
+
                             if (context.mounted) {
                               Navigator.of(
                                 context,
@@ -89,7 +97,6 @@ class _OnboardingCompletionState extends State<OnboardingCompletion> {
                                       (_, __, ___) => MainScreen(
                                         widget.repository,
                                         widget.auth,
-                                        
                                       ),
                                 ),
                                 (route) => false,
@@ -103,7 +110,13 @@ class _OnboardingCompletionState extends State<OnboardingCompletion> {
                         ),
                         SizedBox(width: 12),
                         GestureDetector(
-                          onTap: () {},
+                          onTap: () async {
+                            final storage = FlutterSecureStorage();
+                            String? userId = await storage.read(key: 'userId');
+                            await FirestoreInitializer.initializeDefaults(
+                              userId,
+                            );
+                          },
 
                           child: Image.asset('assets/img/buttons/confirm.png'),
                         ),

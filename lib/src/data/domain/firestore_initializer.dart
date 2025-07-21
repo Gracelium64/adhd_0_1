@@ -23,19 +23,19 @@ class FirestoreInitializer {
       await counterRef.set({'taskIdCounter': 0});
     }
 
-    // Initialize userSettings
-    final settingsRef = userRef.collection('userSettings').doc('userSettings');
-    final settingsSnapshot = await settingsRef.get();
-    if (!settingsSnapshot.exists) {
-      final defaultSettings = Settings(
-        appSkinColor: true,
-        language: 'English',
-        location: 'Berlin',
-        startOfDay: TimeOfDay(hour: 7, minute: 15),
-        startOfWeek: Weekday.mon,
-      );
-      await settingsRef.set(defaultSettings.toMap());
-    }
+    // // Initialize userSettings
+    // final settingsRef = userRef.collection('userSettings').doc('userSettings');
+    // final settingsSnapshot = await settingsRef.get();
+    // if (!settingsSnapshot.exists) {
+    //   final defaultSettings = Settings(
+    //     appSkinColor: true,
+    //     language: 'English',
+    //     location: 'Berlin',
+    //     startOfDay: TimeOfDay(hour: 7, minute: 15),
+    //     startOfWeek: Weekday.mon,
+    //   );
+    //   await settingsRef.set(defaultSettings.toMap());
+    // }
 
     // Initialize userStatistics
     final statsRef = userRef.collection('userSettings').doc('userStatistics');

@@ -42,16 +42,11 @@ There will not be many comments in this project, you've just collected your firs
 //   });
 // }
 
-///////////// old API key works - meaning, the code passes the key correctly, it is a problem of the key itself in the server
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // // // await SharedPreferencesInitializer.initializeDefaults();
   await dotenv.load(fileName: 'black_speech.env');
   debugPrint('✅ Using API key: ${dotenv.env['apiKeyIos']}');
-
-  final storage = FlutterSecureStorage();
-  String? userId = await storage.read(key: 'userId');
 
   try {
     await Firebase.initializeApp(options: FirebaseEnvOptions.currentPlatform);
@@ -61,13 +56,7 @@ Future<void> main() async {
     debugPrint('🧪 Firebase.apps: ${Firebase.apps}');
     if (!e.toString().contains('already exists')) rethrow;
   }
-// not sure what happened here to require try-catch after reciting the black_speech //
-
-
-// FirebaseFirestore.instance.settings = const Settings(
-//   persistenceEnabled: false,
-// );
-  await FirestoreInitializer.initializeDefaults(userId);
+  // not sure what happened here to require try-catch after reciting the black_speech //
 
   await Future.delayed(const Duration(seconds: 2));
   FlutterNativeSplash.remove;
@@ -101,7 +90,6 @@ Future<void> main() async {
   //TODO: single prize overlay
   // // ONBOARDING // //
   //TODO: on the last onboarding screen confirmation button opens main screen with tutorial overlay open
-  //TODO: initialize userStatistics right after onboarding completes
   // // MVP Logic // //
   //TODO: Logic of isDone reset for daily and weekly tasks
   //TODO: Logic for weekly score counters - for each day seperatly, for the week, for special tasks
