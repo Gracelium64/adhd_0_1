@@ -64,9 +64,9 @@ Future<void> main() async {
 // not sure what happened here to require try-catch after reciting the black_speech //
 
 
-FirebaseFirestore.instance.settings = const Settings(
-  persistenceEnabled: false,
-);
+// FirebaseFirestore.instance.settings = const Settings(
+//   persistenceEnabled: false,
+// );
   await FirestoreInitializer.initializeDefaults(userId);
 
   await Future.delayed(const Duration(seconds: 2));
