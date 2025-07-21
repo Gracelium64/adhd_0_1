@@ -7,6 +7,7 @@ import 'package:adhd_0_1/src/data/firestore_repository.dart';
 import 'package:adhd_0_1/src/data/sharedpreferencesrepository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -31,31 +32,34 @@ Fuck it, the code stays*.
 There will not be many comments in this project, you've just collected your first!  
 */
 
-void initSyncListeners(SyncRepository repository) {
-  final Connectivity connectivity = Connectivity();
+// void initSyncListeners(SyncRepository repository) {
+//   final Connectivity connectivity = Connectivity();
 
-  connectivity.onConnectivityChanged.listen((status) {
-    if (status != ConnectivityResult.none) {
-      repository.syncAll();
-    }
-  });
-}
+//   connectivity.onConnectivityChanged.listen((status) {
+//     if (status != ConnectivityResult.none) {
+//       repository.syncAll();
+//     }
+//   });
+// }
+
+///////////// old API key works - meaning, the code passes the key correctly, it is a problem of the key itself in the server
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await SharedPreferencesInitializer.initializeDefaults();
+  // // // await SharedPreferencesInitializer.initializeDefaults();
   await dotenv.load(fileName: 'black_speech.env');
+  debugPrint('✅ Using API key: ${dotenv.env['apiKeyIos']}');
 
   final storage = FlutterSecureStorage();
   String? userId = await storage.read(key: 'userId');
 
   try {
     await Firebase.initializeApp(options: FirebaseEnvOptions.currentPlatform);
+    debugPrint("✅ Firebase.initializeApp() succeeded");
   } catch (e) {
-    if (e.toString().contains('already exists')) {
-    } else {
-      rethrow;
-    }
+    debugPrint("❌ Firebase.initializeApp() failed: $e");
+    debugPrint('🧪 Firebase.apps: ${Firebase.apps}');
+    if (!e.toString().contains('already exists')) rethrow;
   }
 // not sure what happened here to require try-catch after reciting the black_speech //
 
