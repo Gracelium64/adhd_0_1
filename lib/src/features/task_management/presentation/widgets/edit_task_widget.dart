@@ -5,18 +5,17 @@ import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 enum TaskType { daily, weekly, deadline, quest }
 
 class EditTaskWidget extends StatefulWidget {
-  final DataBaseRepository repository;
   final OverlayPortalController controller;
   final Task task;
   final TaskType taskType;
   final void Function() onClose;
 
   const EditTaskWidget(
-    this.repository,
     this.controller, {
     super.key,
     required this.task,
@@ -77,6 +76,8 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final repository = context.read<DataBaseRepository>();
+
     final isWeekly = selectedType == TaskType.weekly;
     final isDeadline = selectedType == TaskType.deadline;
 
@@ -490,9 +491,7 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
                             DeleteButton(
                               onPressed: () {
                                 if (selectedType == TaskType.daily) {
-                                  widget.repository.deleteDaily(
-                                    widget.task.taskId,
-                                  );
+                                  repository.deleteDaily(widget.task.taskId);
                                   widget.controller.toggle();
                                   setState(() {
                                     debugPrint(
@@ -502,9 +501,7 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
                                   });
                                 }
                                 if (selectedType == TaskType.weekly) {
-                                  widget.repository.deleteWeekly(
-                                    widget.task.taskId,
-                                  );
+                                  repository.deleteWeekly(widget.task.taskId);
                                   widget.controller.toggle();
                                   setState(() {
                                     debugPrint(
@@ -514,9 +511,7 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
                                   });
                                 }
                                 if (selectedType == TaskType.deadline) {
-                                  widget.repository.deleteDeadline(
-                                    widget.task.taskId,
-                                  );
+                                  repository.deleteDeadline(widget.task.taskId);
                                   widget.controller.toggle();
                                   setState(() {
                                     debugPrint(
@@ -526,9 +521,7 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
                                   });
                                 }
                                 if (selectedType == TaskType.quest) {
-                                  widget.repository.deleteQuest(
-                                    widget.task.taskId,
-                                  );
+                                  repository.deleteQuest(widget.task.taskId);
                                   widget.controller.toggle();
                                   setState(() {
                                     debugPrint(
@@ -550,7 +543,7 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
                                       ? () {}
                                       : () async {
                                         if (selectedType == TaskType.daily) {
-                                          await widget.repository.editDaily(
+                                          await repository.editDaily(
                                             widget.task.taskId,
                                             userInput.text,
                                           );
@@ -564,7 +557,7 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
                                         } else if (selectedType ==
                                                 TaskType.weekly &&
                                             selectedWeekday != null) {
-                                          await widget.repository.editWeekly(
+                                          await repository.editWeekly(
                                             widget.task.taskId,
                                             userInput.text,
                                             selectedWeekday!,
@@ -587,7 +580,7 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
                                             selectedTime,
                                           );
 
-                                          await widget.repository.editDeadline(
+                                          await repository.editDeadline(
                                             widget.task.taskId,
                                             userInput.text,
                                             dateStr,
@@ -602,7 +595,7 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
                                           });
                                         } else if (selectedType ==
                                             TaskType.quest) {
-                                          await widget.repository.editQuest(
+                                          await repository.editQuest(
                                             widget.task.taskId,
                                             userInput.text,
                                           );

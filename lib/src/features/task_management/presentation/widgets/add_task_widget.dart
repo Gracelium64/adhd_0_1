@@ -3,18 +3,17 @@ import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 enum TaskType { daily, weekly, deadline, quest }
 
 class AddTaskWidget extends StatefulWidget {
-  final DataBaseRepository repository;
   final OverlayPortalController controller;
 
   final TaskType taskType;
   final void Function() onClose;
 
   const AddTaskWidget(
-    this.repository,
     this.controller, {
     super.key,
 
@@ -75,6 +74,8 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final repository = context.read<DataBaseRepository>();
+
     final isWeekly = selectedType == TaskType.weekly;
     final isDeadline = selectedType == TaskType.deadline;
 
@@ -496,7 +497,7 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
                                       ? () {}
                                       : () async {
                                         if (selectedType == TaskType.daily) {
-                                          await widget.repository.addDaily(
+                                          await repository.addDaily(
                                             userInput.text,
                                           );
                                           widget.controller.toggle();
@@ -509,7 +510,7 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
                                         } else if (selectedType ==
                                                 TaskType.weekly &&
                                             selectedWeekday != null) {
-                                          await widget.repository.addWeekly(
+                                          await repository.addWeekly(
                                             userInput.text,
                                             selectedWeekday,
                                           );
@@ -531,7 +532,7 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
                                             selectedTime,
                                           );
 
-                                          await widget.repository.addDeadline(
+                                          await repository.addDeadline(
                                             userInput.text,
                                             dateStr,
                                             timeStr,
@@ -545,7 +546,7 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
                                           });
                                         } else if (selectedType ==
                                             TaskType.quest) {
-                                          await widget.repository.addQuest(
+                                          await repository.addQuest(
                                             userInput.text,
                                           );
                                           widget.controller.toggle();

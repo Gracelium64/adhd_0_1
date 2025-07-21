@@ -1,5 +1,6 @@
 import 'package:adhd_0_1/firebase_options.dart';
 import 'package:adhd_0_1/src/app.dart';
+import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/domain/firestore_initializer.dart';
 import 'package:adhd_0_1/src/data/firebase_auth_repository.dart';
 import 'package:adhd_0_1/src/data/domain/sharedpreferences_initializer.dart';
@@ -15,6 +16,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:adhd_0_1/src/data/syncrepository.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:provider/provider.dart';
 
 // import 'package:flutter/foundation.dart';
 // import 'package:device_preview/device_preview.dart';
@@ -25,8 +27,10 @@ I know that it's there, it has been left there on purpose.
 It was before we started using a Firebase Repository, it was actually made in preparation for it.
 Since this is an Offline First App, I've build it so that it would prefer the local Repository and back it up to the server when connected to the internet.
 Only a couple of days later I learned in class that this feature is default in Firebase anyway.
-Fuck it, the code stays*.
+Fuck it, the code stays.
 
+
+update 21.7.25 - fuck it, the code gets commented out until i figure out how to not make the syncs fight with each other.
 
 
 There will not be many comments in this project, you've just collected your first!  
@@ -56,7 +60,8 @@ Future<void> main() async {
     debugPrint('🧪 Firebase.apps: ${Firebase.apps}');
     if (!e.toString().contains('already exists')) rethrow;
   }
-  // not sure what happened here to require try-catch after reciting the black_speech //
+  // there were some trouble here with the API keys after reciting the black_speech //
+  // remove try-catch when finished //
 
   await Future.delayed(const Duration(seconds: 2));
   FlutterNativeSplash.remove;
@@ -68,7 +73,16 @@ Future<void> main() async {
   // final repository = SyncRepository(mainRepo: mainRepo, localRepo: localRepo);
 
   // initSyncListeners(repository);
-  runApp(App(mainRepo, auth));
+
+  runApp(
+    MultiProvider(
+      providers: [
+        Provider<DataBaseRepository>(create: (_) => mainRepo),
+        Provider<FirebaseAuthRepository>(create: (_) => auth),
+      ],
+      child: const App(),
+    ),
+  );
 
   // runApp(
   //   DevicePreview(
@@ -94,27 +108,27 @@ Future<void> main() async {
   //TODO: Logic of isDone reset for daily and weekly tasks
   //TODO: Logic for weekly score counters - for each day seperatly, for the week, for special tasks
   //TODO: Logic for prize system
-  //TODO: BUG - deadline and quest complete quest, refresh UI needed
 
   //
   // v.0.1.12 //
   //
 
   //  // // SPRINT 2 // // ---------------------- UNTIL 20.7.25 / 23.7.25 ---------------------- // //
-  // // P23 PROVIDER // //
   // Functionality // //
   //TODO: weather API
   //TODO: how to save files outside of shared memory / sharing files / save local backup of user data from local repository
   // // Visual // //
   //TODO: responsive design - this design is problematic for up- and downscaling
-  //TODO: BUG - weeklyTaskWidget - if day is "any" don't show it
   //TODO: week summery overlay
   //TODO: good morning overlay
   //TODO: backup overlays
   //TODO: about overlay
   //TODO: when setting appSkinColor to null it still displays pink *************************
-  // // Logic // //
+  // // TASK MANAGEMENT // //
+  //TODO: BUG - weeklyTaskWidget - if day is "any" don't show it
   //TODO: BUG - confirm button in edit_task_widget.dart only works when taskDescription is changed
+  //TODO: BUG - deadline and quest complete quest, refresh UI needed
+  //TODO: Rework Task Management, something went sideways
   // // SECURITY // //
   //TODO: Autogenerate random password to replace current default
   //TODO: aleart user to it's userId and password through the settings menu and make it clickable copy to clipboard

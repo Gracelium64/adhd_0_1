@@ -1,19 +1,15 @@
 import 'dart:ui';
-import 'package:adhd_0_1/main.dart';
 import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
-import 'package:adhd_0_1/src/data/databaserepository.dart';
-import 'package:adhd_0_1/src/data/auth_repository.dart';
+import 'package:adhd_0_1/src/data/firebase_auth_repository.dart';
 import 'package:adhd_0_1/src/features/auth/domain/validators.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/register_confirmation.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:provider/provider.dart';
 
 class Register extends StatefulWidget {
-  final DataBaseRepository repository;
-  final AuthRepository auth;
-
-  const Register(this.repository, this.auth, {super.key});
+  const Register({super.key});
 
   @override
   State<Register> createState() => _RegisterState();
@@ -24,7 +20,8 @@ class _RegisterState extends State<Register> {
   final storage = FlutterSecureStorage();
 
   Future<void> onSubmit(String userName, String pw) async {
-    await widget.auth.createUserWithEmailAndPassword(userName, pw);
+    final auth = context.read<FirebaseAuthRepository>();
+    await auth.createUserWithEmailAndPassword(userName, pw);
   }
 
   String generateUserId(String username) {
@@ -110,11 +107,7 @@ class _RegisterState extends State<Register> {
                 OverlayPortal(
                   controller: overlayController,
                   overlayChildBuilder: (BuildContext context) {
-                    return RegisterConfirmation(
-                      repository: widget.repository,
-                      auth: widget.auth,
-                      userName: userName.text,
-                    );
+                    return RegisterConfirmation(userName: userName.text);
                   },
                   child: ConfirmButton(
                     onPressed: () async {

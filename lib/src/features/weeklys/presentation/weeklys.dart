@@ -80,7 +80,6 @@ class _WeeklysState extends State<Weeklys> {
                     controller: overlayController,
                     overlayChildBuilder: (BuildContext context) {
                       return AddTaskWidget(
-                        widget.repository,
                         overlayController,
                         taskType: TaskType.weekly,
                         onClose: () {},

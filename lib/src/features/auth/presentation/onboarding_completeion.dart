@@ -1,19 +1,15 @@
 import 'dart:ui';
-import 'package:adhd_0_1/src/data/databaserepository.dart';
-import 'package:adhd_0_1/src/data/auth_repository.dart';
 import 'package:adhd_0_1/src/data/domain/firestore_initializer.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/app_bg_coldstart.dart';
 import 'package:adhd_0_1/src/main_screen.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class OnboardingCompletion extends StatefulWidget {
-  final DataBaseRepository repository;
-  final AuthRepository auth;
-
-  const OnboardingCompletion(this.repository, this.auth, {super.key});
+  const OnboardingCompletion({super.key});
 
   @override
   State<OnboardingCompletion> createState() => _OnboardingCompletionState();
@@ -93,11 +89,7 @@ class _OnboardingCompletionState extends State<OnboardingCompletion> {
                               ).pushAndRemoveUntil(
                                 PageRouteBuilder(
                                   opaque: false,
-                                  pageBuilder:
-                                      (_, __, ___) => MainScreen(
-                                        widget.repository,
-                                        widget.auth,
-                                      ),
+                                  pageBuilder: (_, __, ___) => MainScreen(),
                                 ),
                                 (route) => false,
                               );

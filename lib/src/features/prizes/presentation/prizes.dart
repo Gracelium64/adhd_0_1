@@ -4,11 +4,10 @@ import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/prizes/presentation/widgets/prizes_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Prizes extends StatefulWidget {
-  final DataBaseRepository repository;
-
-  const Prizes(this.repository, {super.key});
+  const Prizes({super.key});
 
   @override
   State<Prizes> createState() => _PrizesState();
@@ -17,6 +16,8 @@ class Prizes extends StatefulWidget {
 class _PrizesState extends State<Prizes> {
   @override
   Widget build(BuildContext context) {
+    final repository = context.read<DataBaseRepository>();
+
     OverlayPortalController overlayController = OverlayPortalController();
 
     return Scaffold(
@@ -37,7 +38,7 @@ class _PrizesState extends State<Prizes> {
                         width: 304,
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                          child: PrizesWidget(widget.repository),
+                          child: PrizesWidget(repository),
                         ),
                       ),
                     ],
@@ -53,7 +54,6 @@ class _PrizesState extends State<Prizes> {
                 controller: overlayController,
                 overlayChildBuilder: (BuildContext context) {
                   return AddTaskWidget(
-                    widget.repository,
                     overlayController,
                     taskType: TaskType.daily,
                     onClose: () {},

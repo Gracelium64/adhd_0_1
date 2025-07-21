@@ -1,16 +1,11 @@
 import 'dart:ui';
 import 'package:adhd_0_1/src/features/auth/presentation/onboarding_second_skin_selection.dart';
-import 'package:adhd_0_1/src/data/databaserepository.dart';
-import 'package:adhd_0_1/src/data/auth_repository.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/app_bg_coldstart.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 class OnboardingFirstSkin extends StatelessWidget {
-  final DataBaseRepository repository;
-  final AuthRepository auth;
-
-  const OnboardingFirstSkin(this.repository, this.auth, {super.key});
+  const OnboardingFirstSkin({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -60,10 +55,7 @@ class OnboardingFirstSkin extends StatelessWidget {
                         child: OverlayPortal(
                           controller: overlayController,
                           overlayChildBuilder: (BuildContext context) {
-                            return OnboardingSecondSkinSelection(
-                              repository,
-                              auth,
-                            );
+                            return OnboardingSecondSkinSelection();
                           },
                           child: Image.asset(
                             'assets/img/buttons/skin_null.png',

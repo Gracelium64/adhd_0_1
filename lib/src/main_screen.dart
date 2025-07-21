@@ -1,7 +1,5 @@
-import 'package:adhd_0_1/src/features/fridge_lock/presentation/widgets/DebugPrefsOverlay.dart';
 import 'package:adhd_0_1/src/common/presentation/app_bg.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
-import 'package:adhd_0_1/src/data/auth_repository.dart';
 import 'package:adhd_0_1/src/features/tasks_dailys/presentation/dailys.dart';
 import 'package:adhd_0_1/src/features/tasks_deadlineys/presentation/deadlineys.dart';
 import 'package:adhd_0_1/src/features/fidget_screen/presentation/fidget_screen.dart';
@@ -13,12 +11,10 @@ import 'package:adhd_0_1/src/features/tutorial/presentation/tutorial.dart';
 import 'package:adhd_0_1/src/features/tasks_weeklys/presentation/weeklys.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class MainScreen extends StatefulWidget {
-  final DataBaseRepository repository;
-  final AuthRepository auth;
-
-  const MainScreen(this.repository, this.auth, {super.key});
+  const MainScreen({super.key});
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
@@ -28,24 +24,25 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final repository = context.read<DataBaseRepository>();
+
     Size screenSize = MediaQuery.of(context).size;
 
     List<Widget> pages = [
       Tutorial(),
-      Dailys(widget.repository),
-      Weeklys(widget.repository),
-      Deadlineys(widget.repository),
-      Quest(widget.repository),
-      FridgeLock(widget.repository, widget.auth),
-      FidgetScreen(widget.repository),
-      Prizes(widget.repository),
-      Settings(widget.repository),
+      Dailys(),
+      Weeklys(),
+      Deadlineys(),
+      Quest(),
+      FridgeLock(),
+      FidgetScreen(),
+      Prizes(),
+      Settings(),
     ];
 
     return Stack(
       children: [
-        
-        AppBg(widget.repository),
+        AppBg(repository),
         Scaffold(
           backgroundColor: Colors.transparent,
           body: SafeArea(

@@ -90,7 +90,6 @@ class _DeadlineTaskWidgetState extends State<DeadlineTaskWidget> {
             overlayChildBuilder: (BuildContext context) {
               return EditTaskWidget(
                 onClose: widget.onClose,
-                widget.repository,
                 overlayController,
                 task: widget.task,
                 taskType: TaskType.deadline,

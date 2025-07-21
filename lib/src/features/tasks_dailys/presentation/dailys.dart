@@ -5,11 +5,10 @@ import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/tasks_dailys/presentation/widgets/daily_task_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Dailys extends StatefulWidget {
-  final DataBaseRepository repository;
-
-  const Dailys(this.repository, {super.key});
+  const Dailys({super.key});
 
   @override
   State<Dailys> createState() => _DailysState();
@@ -25,7 +24,9 @@ class _DailysState extends State<Dailys> {
 
   @override
   Widget build(BuildContext context) {
-    myList = widget.repository.getDailyTasks();
+    final repository = context.read<DataBaseRepository>();
+
+    myList = repository.getDailyTasks();
     OverlayPortalController overlayController = OverlayPortalController();
 
     return Scaffold(
@@ -64,12 +65,11 @@ class _DailysState extends State<Dailys> {
                                 final task = data[index];
                                 return DailyTaskWidget(
                                   task: task,
-                                  repository: widget.repository,
+                                  repository: repository,
                                   onClose: () {
                                     debugPrint('dailys onClose triggered');
                                     setState(() {
-                                      myList =
-                                          widget.repository.getDailyTasks();
+                                      myList = repository.getDailyTasks();
                                     });
                                   },
                                 );
@@ -89,13 +89,12 @@ class _DailysState extends State<Dailys> {
                     controller: overlayController,
                     overlayChildBuilder: (BuildContext context) {
                       return AddTaskWidget(
-                        widget.repository,
                         overlayController,
                         taskType: TaskType.daily,
                         onClose: () {
                           debugPrint('dailys onClose triggered');
                           setState(() {
-                            myList = widget.repository.getDailyTasks();
+                            myList = repository.getDailyTasks();
                           });
                         },
                       );

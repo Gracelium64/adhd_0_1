@@ -5,11 +5,10 @@ import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/tasks_deadlineys/presentation/widgets/deadline_task_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Deadlineys extends StatefulWidget {
-  final DataBaseRepository repository;
-
-  const Deadlineys(this.repository, {super.key});
+  const Deadlineys({super.key});
 
   @override
   State<Deadlineys> createState() => _DeadlineysState();
@@ -25,7 +24,9 @@ class _DeadlineysState extends State<Deadlineys> {
 
   @override
   Widget build(BuildContext context) {
-    myList = widget.repository.getDeadlineTasks();
+    final repository = context.read<DataBaseRepository>();
+    
+    myList = repository.getDeadlineTasks();
     OverlayPortalController overlayController = OverlayPortalController();
 
     return Scaffold(
@@ -59,11 +60,11 @@ class _DeadlineysState extends State<Deadlineys> {
                             final task = data[index];
                             return DeadlineTaskWidget(
                               task: task,
-                              repository: widget.repository,
+                              repository: repository,
                               onClose: () {
                                 debugPrint('dailys onClose triggered');
                                 setState(() {
-                                  myList = widget.repository.getDeadlineTasks();
+                                  myList = repository.getDeadlineTasks();
                                 });
                               },
                             );
@@ -81,13 +82,12 @@ class _DeadlineysState extends State<Deadlineys> {
                     controller: overlayController,
                     overlayChildBuilder: (BuildContext context) {
                       return AddTaskWidget(
-                        widget.repository,
                         overlayController,
                         taskType: TaskType.daily,
                         onClose: () {
                           debugPrint('dailys onClose triggered');
                           setState(() {
-                            myList = widget.repository.getDeadlineTasks();
+                            myList = repository.getDeadlineTasks();
                           });
                         },
                       );

@@ -97,7 +97,6 @@ class _DailyTaskWidgetState extends State<DailyTaskWidget> {
             overlayChildBuilder: (BuildContext context) {
               return EditTaskWidget(
                 onClose: widget.onClose,
-                widget.repository,
                 overlayController,
                 task: widget.task,
                 taskType: TaskType.daily,

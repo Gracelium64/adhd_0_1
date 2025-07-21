@@ -1,17 +1,16 @@
 import 'package:adhd_0_1/src/features/auth/presentation/onboarding_second_skin_selection.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
-import 'package:adhd_0_1/src/data/auth_repository.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/onboarding_third_day_hour.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class SkinChooseAuth extends StatefulWidget {
-  final AuthRepository auth;
   final bool? appSkin;
   final String bGPath;
 
   const SkinChooseAuth({
     super.key,
-    required this.auth,
+
     this.appSkin,
     required this.bGPath,
 
@@ -29,11 +28,13 @@ class SkinChooseAuth extends StatefulWidget {
 class _SkinChooseAuthState extends State<SkinChooseAuth> {
   @override
   Widget build(BuildContext context) {
+    final repository = context.read<DataBaseRepository>();
+
     return GestureDetector(
       onTap: () async {
-        final currentSettings = await widget.widget.repository.getSettings();
+        final currentSettings = await repository.getSettings();
         // ignore: unused_local_variable
-        final updatedSettings = await widget.widget.repository.setSettings(
+        final updatedSettings = await repository.setSettings(
           widget.appSkin,
           currentSettings?.language ?? 'en',
           currentSettings?.location ?? 'default_location',
@@ -47,11 +48,7 @@ class _SkinChooseAuthState extends State<SkinChooseAuth> {
           Navigator.of(context, rootNavigator: true).pushReplacement(
             PageRouteBuilder(
               opaque: false,
-              pageBuilder:
-                  (_, __, ___) => OnboardingThirdDayHour(
-                    widget.widget.repository,
-                    widget.auth,
-                  ),
+              pageBuilder: (_, __, ___) => OnboardingThirdDayHour(),
               transitionsBuilder: (_, animation, __, child) {
                 return FadeTransition(opacity: animation, child: child);
               },

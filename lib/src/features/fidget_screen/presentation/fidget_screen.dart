@@ -1,13 +1,10 @@
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/add_task_widget.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
-import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:flutter/material.dart';
 
 class FidgetScreen extends StatefulWidget {
-  final DataBaseRepository repository;
-
-  const FidgetScreen(this.repository, {super.key});
+  const FidgetScreen({super.key});
 
   @override
   State<FidgetScreen> createState() => _FidgetScreenState();
@@ -59,7 +56,6 @@ class _FidgetScreenState extends State<FidgetScreen> {
                 controller: overlayController,
                 overlayChildBuilder: (BuildContext context) {
                   return AddTaskWidget(
-                    widget.repository,
                     overlayController,
                     taskType: TaskType.daily,
                     onClose: () {},

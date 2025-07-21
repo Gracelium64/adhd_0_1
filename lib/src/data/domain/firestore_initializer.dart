@@ -1,7 +1,5 @@
-import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' hide Settings;
 import 'package:flutter/material.dart';
-import 'package:adhd_0_1/src/common/domain/settings.dart';
 
 final FirebaseFirestore fs = FirebaseFirestore.instance;
 

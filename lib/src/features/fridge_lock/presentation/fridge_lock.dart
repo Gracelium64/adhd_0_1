@@ -1,18 +1,15 @@
+import 'package:adhd_0_1/src/data/firebase_auth_repository.dart';
 import 'package:adhd_0_1/src/features/fridge_lock/presentation/widgets/DebugPrefsOverlay.dart';
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
-import 'package:adhd_0_1/src/data/auth_repository.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/add_task_widget.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
-import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class FridgeLock extends StatefulWidget {
-  final DataBaseRepository repository;
-  final AuthRepository auth;
-
-  const FridgeLock(this.repository, this.auth, {super.key});
+  const FridgeLock({super.key});
 
   @override
   State<FridgeLock> createState() => _FridgeLockState();
@@ -23,6 +20,8 @@ class _FridgeLockState extends State<FridgeLock> {
 
   @override
   Widget build(BuildContext context) {
+    final auth = context.read<FirebaseAuthRepository>();
+
     OverlayPortalController overlayController = OverlayPortalController();
     OverlayPortalController overlayControllerDebug = OverlayPortalController();
 
@@ -74,7 +73,7 @@ class _FridgeLockState extends State<FridgeLock> {
 
                         ElevatedButton(
                           onPressed: () async {
-                            await widget.auth.signOut();
+                            await auth.signOut();
                           },
                           child: Text('Log Out'),
                         ),
@@ -92,7 +91,6 @@ class _FridgeLockState extends State<FridgeLock> {
                 controller: overlayController,
                 overlayChildBuilder: (BuildContext context) {
                   return AddTaskWidget(
-                    widget.repository,
                     overlayController,
                     taskType: TaskType.daily,
                     onClose: () {},
@@ -107,10 +105,7 @@ class _FridgeLockState extends State<FridgeLock> {
       ),
       floatingActionButton: Stack(
         alignment: Alignment.bottomRight,
-        children: [
-          const DebugPrefsOverlay(),
-
-        ],
+        children: [const DebugPrefsOverlay()],
       ),
     );
   }

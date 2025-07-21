@@ -1,18 +1,15 @@
-import 'package:adhd_0_1/src/data/databaserepository.dart';
-import 'package:adhd_0_1/src/data/auth_repository.dart';
+import 'package:adhd_0_1/src/data/firebase_auth_repository.dart';
 import 'package:adhd_0_1/src/main_screen.dart';
 import 'package:adhd_0_1/src/cold_start.dart';
 import 'package:adhd_0_1/src/theme/app_theme.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class App extends StatefulWidget {
-  final DataBaseRepository repository;
-  final AuthRepository auth;
-
-  const App(this.repository, this.auth, {super.key});
+  const App({super.key});
 
   @override
   State<App> createState() => _AppState();
@@ -37,8 +34,10 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
+final auth = context.read<FirebaseAuthRepository>();
+
     return StreamBuilder<User?>(
-      stream: widget.auth.authStateChanges(),
+      stream: auth.authStateChanges(),
       builder: (context, snapshot) {
         if (onboardingComplete == null ||
             snapshot.connectionState == ConnectionState.waiting) {
@@ -56,10 +55,10 @@ class _AppState extends State<App> {
           themeMode: ThemeMode.dark,
           home:
               snapshot.data == null
-                  ? ColdStart(widget.repository, widget.auth)
+                  ? ColdStart()
                   : onboardingComplete!
-                  ? MainScreen(widget.repository, widget.auth)
-                  : ColdStart(widget.repository, widget.auth),
+                  ? MainScreen()
+                  : ColdStart(),
         );
       },
     );

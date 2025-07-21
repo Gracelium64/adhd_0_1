@@ -1,17 +1,14 @@
 import 'dart:ui';
 import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
-import 'package:adhd_0_1/src/data/auth_repository.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/app_bg_coldstart.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/onboarding_fourth_location.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class OnboardingThirdDayHour extends StatefulWidget {
-  final DataBaseRepository repository;
-  final AuthRepository auth;
-
-  const OnboardingThirdDayHour(this.repository, this.auth, {super.key});
+  const OnboardingThirdDayHour({super.key});
 
   @override
   State<OnboardingThirdDayHour> createState() => _OnboardingThirdDayHourState();
@@ -23,6 +20,8 @@ class _OnboardingThirdDayHourState extends State<OnboardingThirdDayHour> {
 
   @override
   Widget build(BuildContext context) {
+    final repository = context.read<DataBaseRepository>();
+
     return Stack(
       children: [
         AppBgColdstart(),
@@ -110,10 +109,9 @@ class _OnboardingThirdDayHourState extends State<OnboardingThirdDayHour> {
                     SizedBox(height: 36),
                     ConfirmButton(
                       onPressed: () async {
-                        final currentSettings =
-                            await widget.repository.getSettings();
+                        final currentSettings = await repository.getSettings();
 
-                        await widget.repository.setSettings(
+                        await repository.setSettings(
                           currentSettings?.appSkinColor ?? true,
                           currentSettings?.language ?? 'en',
                           currentSettings?.location ?? 'default_location',
@@ -129,10 +127,7 @@ class _OnboardingThirdDayHourState extends State<OnboardingThirdDayHour> {
                             PageRouteBuilder(
                               opaque: false,
                               pageBuilder:
-                                  (_, __, ___) => OnboardingFourthLocation(
-                                    widget.repository,
-                                    widget.auth,
-                                  ),
+                                  (_, __, ___) => OnboardingFourthLocation(),
                               transitionsBuilder: (_, animation, __, child) {
                                 return FadeTransition(
                                   opacity: animation,

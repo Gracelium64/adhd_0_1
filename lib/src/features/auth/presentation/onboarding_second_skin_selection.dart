@@ -1,15 +1,10 @@
 import 'dart:ui';
 import 'package:adhd_0_1/src/features/auth/presentation/widgets/skin_choose_auth.dart';
-import 'package:adhd_0_1/src/data/databaserepository.dart';
-import 'package:adhd_0_1/src/data/auth_repository.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 class OnboardingSecondSkinSelection extends StatefulWidget {
-  final DataBaseRepository repository;
-  final AuthRepository auth;
-
-  const OnboardingSecondSkinSelection(this.repository, this.auth, {super.key});
+  const OnboardingSecondSkinSelection({super.key});
 
   @override
   State<OnboardingSecondSkinSelection> createState() =>
@@ -80,21 +75,18 @@ class _OnboardingSecondSkinSelectionState
                             mounted: mounted,
                             appSkin: true,
                             bGPath: 'assets/img/buttons/skin_true.png',
-                            auth: widget.auth,
                           ),
                           SkinChooseAuth(
                             widget: widget,
                             mounted: mounted,
                             appSkin: null,
                             bGPath: 'assets/img/buttons/skin_null.png',
-                            auth: widget.auth,
                           ),
                           SkinChooseAuth(
                             widget: widget,
                             mounted: mounted,
                             appSkin: false,
                             bGPath: 'assets/img/buttons/skin_false.png',
-                            auth: widget.auth,
                           ),
                         ],
                       ),
