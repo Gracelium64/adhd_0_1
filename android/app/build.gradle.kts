@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.adhd_0_1"
+    namespace = "shadowapp.grace6424.adhd01"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 
@@ -24,7 +24,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.adhd_0_1"
+        applicationId = "shadowapp.grace6424.adhd01"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = 23

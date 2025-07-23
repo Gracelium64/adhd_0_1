@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:724685788701:android:7c7fed1653dc378cbd18f4",
+        "mobilesdk_app_id": "1:724685788701:android:b10566e7a80ca142bd18f4",
         "android_client_info": {
-          "package_name": "com.example.adhd_0_1"
+          "package_name": "shadowapp.grace6424.adhd01"
         }
       },
       "oauth_client": [],
