@@ -14,13 +14,27 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+  final bool showTutorial;
+
+  const MainScreen({super.key, this.showTutorial = false});
+
   @override
   State<MainScreen> createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
+  OverlayPortalController overlayController = OverlayPortalController();
   int _pageIndex = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.showTutorial) {
+        overlayController.show();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +43,7 @@ class _MainScreenState extends State<MainScreen> {
     Size screenSize = MediaQuery.of(context).size;
 
     List<Widget> pages = [
-      Tutorial(),
+      Tutorial(overlayController),
       Dailys(),
       Weeklys(),
       Deadlineys(),
@@ -43,6 +57,11 @@ class _MainScreenState extends State<MainScreen> {
     return Stack(
       children: [
         AppBg(repository),
+        OverlayPortal(
+          controller: overlayController,
+          overlayChildBuilder: (context) => Tutorial(overlayController),
+          child: SizedBox.shrink(),
+        ),
         Scaffold(
           backgroundColor: Colors.transparent,
           body: SafeArea(
@@ -63,9 +82,11 @@ class _MainScreenState extends State<MainScreen> {
                         borderRadius: BorderRadius.all(Radius.circular(5)),
                       ),
                       onDestinationSelected: (int index) {
-                        setState(() {
-                          _pageIndex = index;
-                        });
+                        if (index == 0) {
+                          overlayController.toggle();
+                        } else {
+                          setState(() => _pageIndex = index);
+                        }
                       },
                       backgroundColor: Colors.transparent,
                       destinations: <NavigationRailDestination>[

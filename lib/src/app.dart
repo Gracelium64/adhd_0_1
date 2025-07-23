@@ -1,4 +1,5 @@
 import 'package:adhd_0_1/src/data/firebase_auth_repository.dart';
+import 'package:adhd_0_1/src/features/tutorial/presentation/tutorial.dart';
 import 'package:adhd_0_1/src/main_screen.dart';
 import 'package:adhd_0_1/src/cold_start.dart';
 import 'package:adhd_0_1/src/theme/app_theme.dart';
@@ -34,7 +35,7 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-final auth = context.read<FirebaseAuthRepository>();
+    final auth = context.read<FirebaseAuthRepository>();
 
     return StreamBuilder<User?>(
       stream: auth.authStateChanges(),

@@ -1,3 +1,4 @@
+import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/firebase_auth_repository.dart';
 import 'package:adhd_0_1/src/features/fridge_lock/presentation/widgets/DebugPrefsOverlay.dart';
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
@@ -20,6 +21,7 @@ class _FridgeLockState extends State<FridgeLock> {
 
   @override
   Widget build(BuildContext context) {
+    final repository = context.read<DataBaseRepository>();
     final auth = context.read<FirebaseAuthRepository>();
 
     OverlayPortalController overlayController = OverlayPortalController();
@@ -76,6 +78,15 @@ class _FridgeLockState extends State<FridgeLock> {
                             await auth.signOut();
                           },
                           child: Text('Log Out'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            repository.addPrize(
+                              001,
+                              'assets/img/prizes/Sticker1.png',
+                            );
+                          },
+                          child: Text('prize'),
                         ),
                       ],
                     ),

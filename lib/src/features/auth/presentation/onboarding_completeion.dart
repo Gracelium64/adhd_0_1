@@ -103,11 +103,29 @@ class _OnboardingCompletionState extends State<OnboardingCompletion> {
                         SizedBox(width: 12),
                         GestureDetector(
                           onTap: () async {
+                            final prefs = await SharedPreferences.getInstance();
+                            await prefs.setBool('onboardingComplete', true);
+
                             final storage = FlutterSecureStorage();
                             String? userId = await storage.read(key: 'userId');
                             await FirestoreInitializer.initializeDefaults(
                               userId,
                             );
+
+                            if (context.mounted) {
+                              Navigator.of(
+                                context,
+                                rootNavigator: true,
+                              ).pushAndRemoveUntil(
+                                PageRouteBuilder(
+                                  opaque: false,
+                                  pageBuilder:
+                                      (_, __, ___) =>
+                                          const MainScreen(showTutorial: true),
+                                ),
+                                (route) => false,
+                              );
+                            }
                           },
 
                           child: Image.asset('assets/img/buttons/confirm.png'),

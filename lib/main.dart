@@ -22,7 +22,7 @@ import 'package:provider/provider.dart';
 // import 'package:device_preview/device_preview.dart';
 
 /*
-There is A LOT of redundent code in this file.
+There is A LOT of redundant code in this file.
 I know that it's there, it has been left there on purpose.
 It was before we started using a Firebase Repository, it was actually made in preparation for it.
 Since this is an Offline First App, I've build it so that it would prefer the local Repository and back it up to the server when connected to the internet.
@@ -98,9 +98,8 @@ Future<void> main() async {
   // v.0.1.11 //
   //
 
-  //  // // SPRINT 1.2 // // ---------------------- UNTIL 13.7.25 / 18.7.25 ---------------------- // //
+  //  // // SPRINT 1.2 // // ---------------------- UNTIL 13.7.25 / 18.7.25 ---------------------- // // OVERDUE // //
   // // MVP Visual // //
-  //TODO: tutorial overlay
   //TODO: single prize overlay
   // // ONBOARDING // //
   //TODO: on the last onboarding screen confirmation button opens main screen with tutorial overlay open
@@ -113,7 +112,7 @@ Future<void> main() async {
   // v.0.1.12 //
   //
 
-  //  // // SPRINT 2 // // ---------------------- UNTIL 20.7.25 / 23.7.25 ---------------------- // //
+  //  // // SPRINT 2 // // ---------------------- UNTIL 20.7.25 / 23.7.25 ---------------------- // //  OVERDUE // //
   // Functionality // //
   //TODO: weather API
   //TODO: how to save files outside of shared memory / sharing files / save local backup of user data from local repository
