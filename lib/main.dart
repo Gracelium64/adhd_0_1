@@ -99,10 +99,6 @@ Future<void> main() async {
   //
 
   //  // // SPRINT 1.2 // // ---------------------- UNTIL 13.7.25 / 18.7.25 ---------------------- // // OVERDUE // //
-  // // MVP Visual // //
-  //TODO: single prize overlay
-  // // ONBOARDING // //
-  //TODO: on the last onboarding screen confirmation button opens main screen with tutorial overlay open
   // // MVP Logic // //
   //TODO: Logic of isDone reset for daily and weekly tasks
   //TODO: Logic for weekly score counters - for each day seperatly, for the week, for special tasks
@@ -116,6 +112,7 @@ Future<void> main() async {
   // Functionality // //
   //TODO: weather API
   //TODO: how to save files outside of shared memory / sharing files / save local backup of user data from local repository
+  //TODO: Prize Share Functionality
   // // Visual // //
   //TODO: responsive design - this design is problematic for up- and downscaling
   //TODO: week summery overlay

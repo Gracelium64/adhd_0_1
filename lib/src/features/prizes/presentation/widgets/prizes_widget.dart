@@ -1,11 +1,12 @@
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/common/domain/prizes.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class PrizesWidget extends StatefulWidget {
-  final DataBaseRepository repository;
+  final void Function(Prizes prize)? onPrizeTap;
 
-  const PrizesWidget(this.repository, {super.key});
+  const PrizesWidget(this.onPrizeTap, {super.key});
 
   @override
   State<PrizesWidget> createState() => _PrizesWidgetState();
@@ -17,7 +18,8 @@ class _PrizesWidgetState extends State<PrizesWidget> {
   @override
   void initState() {
     super.initState();
-    myList = widget.repository.getPrizes();
+    final repository = context.read<DataBaseRepository>();
+    myList = repository.getPrizes();
   }
 
   @override
@@ -67,7 +69,11 @@ class _PrizesWidgetState extends State<PrizesWidget> {
     for (Prizes gridItem in listData) {
       displayPrizes.add(
         GestureDetector(
-          onTap: () {},
+          onTap: () {
+            if (widget.onPrizeTap != null) {
+              widget.onPrizeTap!(gridItem);
+            }
+          },
           child: Card(
             color: Colors.transparent,
             shadowColor: Colors.transparent,
