@@ -2,11 +2,12 @@ import 'package:adhd_0_1/firebase_options.dart';
 import 'package:adhd_0_1/src/app.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/domain/firestore_initializer.dart';
+import 'package:adhd_0_1/src/data/domain/reset_scheduler.dart';
 import 'package:adhd_0_1/src/data/firebase_auth_repository.dart';
 import 'package:adhd_0_1/src/data/domain/sharedpreferences_initializer.dart';
 import 'package:adhd_0_1/src/data/firestore_repository.dart';
 import 'package:adhd_0_1/src/data/sharedpreferencesrepository.dart';
-import 'package:adhd_0_1/src/features/prizes/domain/prize_manager.dart';
+import 'package:adhd_0_1/src/data/domain/prize_manager.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -71,8 +72,12 @@ Future<void> main() async {
   final auth = FirebaseAuthRepository();
   final mainRepo = FirestoreRepository();
   // final localRepo = SharedPreferencesRepository();
-  final mainPrizeManager = PrizeManager(mainRepo);
+  // final mainPrizeManager = PrizeManager(mainlRepo);
   // final localPrizeManager = PrizeManager(localRepo);
+
+  final resetScheduler = ResetScheduler(mainRepo);
+  await resetScheduler.performResetsIfNeeded();
+
   // final repository = SyncRepository(
   //   mainRepo: mainRepo,
   //   localRepo: localRepo,

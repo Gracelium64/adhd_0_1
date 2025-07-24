@@ -26,7 +26,7 @@ class PrizeManager {
 
   Future<void> trackDailyCompletion(bool isDone) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('dailyTotal', prefs.getInt('dailyTotal') ?? 0 + 1);
+    await prefs.setInt('dailyTotal', (prefs.getInt('dailyTotal') ?? 0) + 1);
     if (isDone) {
       await prefs.setInt(
         'dailyCompleted',

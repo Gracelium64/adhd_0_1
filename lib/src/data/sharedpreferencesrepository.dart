@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:adhd_0_1/src/common/domain/app_user.dart';
 import 'package:adhd_0_1/src/data/domain/functions.dart';
-import 'package:adhd_0_1/src/features/prizes/domain/prize_manager.dart';
+import 'package:adhd_0_1/src/data/domain/prize_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:adhd_0_1/src/common/domain/task.dart';
