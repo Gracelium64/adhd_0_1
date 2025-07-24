@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:adhd_0_1/src/common/domain/app_user.dart';
 import 'package:adhd_0_1/src/data/domain/functions.dart';
+import 'package:adhd_0_1/src/features/prizes/domain/prize_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:adhd_0_1/src/common/domain/task.dart';
@@ -126,12 +127,16 @@ class SharedPreferencesRepository implements DataBaseRepository {
   //     _markComplete(PrefsKeys.weeklyKey, dataTaskId);
 
   @override
-  Future<void> completeDeadline(String dataTaskId) async =>
-      _markComplete(PrefsKeys.deadlineKey, dataTaskId, remove: true);
+  Future<void> completeDeadline(String dataTaskId) async {
+    await PrizeManager(this).incrementDeadlineCounter();
+    return _markComplete(PrefsKeys.deadlineKey, dataTaskId, remove: true);
+  }
 
   @override
-  Future<void> completeQuest(String dataTaskId) async =>
-      _markComplete(PrefsKeys.questKey, dataTaskId, remove: true);
+  Future<void> completeQuest(String dataTaskId) async {
+    await PrizeManager(this).incrementQuestCounter();
+    return _markComplete(PrefsKeys.questKey, dataTaskId, remove: true);
+  }
 
   Future<void> _delete(String key, String taskId) async {
     final list = await _loadTasks(key);
@@ -291,6 +296,8 @@ class SharedPreferencesRepository implements DataBaseRepository {
       tasks[index].isDone = dataIsDone;
       await _saveTasks(PrefsKeys.dailyKey, tasks);
     }
+
+    await PrizeManager(this).trackDailyCompletion(dataIsDone);
   }
 
   @override
@@ -303,6 +310,8 @@ class SharedPreferencesRepository implements DataBaseRepository {
       tasks[index].isDone = dataIsDone;
       await _saveTasks(PrefsKeys.weeklyKey, tasks);
     }
+
+    await PrizeManager(this).trackWeeklyCompletion(dataIsDone);
   }
 }
 

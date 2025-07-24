@@ -3,14 +3,20 @@ import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/common/domain/prizes.dart';
 import 'package:adhd_0_1/src/common/domain/settings.dart';
+import 'package:adhd_0_1/src/features/prizes/domain/prize_manager.dart';
 import 'package:flutter/material.dart';
 
 class SyncRepository implements DataBaseRepository {
   final DataBaseRepository mainRepo;
   final DataBaseRepository localRepo;
+  final PrizeManager prizeManager;
   bool isSyncing = false;
 
-  SyncRepository({required this.mainRepo, required this.localRepo});
+  SyncRepository({
+    required this.mainRepo,
+    required this.localRepo,
+    required this.prizeManager,
+  });
 
   @override
   Future<void> addDaily(String data) async {
@@ -45,12 +51,18 @@ class SyncRepository implements DataBaseRepository {
   @override
   Future<void> completeDeadline(String dataTaskId) async {
     await localRepo.completeDeadline(dataTaskId);
+    //////////////
+    await prizeManager.incrementDeadlineCounter();
+    //////////////
     triggerSync();
   }
 
   @override
   Future<void> completeQuest(String dataTaskId) async {
     await localRepo.completeQuest(dataTaskId);
+    //////////////
+    await prizeManager.incrementQuestCounter();
+    //////////////
     triggerSync();
   }
 
@@ -172,12 +184,22 @@ class SyncRepository implements DataBaseRepository {
   @override
   Future<void> toggleDaily(String taskId, bool isDone) async {
     await localRepo.toggleDaily(taskId, isDone);
+    //////////////
+    if (isDone) {
+      await prizeManager.trackDailyCompletion(isDone);
+    }
+    //////////////
     triggerSync();
   }
 
   @override
   Future<void> toggleWeekly(String dataTaskId, bool dataIsDone) async {
     await localRepo.toggleWeekly(dataTaskId, dataIsDone);
+    //////////////
+    if (dataIsDone) {
+      await prizeManager.trackWeeklyCompletion(true);
+    }
+    //////////////
     triggerSync();
   }
 

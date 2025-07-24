@@ -4,6 +4,7 @@ import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/common/domain/prizes.dart';
 import 'package:adhd_0_1/src/data/domain/functions.dart';
+import 'package:adhd_0_1/src/features/prizes/domain/prize_manager.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' hide Settings;
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -33,8 +34,11 @@ class FirestoreRepository implements DataBaseRepository {
     int currentCounter = counterSnapshot.get('taskIdCounter') ?? 0;
     int taskIdCounter = currentCounter + 1;
 
-    final docRef =
-        fs.collection('users').doc(userId).collection('dailyTasks').doc(taskIdCounter.toString());
+    final docRef = fs
+        .collection('users')
+        .doc(userId)
+        .collection('dailyTasks')
+        .doc(taskIdCounter.toString());
     final Task task = Task(
       taskIdCounter.toString() + userId,
       'Daily',
@@ -69,8 +73,11 @@ class FirestoreRepository implements DataBaseRepository {
     int currentCounter = counterSnapshot.get('taskIdCounter') ?? 0;
     int taskIdCounter = currentCounter + 1;
 
-    final docRef =
-        fs.collection('users').doc(userId).collection('weeklyTasks').doc(taskIdCounter.toString());
+    final docRef = fs
+        .collection('users')
+        .doc(userId)
+        .collection('weeklyTasks')
+        .doc(taskIdCounter.toString());
     final Task task = Task(
       taskIdCounter.toString() + userId,
       'Weekly',
@@ -110,8 +117,11 @@ class FirestoreRepository implements DataBaseRepository {
     final String taskId = '${taskIdCounter}_$userId';
 
     ///
-    final docRef =
-        fs.collection('users').doc(userId).collection('deadlineTasks').doc(taskIdCounter.toString());
+    final docRef = fs
+        .collection('users')
+        .doc(userId)
+        .collection('deadlineTasks')
+        .doc(taskIdCounter.toString());
     final Task task = Task(taskId, 'Deadline', data, date, time, null, false);
     await docRef.set(task.toMap());
 
@@ -138,8 +148,11 @@ class FirestoreRepository implements DataBaseRepository {
     int currentCounter = counterSnapshot.get('taskIdCounter') ?? 0;
     int taskIdCounter = currentCounter + 1;
 
-    final docRef =
-        fs.collection('users').doc(userId).collection('questTasks').doc(taskIdCounter.toString());
+    final docRef = fs
+        .collection('users')
+        .doc(userId)
+        .collection('questTasks')
+        .doc(taskIdCounter.toString());
     final Task task = Task(
       taskIdCounter.toString() + userId,
       'Quest',
@@ -189,6 +202,8 @@ class FirestoreRepository implements DataBaseRepository {
     } else {
       throw Exception('Task with ID $dataTaskId not found');
     }
+
+    await PrizeManager(this).incrementDeadlineCounter();
   }
 
   @override
@@ -210,6 +225,8 @@ class FirestoreRepository implements DataBaseRepository {
     } else {
       throw Exception('Task with ID $dataTaskId not found');
     }
+
+    await PrizeManager(this).incrementQuestCounter();
   }
 
   @override
@@ -562,6 +579,8 @@ class FirestoreRepository implements DataBaseRepository {
     } else {
       throw Exception('Daily task not found');
     }
+
+    await PrizeManager(this).trackDailyCompletion(dataIsDone);
   }
 
   @override
@@ -583,6 +602,8 @@ class FirestoreRepository implements DataBaseRepository {
     } else {
       throw Exception('Weekly task not found');
     }
+
+    await PrizeManager(this).trackWeeklyCompletion(dataIsDone);
   }
 }
 
