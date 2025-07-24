@@ -1,5 +1,6 @@
 import 'package:adhd_0_1/src/data/firebase_auth_repository.dart';
 import 'package:adhd_0_1/src/features/tutorial/presentation/tutorial.dart';
+import 'package:adhd_0_1/src/features/weekly_summery/presentation/widgets/weekly_test.dart';
 import 'package:adhd_0_1/src/main_screen.dart';
 import 'package:adhd_0_1/src/cold_start.dart';
 import 'package:adhd_0_1/src/theme/app_theme.dart';
@@ -54,12 +55,13 @@ class _AppState extends State<App> {
           theme: AppTheme.darkTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: ThemeMode.dark,
-          home:
-              snapshot.data == null
-                  ? ColdStart()
-                  : onboardingComplete!
-                  ? MainScreen()
-                  : ColdStart(),
+          home: WeeklySummaryOverlayMock(),
+          // home:
+          //     snapshot.data == null
+          //         ? ColdStart()
+          //         : onboardingComplete!
+          //         ? MainScreen()
+          //         : ColdStart(),
         );
       },
     );

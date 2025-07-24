@@ -46,6 +46,7 @@ class ResetScheduler {
         await _resetWeeklyTasks();
         await prizeManager.resetWeeklyCounters();
         await prefs.setString('lastWeeklyReset', now.toIso8601String());
+        
       }
     }
   }

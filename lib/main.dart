@@ -107,14 +107,6 @@ Future<void> main() async {
   //
 
   //
-  // v.0.1.11 //
-  //
-
-  //  // // SPRINT 1.2 // // ---------------------- UNTIL 13.7.25 / 18.7.25 ---------------------- // // OVERDUE // //
-  // // MVP Logic // //
-  //TODO: Logic for prize system
-
-  //
   // v.0.1.12 //
   //
 
@@ -125,7 +117,7 @@ Future<void> main() async {
   //TODO: Prize Share Functionality
   // // Visual // //
   //TODO: responsive design - this design is problematic for up- and downscaling
-  //TODO: week summery overlay
+  //TODO: week summery overlay *** YOU ARE HERE *** TAKE A BREAK ***
   //TODO: good morning overlay
   //TODO: backup overlays
   //TODO: about overlay
