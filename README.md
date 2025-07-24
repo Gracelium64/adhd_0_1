@@ -10,7 +10,7 @@ Good luck.
 # Attention Deficit oH Dear
 
 
-// v.0.1.2 //           24/7/25
+// v.0.1.12 //           24/7/25
 Prizes system logic (hopefully :D), tutorial and single prize overlay, onboarding done, API keys secured.
 Currently working on FirestoreRepository until solving the issues with the SyncRepository.
 Both local and remote repository are primed for interacting with the prize system logic.
