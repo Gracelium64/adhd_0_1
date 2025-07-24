@@ -112,8 +112,6 @@ Future<void> main() async {
 
   //  // // SPRINT 1.2 // // ---------------------- UNTIL 13.7.25 / 18.7.25 ---------------------- // // OVERDUE // //
   // // MVP Logic // //
-  //TODO: Logic of isDone reset for daily and weekly tasks
-  //TODO: Logic for weekly score counters - for each day seperatly, for the week, for special tasks
   //TODO: Logic for prize system
 
   //
