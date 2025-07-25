@@ -1,5 +1,6 @@
 import 'package:adhd_0_1/src/common/presentation/app_bg.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
+import 'package:adhd_0_1/src/data/domain/reset_scheduler.dart';
 import 'package:adhd_0_1/src/features/tasks_dailys/presentation/dailys.dart';
 import 'package:adhd_0_1/src/features/tasks_deadlineys/presentation/deadlineys.dart';
 import 'package:adhd_0_1/src/features/fidget_screen/presentation/fidget_screen.dart';
@@ -34,6 +35,13 @@ class _MainScreenState extends State<MainScreen> {
         overlayController.show();
       }
     });
+    performResetsIfNeeded();
+  }
+
+  void performResetsIfNeeded() async {
+    final repository = context.read<DataBaseRepository>();
+    final resetScheduler = ResetScheduler(repository);
+    await resetScheduler.performResetsIfNeeded();
   }
 
   @override

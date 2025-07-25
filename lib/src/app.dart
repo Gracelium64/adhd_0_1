@@ -55,13 +55,13 @@ class _AppState extends State<App> {
           theme: AppTheme.darkTheme,
           darkTheme: AppTheme.darkTheme,
           themeMode: ThemeMode.dark,
-          home: WeeklySummaryOverlayMock(),
-          // home:
-          //     snapshot.data == null
-          //         ? ColdStart()
-          //         : onboardingComplete!
-          //         ? MainScreen()
-          //         : ColdStart(),
+          // home: WeeklySummaryOverlayMock(),
+          home:
+              snapshot.data == null
+                  ? ColdStart()
+                  : onboardingComplete!
+                  ? MainScreen()
+                  : ColdStart(),
         );
       },
     );

@@ -52,7 +52,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // // // await SharedPreferencesInitializer.initializeDefaults();
   await dotenv.load(fileName: 'black_speech.env');
-  debugPrint('✅ Using API key: ${dotenv.env['apiKeyIos']}');
+  debugPrint('✅ Using API key: ${dotenv.env['apiKeyAndroid']}');
 
   try {
     await Firebase.initializeApp(options: FirebaseEnvOptions.currentPlatform);
@@ -75,8 +75,7 @@ Future<void> main() async {
   // final mainPrizeManager = PrizeManager(mainlRepo);
   // final localPrizeManager = PrizeManager(localRepo);
 
-  final resetScheduler = ResetScheduler(mainRepo);
-  await resetScheduler.performResetsIfNeeded();
+  
 
   // final repository = SyncRepository(
   //   mainRepo: mainRepo,
