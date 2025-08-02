@@ -87,12 +87,12 @@ class _QuestState extends State<Quest> {
                             return QuestTaskWidget(
                               task: task,
                               repository: repository,
-                              onClose: () {
-                                debugPrint('dailys onClose triggered');
-                                setState(() {
-                                  myList = repository.getQuestTasks();
-                                });
-                              },
+                             onClose: () {
+                                    debugPrint('quest onClose triggered');
+                                    setState(() {
+                                      myList = repository.getDailyTasks();
+                                    });
+                                  },
                             );
                           },
                         ),

@@ -88,9 +88,9 @@ class _DeadlineysState extends State<Deadlineys> {
                               task: task,
                               repository: repository,
                               onClose: () {
-                                debugPrint('dailys onClose triggered');
+                                debugPrint('deadline onClose triggered');
                                 setState(() {
-                                  myList = repository.getDeadlineTasks();
+                                  myList = repository.getDailyTasks();
                                 });
                               },
                             );

@@ -118,7 +118,6 @@ Future<void> main() async {
   //TODO: about overlay
   //TODO: when setting appSkinColor to null it still displays pink *************************
   // // TASK MANAGEMENT // //
-  //TODO: BUG - addTaskWidget - on real device closes instead of showing keyboard when clicking textFormField
   //TODO: BUG - weeklyTaskWidget - if day is "any" don't show it
   //TODO: BUG - confirm button in edit_task_widget.dart only works when taskDescription is changed
   //TODO: BUG - deadline and quest complete quest, refresh UI needed

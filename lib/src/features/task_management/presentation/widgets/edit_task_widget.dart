@@ -10,13 +10,14 @@ import 'package:provider/provider.dart';
 enum TaskType { daily, weekly, deadline, quest }
 
 class EditTaskWidget extends StatefulWidget {
-  final OverlayPortalController controller;
+  // final OverlayPortalController controller;
   final Task task;
   final TaskType taskType;
   final void Function() onClose;
 
   const EditTaskWidget(
-    this.controller, {
+  // this.controller,
+  {
     super.key,
     required this.task,
     required this.taskType,
@@ -30,6 +31,31 @@ class EditTaskWidget extends StatefulWidget {
 class _EditTaskWidgetState extends State<EditTaskWidget> {
   DateTime? selectedDate;
   TimeOfDay? selectedTime;
+
+  DateTime? _parseDate(String? dateStr) {
+    if (dateStr == null || dateStr.isEmpty) return null;
+    final parts = dateStr.split('/');
+    if (parts.length != 3) return null;
+
+    final day = int.tryParse(parts[0]);
+    final month = int.tryParse(parts[1]);
+    final year = int.tryParse(parts[2]);
+    if (day == null || month == null || year == null) return null;
+
+    return DateTime(2000 + year, month, day);
+  }
+
+  TimeOfDay? _parseTime(String? timeStr) {
+    if (timeStr == null || timeStr.isEmpty) return null;
+    final parts = timeStr.split(':');
+    if (parts.length != 2) return null;
+
+    final hour = int.tryParse(parts[0]);
+    final minute = int.tryParse(parts[1]);
+    if (hour == null || minute == null) return null;
+
+    return TimeOfDay(hour: hour, minute: minute);
+  }
 
   String formatDate(DateTime? date) {
     if (date == null) return 'DAY';
@@ -72,6 +98,11 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
     super.initState();
     userInput = TextEditingController(text: widget.task.taskDesctiption);
     selectedType = widget.taskType;
+
+    if (selectedType == TaskType.deadline) {
+      selectedDate = _parseDate(widget.task.deadlineDate);
+      selectedTime = _parseTime(widget.task.deadlineTime);
+    }
   }
 
   @override
@@ -489,52 +520,48 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
                             DeleteButton(
-                              onPressed: () {
+                              onPressed: () async {
                                 if (selectedType == TaskType.daily) {
-                                  repository.deleteDaily(widget.task.taskId);
-                                  widget.controller.toggle();
-                                  setState(() {
-                                    debugPrint(
-                                      'delete daily task widget onClose',
-                                    );
-                                    widget.onClose();
-                                  });
+                                  await repository.deleteDaily(
+                                    widget.task.taskId,
+                                  );
+                                  widget.onClose();
+                                  debugPrint(
+                                    'delete daily task widget onClose',
+                                  );
                                 }
                                 if (selectedType == TaskType.weekly) {
-                                  repository.deleteWeekly(widget.task.taskId);
-                                  widget.controller.toggle();
-                                  setState(() {
-                                    debugPrint(
-                                      'delete daily task widget onClose',
-                                    );
-                                    widget.onClose();
-                                  });
+                                  await repository.deleteWeekly(
+                                    widget.task.taskId,
+                                  );
+                                  widget.onClose();
+                                  debugPrint(
+                                    'delete daily task widget onClose',
+                                  );
                                 }
                                 if (selectedType == TaskType.deadline) {
-                                  repository.deleteDeadline(widget.task.taskId);
-                                  widget.controller.toggle();
-                                  setState(() {
-                                    debugPrint(
-                                      'delete daily task widget onClose',
-                                    );
-                                    widget.onClose();
-                                  });
+                                  await repository.deleteDeadline(
+                                    widget.task.taskId,
+                                  );
+                                  widget.onClose();
+                                  debugPrint(
+                                    'delete daily task widget onClose',
+                                  );
                                 }
                                 if (selectedType == TaskType.quest) {
-                                  repository.deleteQuest(widget.task.taskId);
-                                  widget.controller.toggle();
-                                  setState(() {
-                                    debugPrint(
-                                      'delete daily task widget onClose',
-                                    );
-                                    widget.onClose();
-                                  });
+                                  await repository.deleteQuest(
+                                    widget.task.taskId,
+                                  );
+                                  widget.onClose();
+                                  debugPrint(
+                                    'delete daily task widget onClose',
+                                  );
                                 }
                               },
                             ),
                             CancelButton(
                               onPressed: () {
-                                widget.controller.toggle();
+                                widget.onClose();
                               },
                             ),
                             ConfirmButton(
@@ -547,13 +574,10 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
                                             widget.task.taskId,
                                             userInput.text,
                                           );
-                                          widget.controller.toggle();
-                                          setState(() {
-                                            debugPrint(
-                                              'edit task daily widget onClose',
-                                            );
-                                            widget.onClose();
-                                          });
+                                          widget.onClose();
+                                          debugPrint(
+                                            'edit task daily widget onClose',
+                                          );
                                         } else if (selectedType ==
                                                 TaskType.weekly &&
                                             selectedWeekday != null) {
@@ -562,13 +586,10 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
                                             userInput.text,
                                             selectedWeekday!,
                                           );
-                                          widget.controller.toggle();
-                                          setState(() {
-                                            debugPrint(
-                                              'edit task weekly widget onClose',
-                                            );
-                                            widget.onClose();
-                                          });
+                                          widget.onClose();
+                                          debugPrint(
+                                            'edit task weekly widget onClose',
+                                          );
                                         } else if (selectedType ==
                                                 TaskType.deadline &&
                                             selectedDate != null &&
@@ -586,26 +607,25 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
                                             dateStr,
                                             timeStr,
                                           );
-                                          widget.controller.toggle();
-                                          setState(() {
-                                            debugPrint(
-                                              'edit task deadline widget onClose',
-                                            );
-                                            widget.onClose();
-                                          });
+
+                                          // 🔥 Update the local task object so the parent sees the change
+                                          widget.task.taskDesctiption =
+                                              userInput.text;
+                                          widget.task.deadlineDate = dateStr;
+                                          widget.task.deadlineTime = timeStr;
+
+                                          widget.onClose();
+                                          debugPrint(
+                                            'edit task deadline widget onClose',
+                                          );
                                         } else if (selectedType ==
                                             TaskType.quest) {
                                           await repository.editQuest(
                                             widget.task.taskId,
                                             userInput.text,
                                           );
-                                          widget.controller.toggle();
-                                          setState(() {
-                                            debugPrint(
-                                              'edit task quest onClose',
-                                            );
-                                            widget.onClose();
-                                          });
+                                          widget.onClose();
+                                          debugPrint('edit task quest onClose');
                                         } else {
                                           ScaffoldMessenger.of(
                                             context,

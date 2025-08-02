@@ -368,8 +368,8 @@ class FirestoreRepository implements DataBaseRepository {
       final docRef = query.docs.first.reference;
       await docRef.update({
         'taskDesctiption': data,
-        'dayOfWeek': date,
-        'time': time,
+        'deadlineDate': date,
+        'deadlineTime': time,
       });
     } else {
       throw Exception('Task with ID $dataTaskId not found');

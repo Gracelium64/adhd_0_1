@@ -4,6 +4,7 @@ import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/edit_task_widget.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class DailyTaskWidget extends StatefulWidget {
   final Task task;
@@ -52,8 +53,6 @@ class _DailyTaskWidgetState extends State<DailyTaskWidget> {
 
   @override
   Widget build(BuildContext context) {
-    OverlayPortalController overlayController = OverlayPortalController();
-
     final double spreadEm = isDone ? -0.1 : -2;
     final String taskStatus =
         isDone
@@ -90,50 +89,56 @@ class _DailyTaskWidgetState extends State<DailyTaskWidget> {
         SizedBox(width: 1),
         GestureDetector(
           onTap: () {
-            overlayController.toggle();
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder:
+                  (context) => Dialog(
+                    backgroundColor: Colors.transparent,
+                    insetPadding: EdgeInsets.all(16),
+                    child: EditTaskWidget(
+                      task: widget.task,
+                      taskType: TaskType.daily,
+                      onClose: () {
+                        Navigator.of(context, rootNavigator: true).pop();
+                        widget.onClose();
+                      },
+                    ),
+                  ),
+            );
           },
-          child: OverlayPortal(
-            controller: overlayController,
-            overlayChildBuilder: (BuildContext context) {
-              return EditTaskWidget(
-                onClose: widget.onClose,
-                overlayController,
-                task: widget.task,
-                taskType: TaskType.daily,
-              );
-            },
-            child: Container(
-              width: 257,
-              height: 60,
-              decoration: ShapeDecoration(
-                shadows: [
-                  BoxShadow(color: Palette.boxShadow1),
-                  BoxShadow(
-                    color: Palette.monarchPurple2,
-                    blurRadius: 11.8,
-                    spreadRadius: -0.1,
-                    blurStyle: BlurStyle.inner,
-                  ),
-                ],
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(25),
-                    bottomRight: Radius.circular(25),
-                  ),
+          child: Container(
+            width: 257,
+            height: 60,
+            decoration: ShapeDecoration(
+              shadows: [
+                BoxShadow(color: Palette.boxShadow1),
+                BoxShadow(
+                  color: Palette.monarchPurple2,
+                  blurRadius: 11.8,
+                  spreadRadius: -0.1,
+                  blurStyle: BlurStyle.inner,
+                ),
+              ],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(25),
+                  bottomRight: Radius.circular(25),
                 ),
               ),
-              child: Row(
-                children: [
-                  SizedBox(width: 8),
-                  Text(
-                    widget.task.taskDesctiption,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                ],
-              ),
+            ),
+            child: Row(
+              children: [
+                SizedBox(width: 8),
+                Text(
+                  widget.task.taskDesctiption,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ],
             ),
           ),
         ),
+        // ),
       ],
     );
   }

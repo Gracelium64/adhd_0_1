@@ -15,7 +15,7 @@ class Weeklys extends StatefulWidget {
 }
 
 class _WeeklysState extends State<Weeklys> {
- void _showAddTaskOverlay() {
+  void _showAddTaskOverlay() {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -92,9 +92,9 @@ class _WeeklysState extends State<Weeklys> {
                               repository: repository,
                               task: task,
                               onClose: () {
-                                debugPrint('dailys onClose triggered');
+                                debugPrint('weekly onClose triggered');
                                 setState(() {
-                                  myList = repository.getWeeklyTasks();
+                                  myList = repository.getDailyTasks();
                                 });
                               },
                             );

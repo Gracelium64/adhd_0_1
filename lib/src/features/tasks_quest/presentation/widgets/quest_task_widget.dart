@@ -45,8 +45,6 @@ class _QuestTaskWidgetState extends State<QuestTaskWidget> {
 
   @override
   Widget build(BuildContext context) {
-    OverlayPortalController overlayController = OverlayPortalController();
-
     final double spreadEm = isDone ? -0.1 : -2;
     final String taskStatus =
         isDone
@@ -83,48 +81,52 @@ class _QuestTaskWidgetState extends State<QuestTaskWidget> {
         SizedBox(width: 1),
         GestureDetector(
           onTap: () {
-            overlayController.toggle();
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder:
+                  (context) => Dialog(
+                    backgroundColor: Colors.transparent,
+                    insetPadding: EdgeInsets.all(16),
+                    child: EditTaskWidget(
+                      task: widget.task,
+                      taskType: TaskType.quest,
+                      onClose: () {
+                        Navigator.of(context, rootNavigator: true).pop();
+                        widget.onClose();
+                      },
+                    ),
+                  ),
+            );
           },
-          child: OverlayPortal(
-            controller: overlayController,
-            overlayChildBuilder: (BuildContext context) {
-              return EditTaskWidget(
-                onClose: widget.onClose,
-                overlayController,
-                task: widget.task,
-                taskType: TaskType.quest,
-              );
-            },
-
-            child: Container(
-              width: 257,
-              height: 60,
-              decoration: ShapeDecoration(
-                shadows: [
-                  BoxShadow(color: Palette.boxShadow1),
-                  BoxShadow(
-                    color: Palette.monarchPurple2,
-                    blurRadius: 11.8,
-                    spreadRadius: -0.1,
-                    blurStyle: BlurStyle.inner,
-                  ),
-                ],
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(25),
-                    bottomRight: Radius.circular(25),
-                  ),
+          child: Container(
+            width: 257,
+            height: 60,
+            decoration: ShapeDecoration(
+              shadows: [
+                BoxShadow(color: Palette.boxShadow1),
+                BoxShadow(
+                  color: Palette.monarchPurple2,
+                  blurRadius: 11.8,
+                  spreadRadius: -0.1,
+                  blurStyle: BlurStyle.inner,
+                ),
+              ],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(25),
+                  bottomRight: Radius.circular(25),
                 ),
               ),
-              child: Row(
-                children: [
-                  SizedBox(width: 8),
-                  Text(
-                    widget.task.taskDesctiption,
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                ],
-              ),
+            ),
+            child: Row(
+              children: [
+                SizedBox(width: 8),
+                Text(
+                  widget.task.taskDesctiption,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ],
             ),
           ),
         ),
