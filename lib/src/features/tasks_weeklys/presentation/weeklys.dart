@@ -15,44 +15,30 @@ class Weeklys extends StatefulWidget {
 }
 
 class _WeeklysState extends State<Weeklys> {
-  OverlayEntry? _overlayEntry;
-  void _showAddTaskOverlay() {
-    if (_overlayEntry != null) return;
-
-    _overlayEntry = OverlayEntry(
+ void _showAddTaskOverlay() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
       builder: (context) {
-        return GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () {}, // absorb taps
-          child: Material(
-            type: MaterialType.transparency,
-            child: Stack(
-              children: [
-                ModalBarrier(dismissible: false),
-                Center(
-                  child: AddTaskWidget(
-                    taskType: TaskType.weekly,
-                    onClose: _closeAddTaskOverlay,
-                  ),
-                ),
-              ],
-            ),
+        return Dialog(
+          elevation: 8,
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.all(16),
+          child: AddTaskWidget(
+            taskType: TaskType.weekly,
+            onClose: () {
+              Navigator.of(context, rootNavigator: true).pop();
+              setState(() {
+                myList = context.read<DataBaseRepository>().getDailyTasks();
+              });
+              debugPrint(
+                'Navigator stack closing from ${Navigator.of(context)}',
+              );
+            },
           ),
         );
       },
     );
-
-    Future.delayed(Duration(milliseconds: 50), () {
-      Overlay.of(context, rootOverlay: true).insert(_overlayEntry!);
-    });
-  }
-
-  void _closeAddTaskOverlay() {
-    _overlayEntry?.remove();
-    _overlayEntry = null;
-    setState(() {
-      myList = context.read<DataBaseRepository>().getDailyTasks();
-    });
   }
 
   late Future<List<Task>> myList;

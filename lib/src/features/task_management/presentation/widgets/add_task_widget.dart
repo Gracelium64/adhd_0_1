@@ -497,12 +497,9 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
                                             userInput.text,
                                           );
                                           widget.onClose();
-                                          setState(() {
-                                            debugPrint(
-                                              'edit task daily widget onClose',
-                                            );
-                                            widget.onClose();
-                                          });
+                                          debugPrint(
+                                            'add task daily widget onClose',
+                                          );
                                         } else if (selectedType ==
                                                 TaskType.weekly &&
                                             selectedWeekday != null) {
@@ -511,12 +508,9 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
                                             selectedWeekday,
                                           );
                                           widget.onClose();
-                                          setState(() {
-                                            debugPrint(
-                                              'edit task weekly widget onClose',
-                                            );
-                                            widget.onClose();
-                                          });
+                                          debugPrint(
+                                            'add task weekly widget onClose',
+                                          );
                                         } else if (selectedType ==
                                                 TaskType.deadline &&
                                             selectedDate != null &&
@@ -534,24 +528,16 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
                                             timeStr,
                                           );
                                           widget.onClose();
-                                          setState(() {
-                                            debugPrint(
-                                              'edit task deadline widget onClose',
-                                            );
-                                            widget.onClose();
-                                          });
+                                          debugPrint(
+                                            'add task deadline widget onClose',
+                                          );
                                         } else if (selectedType ==
                                             TaskType.quest) {
                                           await repository.addQuest(
                                             userInput.text,
                                           );
                                           widget.onClose();
-                                          setState(() {
-                                            debugPrint(
-                                              'edit task quest onClose',
-                                            );
-                                            widget.onClose();
-                                          });
+                                          debugPrint('add task quest onClose');
                                         } else {
                                           ScaffoldMessenger.of(
                                             context,
@@ -577,5 +563,12 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    debugPrint('AddTaskWidget disposed properly');
+    userInput.dispose();
+    super.dispose();
   }
 }
