@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
@@ -6,12 +7,12 @@ import 'package:adhd_0_1/src/common/domain/prizes.dart';
 
 class WeeklySummaryOverlay extends StatelessWidget {
   final List<Prizes> prizes;
-  final VoidCallback onClose;
+  final OverlayPortalController controller;
 
   const WeeklySummaryOverlay({
     super.key,
     required this.prizes,
-    required this.onClose,
+    required this.controller,
   });
 
   Future<Map<String, dynamic>> _fetchSummaryData() async {
@@ -46,46 +47,59 @@ class WeeklySummaryOverlay extends StatelessWidget {
               width: 300,
               height: 560,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(25),
-                color: Palette.peasantGrey1Opacity,
+                borderRadius: BorderRadius.all(Radius.circular(25)),
                 boxShadow: [
                   BoxShadow(
-                    color: Palette.basicBitchBlack.withAlpha(100),
+                    color: Palette.basicBitchWhite.withAlpha(175),
+                    offset: Offset(-0, -0),
+                    blurRadius: 5,
+                    blurStyle: BlurStyle.inner,
+                  ),
+                  BoxShadow(
+                    color: Palette.basicBitchBlack.withAlpha(125),
                     offset: Offset(4, 4),
-                    blurRadius: 8,
+                    blurRadius: 5,
+                  ),
+                  BoxShadow(
+                    color: Palette.monarchPurple1Opacity,
+                    offset: Offset(0, 0),
+                    blurRadius: 20,
+                    blurStyle: BlurStyle.solid,
                   ),
                 ],
               ),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               child: Column(
                 children: [
-                  const Text(
+                  Text(
                     'Weekly Summary',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.titleLarge,
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Text('Daily Completion: ${data['dailyRatio']}%'),
                   Text('Weekly Completion: ${data['weeklyRatio']}%'),
                   if (data['questCompleted'] > 0)
                     Text('Quests Completed: ${data['questCompleted']}'),
                   if (data['deadlineCompleted'] > 0)
                     Text('Deadlines Completed: ${data['deadlineCompleted']}'),
-                  const SizedBox(height: 16),
-                  const Text('🎁 Prizes Received:'),
-                  const SizedBox(height: 8),
+                  SizedBox(height: 16),
+                  Text("For this you're earned:"),
+
                   Expanded(
                     child: GridView.count(
                       crossAxisCount: 3,
                       crossAxisSpacing: 8,
                       mainAxisSpacing: 8,
-                      children: prizes
-                          .map((prize) => Image.asset(prize.prizeUrl))
-                          .toList(),
+                      children:
+                          prizes
+                              .map((prize) => Image.asset(prize.prizeUrl))
+                              .toList(),
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.check_circle_outline, size: 36),
-                    onPressed: onClose,
+                  ConfirmButton(
+                    onPressed: () {
+                      controller.toggle();
+                    },
                   ),
                 ],
               ),

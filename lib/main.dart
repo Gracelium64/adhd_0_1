@@ -75,8 +75,6 @@ Future<void> main() async {
   // final mainPrizeManager = PrizeManager(mainlRepo);
   // final localPrizeManager = PrizeManager(localRepo);
 
-  
-
   // final repository = SyncRepository(
   //   mainRepo: mainRepo,
   //   localRepo: localRepo,
@@ -109,19 +107,18 @@ Future<void> main() async {
   // v.0.1.12 //
   //
 
-  //  // // SPRINT 2 // // ---------------------- UNTIL 20.7.25 / 23.7.25 ---------------------- // //  OVERDUE // //
+  //  // // SPRINT 2 // // ---------------------- OVERDUE ---------------------- // //
   // Functionality // //
-  //TODO: weather API
   //TODO: how to save files outside of shared memory / sharing files / save local backup of user data from local repository
   //TODO: Prize Share Functionality
   // // Visual // //
   //TODO: responsive design - this design is problematic for up- and downscaling
-  //TODO: week summery overlay *** YOU ARE HERE *** TAKE A BREAK ***
-  //TODO: good morning overlay
+  //TODO: good morning notification with tip of day
   //TODO: backup overlays
   //TODO: about overlay
   //TODO: when setting appSkinColor to null it still displays pink *************************
   // // TASK MANAGEMENT // //
+  //TODO: BUG - addTaskWidget - on real device closes instead of showing keyboard when clicking textFormField
   //TODO: BUG - weeklyTaskWidget - if day is "any" don't show it
   //TODO: BUG - confirm button in edit_task_widget.dart only works when taskDescription is changed
   //TODO: BUG - deadline and quest complete quest, refresh UI needed
@@ -140,7 +137,10 @@ Future<void> main() async {
   //TODO: automated testing (?)
   //
 
-  //  // // SPRINT 3 // // ---------------------- UNTIL 26.7.25 / 29.7.25 ---------------------- // //
+  //  // // SPRINT 3 // // ---------------------- OVERDUE ---------------------- // //
+  // Functionality // //
+  //TODO: weather API
+  //TODO: good morning overlay with tip of day + weather + tasks for the day
   // // SYNCREPOSITORY // //
   //TODO: BUG - syncrepository duplicates and wrecks havoc on the firestore repository. i still want to have it anyway.
   // // Non MVP // //

@@ -1,7 +1,7 @@
 import 'dart:math';
+import 'package:adhd_0_1/src/common/domain/prizes.dart';
 import 'package:adhd_0_1/src/features/prizes/domain/available_prizes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/material.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 
 class PrizeManager {
@@ -58,10 +58,10 @@ class PrizeManager {
     await prefs.setInt('deadlineCompleted', current + 1);
   }
 
-  Future<void> awardWeeklyPrizes() async {
+  Future<List<Prizes>> awardWeeklyPrizes() async {
     final prefs = await SharedPreferences.getInstance();
     bool alreadyGiven = prefs.getBool('weeklyRewardGiven') ?? false;
-    if (alreadyGiven) return;
+    if (alreadyGiven) return [];
 
     final dailyTotal = prefs.getInt('dailyTotal') ?? 1;
     final dailyCompleted = prefs.getInt('dailyCompleted') ?? 0;
@@ -71,23 +71,20 @@ class PrizeManager {
     final deadlineCount = prefs.getInt('deadlineCompleted') ?? 0;
 
     int prizesToGive = 0;
+    final awarded = <Prizes>[];
 
-    double dailyRatio = dailyCompleted / dailyTotal;
-    double weeklyRatio = weeklyCompleted / weeklyTotal;
-
-    if (dailyRatio >= 0.75) prizesToGive++;
-    if (weeklyRatio >= 0.75) prizesToGive++;
+    if ((dailyCompleted / dailyTotal) >= 0.75) prizesToGive++;
+    if ((weeklyCompleted / weeklyTotal) >= 0.75) prizesToGive++;
     prizesToGive += questCount + deadlineCount;
 
-    debugPrint('🏆 Awarding $prizesToGive prizes');
-
     final random = Random();
-
     for (int i = 0; i < prizesToGive; i++) {
       final prize = availablePrizes[random.nextInt(availablePrizes.length)];
       await repository.addPrize(prize.prizeId, prize.prizeUrl);
+      awarded.add(prize);
     }
 
     await prefs.setBool('weeklyRewardGiven', true);
+    return awarded;
   }
 }

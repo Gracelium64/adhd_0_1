@@ -1,10 +1,17 @@
 import 'dart:ui';
+import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
+import 'package:adhd_0_1/src/theme/app_theme.dart';
+import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 
 void main() {
   runApp(
-    const MaterialApp(
+    MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: AppTheme.darkTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.dark,
+
       home: Scaffold(
         backgroundColor: Colors.grey,
         body: WeeklySummaryOverlayMock(),
@@ -39,33 +46,43 @@ class WeeklySummaryOverlayMock extends StatelessWidget {
           width: 300,
           height: 560,
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.85),
-            borderRadius: BorderRadius.circular(25),
+            borderRadius: BorderRadius.all(Radius.circular(25)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                offset: const Offset(4, 4),
-                blurRadius: 8,
+                color: Palette.basicBitchWhite.withAlpha(175),
+                offset: Offset(-0, -0),
+                blurRadius: 5,
+                blurStyle: BlurStyle.inner,
+              ),
+              BoxShadow(
+                color: Palette.basicBitchBlack.withAlpha(125),
+                offset: Offset(4, 4),
+                blurRadius: 5,
+              ),
+              BoxShadow(
+                color: Palette.monarchPurple1Opacity,
+                offset: Offset(0, 0),
+                blurRadius: 20,
+                blurStyle: BlurStyle.solid,
               ),
             ],
           ),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: Column(
             children: [
-              const Text(
+              Text(
                 'Weekly Summary',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.titleLarge,
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Text('Daily Completion: ${mockData['dailyRatio']}%'),
               Text('Weekly Completion: ${mockData['weeklyRatio']}%'),
               if (mockData['questCompleted']! > 0)
                 Text('Quests Completed: ${mockData['questCompleted']}'),
               if (mockData['deadlineCompleted']! > 0)
                 Text('Deadlines Completed: ${mockData['deadlineCompleted']}'),
-              const SizedBox(height: 16),
-              const Text('🎁 Prizes Received:'),
-              const SizedBox(height: 8),
+              SizedBox(height: 16),
+              Text("For this you're earned:"),
               Expanded(
                 child: GridView.count(
                   crossAxisCount: 3,
@@ -77,12 +94,7 @@ class WeeklySummaryOverlayMock extends StatelessWidget {
                           .toList(),
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.check_circle_outline, size: 36),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
+              ConfirmButton(onPressed: () {}),
             ],
           ),
         ),

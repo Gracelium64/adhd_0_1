@@ -1,3 +1,4 @@
+import 'package:adhd_0_1/src/common/domain/prizes.dart';
 import 'package:adhd_0_1/src/common/presentation/app_bg.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/domain/reset_scheduler.dart';
@@ -5,11 +6,12 @@ import 'package:adhd_0_1/src/features/tasks_dailys/presentation/dailys.dart';
 import 'package:adhd_0_1/src/features/tasks_deadlineys/presentation/deadlineys.dart';
 import 'package:adhd_0_1/src/features/fidget_screen/presentation/fidget_screen.dart';
 import 'package:adhd_0_1/src/features/fridge_lock/presentation/fridge_lock.dart';
-import 'package:adhd_0_1/src/features/prizes/presentation/prizes.dart';
+import 'package:adhd_0_1/src/features/prizes/presentation/prizes_screen.dart';
 import 'package:adhd_0_1/src/features/tasks_quest/presentation/quest.dart';
 import 'package:adhd_0_1/src/features/settings/presentation/settings.dart';
 import 'package:adhd_0_1/src/features/tutorial/presentation/tutorial.dart';
 import 'package:adhd_0_1/src/features/tasks_weeklys/presentation/weeklys.dart';
+import 'package:adhd_0_1/src/features/weekly_summery/presentation/widgets/weekly_summery_overlay.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -24,15 +26,17 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  OverlayPortalController overlayController = OverlayPortalController();
+  OverlayPortalController overlayControllerTutorial = OverlayPortalController();
+  OverlayPortalController overlayControllerSummery = OverlayPortalController();
   int _pageIndex = 1;
+  final List<Prizes> weeklyPrizes = [];
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.showTutorial) {
-        overlayController.show();
+        overlayControllerTutorial.show();
       }
     });
     performResetsIfNeeded();
@@ -40,7 +44,11 @@ class _MainScreenState extends State<MainScreen> {
 
   void performResetsIfNeeded() async {
     final repository = context.read<DataBaseRepository>();
-    final resetScheduler = ResetScheduler(repository);
+    final resetScheduler = ResetScheduler(
+      repository,
+      controller: overlayControllerSummery,
+      awardedPrizesHolder: weeklyPrizes,
+    );
     await resetScheduler.performResetsIfNeeded();
   }
 
@@ -51,14 +59,14 @@ class _MainScreenState extends State<MainScreen> {
     Size screenSize = MediaQuery.of(context).size;
 
     List<Widget> pages = [
-      Tutorial(overlayController),
+      Tutorial(overlayControllerTutorial),
       Dailys(),
       Weeklys(),
       Deadlineys(),
       Quest(),
       FridgeLock(),
       FidgetScreen(),
-      Prizes(),
+      PrizesScreen(),
       Settings(),
     ];
 
@@ -66,9 +74,17 @@ class _MainScreenState extends State<MainScreen> {
       children: [
         AppBg(repository),
         OverlayPortal(
-          controller: overlayController,
-          overlayChildBuilder: (context) => Tutorial(overlayController),
+          controller: overlayControllerTutorial,
+          overlayChildBuilder: (context) => Tutorial(overlayControllerTutorial),
           child: SizedBox.shrink(),
+        ),
+        OverlayPortal(
+          controller: overlayControllerSummery,
+          overlayChildBuilder:
+              (_) => WeeklySummaryOverlay(
+                prizes: weeklyPrizes,
+                controller: overlayControllerSummery,
+              ),
         ),
         Scaffold(
           backgroundColor: Colors.transparent,
@@ -85,13 +101,12 @@ class _MainScreenState extends State<MainScreen> {
                       leading: SizedBox(height: 40),
                       selectedIndex: _pageIndex,
                       indicatorColor: Palette.highlight,
-
                       indicatorShape: BeveledRectangleBorder(
                         borderRadius: BorderRadius.all(Radius.circular(5)),
                       ),
                       onDestinationSelected: (int index) {
                         if (index == 0) {
-                          overlayController.toggle();
+                          overlayControllerTutorial.toggle();
                         } else {
                           setState(() => _pageIndex = index);
                         }

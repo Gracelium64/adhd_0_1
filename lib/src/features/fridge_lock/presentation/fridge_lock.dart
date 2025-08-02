@@ -1,6 +1,6 @@
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/firebase_auth_repository.dart';
-import 'package:adhd_0_1/src/features/fridge_lock/presentation/widgets/DebugPrefsOverlay.dart';
+import 'package:adhd_0_1/src/features/fridge_lock/presentation/widgets/debug_prefs_overlay.dart';
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/add_task_widget.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';

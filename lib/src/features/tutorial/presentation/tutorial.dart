@@ -78,7 +78,7 @@ class _TutorialState extends State<Tutorial> {
                   imgUrl: 'assets/img/sidebar/fidget.png',
                 ),
                 TutorialItem(
-                  title: "See what you’ve won so far",
+                  title: "See what you've won so far",
                   imgUrl: 'assets/img/sidebar/prize.png',
                 ),
                 TutorialItem(
