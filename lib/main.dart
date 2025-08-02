@@ -120,7 +120,6 @@ Future<void> main() async {
   // // TASK MANAGEMENT // //
   //TODO: BUG - weeklyTaskWidget - if day is "any" don't show it
   //TODO: BUG - confirm button in edit_task_widget.dart only works when taskDescription is changed
-  //TODO: BUG - deadline and quest complete quest, refresh UI needed
   //TODO: Rework Task Management, something went sideways
   // // SECURITY // //
   //TODO: Autogenerate random password to replace current default

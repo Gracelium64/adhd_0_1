@@ -29,7 +29,7 @@ class _DeadlineysState extends State<Deadlineys> {
             onClose: () {
               Navigator.of(context, rootNavigator: true).pop();
               setState(() {
-                myList = context.read<DataBaseRepository>().getDailyTasks();
+                myList = context.read<DataBaseRepository>().getDeadlineTasks();
               });
               debugPrint(
                 'Navigator stack closing from ${Navigator.of(context)}',
@@ -53,7 +53,6 @@ class _DeadlineysState extends State<Deadlineys> {
     final repository = context.read<DataBaseRepository>();
 
     myList = repository.getDeadlineTasks();
-    OverlayPortalController overlayController = OverlayPortalController();
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -90,7 +89,7 @@ class _DeadlineysState extends State<Deadlineys> {
                               onClose: () {
                                 debugPrint('deadline onClose triggered');
                                 setState(() {
-                                  myList = repository.getDailyTasks();
+                                  myList = repository.getDeadlineTasks();
                                 });
                               },
                             );

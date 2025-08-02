@@ -15,7 +15,7 @@ class Quest extends StatefulWidget {
 }
 
 class _QuestState extends State<Quest> {
- void _showAddTaskOverlay() {
+  void _showAddTaskOverlay() {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -29,7 +29,7 @@ class _QuestState extends State<Quest> {
             onClose: () {
               Navigator.of(context, rootNavigator: true).pop();
               setState(() {
-                myList = context.read<DataBaseRepository>().getDailyTasks();
+                myList = context.read<DataBaseRepository>().getQuestTasks();
               });
               debugPrint(
                 'Navigator stack closing from ${Navigator.of(context)}',
@@ -53,7 +53,6 @@ class _QuestState extends State<Quest> {
     final repository = context.read<DataBaseRepository>();
 
     myList = repository.getQuestTasks();
-    OverlayPortalController overlayController = OverlayPortalController();
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -87,12 +86,12 @@ class _QuestState extends State<Quest> {
                             return QuestTaskWidget(
                               task: task,
                               repository: repository,
-                             onClose: () {
-                                    debugPrint('quest onClose triggered');
-                                    setState(() {
-                                      myList = repository.getDailyTasks();
-                                    });
-                                  },
+                              onClose: () {
+                                debugPrint('quest onClose triggered');
+                                setState(() {
+                                  myList = repository.getQuestTasks();
+                                });
+                              },
                             );
                           },
                         ),

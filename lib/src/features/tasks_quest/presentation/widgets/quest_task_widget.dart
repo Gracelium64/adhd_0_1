@@ -33,14 +33,9 @@ class _QuestTaskWidgetState extends State<QuestTaskWidget> {
   }
 
   void _toggleTask() async {
-    final newStatus = !widget.task.isDone;
-
-    await widget.repository.completeQuest(widget.task.taskId);
-
-    setState(() {
-      isDone = newStatus;
-      widget.task.isDone = newStatus;
-    });
+   await widget.repository.completeQuest(widget.task.taskId);
+widget.task.isDone = true;
+widget.onClose();
   }
 
   @override
