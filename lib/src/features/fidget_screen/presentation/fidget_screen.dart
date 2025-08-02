@@ -1,7 +1,10 @@
+import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
+import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/add_task_widget.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class FidgetScreen extends StatefulWidget {
   const FidgetScreen({super.key});
@@ -11,8 +14,53 @@ class FidgetScreen extends StatefulWidget {
 }
 
 class _FidgetScreenState extends State<FidgetScreen> {
+OverlayEntry? _overlayEntry;
+  void _showAddTaskOverlay() {
+    if (_overlayEntry != null) return;
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) {
+        return GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {}, // absorb taps
+          child: Material(
+            type: MaterialType.transparency,
+            child: Stack(
+              children: [
+                ModalBarrier(dismissible: false),
+                Center(
+                  child: AddTaskWidget(
+                    taskType: TaskType.daily,
+                    onClose: _closeAddTaskOverlay,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    Future.delayed(Duration(milliseconds: 50), () {
+      Overlay.of(context, rootOverlay: true).insert(_overlayEntry!);
+    });
+  }
+
+  void _closeAddTaskOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+    setState(() {
+      myList = context.read<DataBaseRepository>().getDailyTasks();
+    });
+  }
+
+  late Future<List<Task>> myList;
+
+
+
   @override
   Widget build(BuildContext context) {
+    
     OverlayPortalController overlayController = OverlayPortalController();
 
     return Scaffold(
@@ -49,21 +97,9 @@ class _FidgetScreenState extends State<FidgetScreen> {
               ),
             ),
             GestureDetector(
-              onTap: () {
-                overlayController.toggle();
-              },
-              child: OverlayPortal(
-                controller: overlayController,
-                overlayChildBuilder: (BuildContext context) {
-                  return AddTaskWidget(
-                    overlayController,
-                    taskType: TaskType.daily,
-                    onClose: () {},
-                  );
-                },
-                child: AddTaskButton(),
-              ),
-            ),
+                  onTap: _showAddTaskOverlay,
+                  child: AddTaskButton(),
+                ),
             SizedBox(height: 40),
           ],
         ),

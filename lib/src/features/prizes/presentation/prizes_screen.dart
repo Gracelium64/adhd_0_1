@@ -1,9 +1,12 @@
+import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
+import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/prizes/presentation/widgets/prize_overlay.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/add_task_widget.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
 import 'package:adhd_0_1/src/features/prizes/presentation/widgets/prizes_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class PrizesScreen extends StatefulWidget {
   const PrizesScreen({super.key});
@@ -13,6 +16,48 @@ class PrizesScreen extends StatefulWidget {
 }
 
 class _PrizesScreenState extends State<PrizesScreen> {
+  OverlayEntry? _overlayEntry;
+  void _showAddTaskOverlay() {
+    if (_overlayEntry != null) return;
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) {
+        return GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {}, // absorb taps
+          child: Material(
+            type: MaterialType.transparency,
+            child: Stack(
+              children: [
+                ModalBarrier(dismissible: false),
+                Center(
+                  child: AddTaskWidget(
+                    taskType: TaskType.daily,
+                    onClose: _closeAddTaskOverlay,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    Future.delayed(Duration(milliseconds: 50), () {
+      Overlay.of(context, rootOverlay: true).insert(_overlayEntry!);
+    });
+  }
+
+  void _closeAddTaskOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+    setState(() {
+      myList = context.read<DataBaseRepository>().getDailyTasks();
+    });
+  }
+
+   late Future<List<Task>> myList;
+
   final overlayController = OverlayPortalController();
   final overlayControllerPrize = OverlayPortalController();
   String selectedPrizeUrl = '';
@@ -58,19 +103,8 @@ class _PrizesScreenState extends State<PrizesScreen> {
                   ),
                 ),
                 GestureDetector(
-                  onTap: () {
-                    overlayController.toggle();
-                  },
-                  child: OverlayPortal(
-                    controller: overlayController,
-                    overlayChildBuilder:
-                        (_) => AddTaskWidget(
-                          overlayController,
-                          taskType: TaskType.daily,
-                          onClose: () => overlayController.hide(),
-                        ),
-                    child: AddTaskButton(),
-                  ),
+                  onTap: _showAddTaskOverlay,
+                  child: AddTaskButton(),
                 ),
                 const SizedBox(height: 40),
               ],

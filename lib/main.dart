@@ -52,7 +52,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // // // await SharedPreferencesInitializer.initializeDefaults();
   await dotenv.load(fileName: 'black_speech.env');
-  debugPrint('✅ Using API key: ${dotenv.env['apiKeyAndroid']}');
+  debugPrint('✅ Using API key: ${dotenv.env['apiKeyIos']}');
 
   try {
     await Firebase.initializeApp(options: FirebaseEnvOptions.currentPlatform);

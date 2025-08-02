@@ -15,6 +15,46 @@ class Weeklys extends StatefulWidget {
 }
 
 class _WeeklysState extends State<Weeklys> {
+  OverlayEntry? _overlayEntry;
+  void _showAddTaskOverlay() {
+    if (_overlayEntry != null) return;
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) {
+        return GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {}, // absorb taps
+          child: Material(
+            type: MaterialType.transparency,
+            child: Stack(
+              children: [
+                ModalBarrier(dismissible: false),
+                Center(
+                  child: AddTaskWidget(
+                    taskType: TaskType.weekly,
+                    onClose: _closeAddTaskOverlay,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    Future.delayed(Duration(milliseconds: 50), () {
+      Overlay.of(context, rootOverlay: true).insert(_overlayEntry!);
+    });
+  }
+
+  void _closeAddTaskOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+    setState(() {
+      myList = context.read<DataBaseRepository>().getDailyTasks();
+    });
+  }
+
   late Future<List<Task>> myList;
 
   // @override
@@ -25,7 +65,6 @@ class _WeeklysState extends State<Weeklys> {
   @override
   Widget build(BuildContext context) {
     final repository = context.read<DataBaseRepository>();
-    
 
     myList = repository.getWeeklyTasks();
     OverlayPortalController overlayController = OverlayPortalController();
@@ -80,25 +119,8 @@ class _WeeklysState extends State<Weeklys> {
                   ),
                 ),
                 GestureDetector(
-                  onTap: () {
-                    overlayController.toggle();
-                  },
-                  child: OverlayPortal(
-                    controller: overlayController,
-                    overlayChildBuilder: (BuildContext context) {
-                      return AddTaskWidget(
-                        overlayController,
-                        taskType: TaskType.daily,
-                        onClose: () {
-                          debugPrint('dailys onClose triggered');
-                          setState(() {
-                            myList = repository.getWeeklyTasks();
-                          });
-                        },
-                      );
-                    },
-                    child: AddTaskButton(),
-                  ),
+                  onTap: _showAddTaskOverlay,
+                  child: AddTaskButton(),
                 ),
                 SizedBox(height: 40),
               ],

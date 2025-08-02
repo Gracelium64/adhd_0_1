@@ -1,3 +1,4 @@
+import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/firebase_auth_repository.dart';
 import 'package:adhd_0_1/src/features/fridge_lock/presentation/widgets/debug_prefs_overlay.dart';
@@ -17,6 +18,49 @@ class FridgeLock extends StatefulWidget {
 }
 
 class _FridgeLockState extends State<FridgeLock> {
+OverlayEntry? _overlayEntry;
+  void _showAddTaskOverlay() {
+    if (_overlayEntry != null) return;
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) {
+        return GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {}, // absorb taps
+          child: Material(
+            type: MaterialType.transparency,
+            child: Stack(
+              children: [
+                ModalBarrier(dismissible: false),
+                Center(
+                  child: AddTaskWidget(
+                    taskType: TaskType.daily,
+                    onClose: _closeAddTaskOverlay,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    Future.delayed(Duration(milliseconds: 50), () {
+      Overlay.of(context, rootOverlay: true).insert(_overlayEntry!);
+    });
+  }
+
+  void _closeAddTaskOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+    setState(() {
+      myList = context.read<DataBaseRepository>().getDailyTasks();
+    });
+  }
+
+  late Future<List<Task>> myList;
+
+
   final storage = FlutterSecureStorage();
 
   @override
@@ -95,21 +139,9 @@ class _FridgeLockState extends State<FridgeLock> {
               ),
             ),
             GestureDetector(
-              onTap: () {
-                overlayController.toggle();
-              },
-              child: OverlayPortal(
-                controller: overlayController,
-                overlayChildBuilder: (BuildContext context) {
-                  return AddTaskWidget(
-                    overlayController,
-                    taskType: TaskType.daily,
-                    onClose: () {},
-                  );
-                },
-                child: AddTaskButton(),
-              ),
-            ),
+                  onTap: _showAddTaskOverlay,
+                  child: AddTaskButton(),
+                ),
             SizedBox(height: 40),
           ],
         ),

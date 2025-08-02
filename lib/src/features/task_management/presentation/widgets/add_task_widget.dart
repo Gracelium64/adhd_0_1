@@ -8,18 +8,14 @@ import 'package:provider/provider.dart';
 enum TaskType { daily, weekly, deadline, quest }
 
 class AddTaskWidget extends StatefulWidget {
-  final OverlayPortalController controller;
+  // // final OverlayPortalController controller;
 
   final TaskType taskType;
   final void Function() onClose;
 
   const AddTaskWidget(
-    this.controller, {
-    super.key,
-
-    required this.taskType,
-    required this.onClose,
-  });
+  // // this.controller,
+  {super.key, required this.taskType, required this.onClose});
 
   @override
   State<AddTaskWidget> createState() => _AddTaskWidgetState();
@@ -488,7 +484,7 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
                           children: [
                             CancelButton(
                               onPressed: () {
-                                widget.controller.toggle();
+                                widget.onClose();
                               },
                             ),
                             ConfirmButton(
@@ -500,7 +496,7 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
                                           await repository.addDaily(
                                             userInput.text,
                                           );
-                                          widget.controller.toggle();
+                                          widget.onClose();
                                           setState(() {
                                             debugPrint(
                                               'edit task daily widget onClose',
@@ -514,7 +510,7 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
                                             userInput.text,
                                             selectedWeekday,
                                           );
-                                          widget.controller.toggle();
+                                          widget.onClose();
                                           setState(() {
                                             debugPrint(
                                               'edit task weekly widget onClose',
@@ -537,7 +533,7 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
                                             dateStr,
                                             timeStr,
                                           );
-                                          widget.controller.toggle();
+                                          widget.onClose();
                                           setState(() {
                                             debugPrint(
                                               'edit task deadline widget onClose',
@@ -549,7 +545,7 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
                                           await repository.addQuest(
                                             userInput.text,
                                           );
-                                          widget.controller.toggle();
+                                          widget.onClose();
                                           setState(() {
                                             debugPrint(
                                               'edit task quest onClose',
