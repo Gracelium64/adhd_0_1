@@ -118,9 +118,9 @@ Future<void> main() async {
   //TODO: about overlay
   //TODO: when setting appSkinColor to null it still displays pink *************************
   // // TASK MANAGEMENT // //
+  //TODO: BUG - Daily reset - daily tasks shown as isDone=false only after navigating to another screen, progress bar updates and resets only after completing a task
   //TODO: BUG - weeklyTaskWidget - if day is "any" don't show it
   //TODO: BUG - confirm button in edit_task_widget.dart only works when taskDescription is changed
-  //TODO: Rework Task Management, something went sideways
   // // SECURITY // //
   //TODO: Autogenerate random password to replace current default
   //TODO: aleart user to it's userId and password through the settings menu and make it clickable copy to clipboard
