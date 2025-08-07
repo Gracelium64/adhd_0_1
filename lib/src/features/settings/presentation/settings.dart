@@ -259,36 +259,10 @@ class _SettingsState extends State<Settings> {
                                 onTap: () {
                                   overlayControllerAbout.toggle();
                                 },
-                                child: Stack(
-                                  children: [
-                                    Text(
-                                      'About',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodyMedium?.copyWith(
-                                        color: Palette.basicBitchBlack,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Opacity(
-                                      opacity: 0.8,
-                                      child: GradientText(
-                                        'About',
-                                        style:
-                                            Theme.of(
-                                              context,
-                                            ).textTheme.bodyMedium,
-
-                                        colors: [
-                                          Palette.basicBitchBlack,
-                                          Palette.lightTeal,
-                                        ],
-                                        gradientDirection:
-                                            GradientDirection.btt,
-                                        stops: [0.1, 0.6],
-                                      ),
-                                    ),
-                                  ],
+                                child: Text(
+                                  'About',
+                                  style: Theme.of(context).textTheme.bodyMedium
+                                      ?.copyWith(color: Palette.lightTeal),
                                 ),
                               ),
                             ],

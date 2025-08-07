@@ -545,6 +545,10 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
                                             SnackBar(
                                               content: Text(
                                                 'Please complete all required fields',
+                                                style:
+                                                    Theme.of(context)
+                                                        .snackBarTheme
+                                                        .contentTextStyle,
                                               ),
                                             ),
                                           );

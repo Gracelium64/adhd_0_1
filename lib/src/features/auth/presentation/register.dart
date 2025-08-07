@@ -139,15 +139,31 @@ class _RegisterState extends State<Register> {
                         if (!context.mounted) return;
 
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Welcome $userId!')),
+                          SnackBar(
+                            content: Text(
+                              'Welcome $userId!',
+                              style:
+                                  Theme.of(
+                                    context,
+                                  ).snackBarTheme.contentTextStyle,
+                            ),
+                          ),
                         );
                         overlayController.toggle();
                       } catch (e) {
                         if (!context.mounted) return;
 
-                        ScaffoldMessenger.of(
-                          context,
-                        ).showSnackBar(SnackBar(content: Text(e.toString())));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              e.toString(),
+                              style:
+                                  Theme.of(
+                                    context,
+                                  ).snackBarTheme.contentTextStyle,
+                            ),
+                          ),
+                        );
                       }
                     },
                   ),

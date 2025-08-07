@@ -633,6 +633,10 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
                                             SnackBar(
                                               content: Text(
                                                 'Please complete all required fields',
+                                                style:
+                                                    Theme.of(context)
+                                                        .snackBarTheme
+                                                        .contentTextStyle,
                                               ),
                                             ),
                                           );

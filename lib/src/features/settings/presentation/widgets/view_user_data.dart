@@ -96,7 +96,15 @@ class ViewUserData extends StatelessWidget {
                                 ),
                               );
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Copied to Clipboard!')),
+                                SnackBar(
+                                  content: Text(
+                                    'Copied to Clipboard!',
+                                    style:
+                                        Theme.of(
+                                          context,
+                                        ).snackBarTheme.contentTextStyle,
+                                  ),
+                                ),
                               );
                               onClose();
                             },

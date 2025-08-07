@@ -56,7 +56,7 @@ class About extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.all(16),
                       child: Text(
-                        "Samantha Fox once said naughty girls need love too', and developers need that as well, but also to eat.",
+                        "Samantha Fox once said 'naughty girls need love too', and developers need that as well, but also to eat.",
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: 12),
                       ),
