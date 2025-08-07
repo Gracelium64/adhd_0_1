@@ -33,6 +33,12 @@ class _RegisterState extends State<Register> {
     return '${username}_${formatted}_$microTimestamp';
   }
 
+  int generateRandom8DigitNumber() {
+    final now = DateTime.now().microsecondsSinceEpoch;
+    final random = 10000000 + (now % 90000000);
+    return random;
+  }
+
   final formKey = GlobalKey<FormState>();
 
   @override
@@ -115,11 +121,16 @@ class _RegisterState extends State<Register> {
 
                       try {
                         final userId = generateUserId(userName.text);
+                        final userPassword =
+                            generateRandom8DigitNumber().toString();
                         await storage.write(
                           key: 'email',
                           value: '$userId@adventurer.adhd',
                         );
-                        await storage.write(key: 'password', value: 'password');
+                        await storage.write(
+                          key: 'password',
+                          value: userPassword,
+                        );
                         await storage.write(key: 'userId', value: userId);
                         await storage.write(key: 'name', value: userName.text);
 

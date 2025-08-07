@@ -13,6 +13,11 @@ abstract class AppTheme {
       circularTrackColor: Palette.monarchPurple1,
       color: Palette.monarchPurple2,
     ),
+
+    snackBarTheme: SnackBarThemeData(
+      backgroundColor: Palette.lightTeal,
+      actionBackgroundColor: Palette.basicBitchWhite,
+    ),
   );
 
   static final TextTheme baseTextTheme = TextTheme(

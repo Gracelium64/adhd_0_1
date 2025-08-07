@@ -48,7 +48,12 @@ class _PrizesWidgetState extends State<PrizesWidget> {
         } else if (snapshot.hasError) {
           return Text('Error: ${snapshot.error}');
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Text('No prizes yet!');
+          return Center(
+            child: Text(
+              "You're gonna have to work for your meal",
+              textAlign: TextAlign.center,
+            ),
+          );
         }
 
         final data = snapshot.data!;

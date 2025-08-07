@@ -1,6 +1,7 @@
 import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
 import 'package:adhd_0_1/src/data/firebase_auth_repository.dart';
+import 'package:adhd_0_1/src/features/settings/presentation/widgets/view_user_data.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/add_task_widget.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
@@ -57,7 +58,7 @@ class _SettingsState extends State<Settings> {
       body: Center(
         child: Column(
           children: [
-            SubTitle(sub: 'Prizes'),
+            SubTitle(sub: 'Settings'),
 
             Expanded(
               child: Padding(
@@ -173,60 +174,72 @@ class _SettingsState extends State<Settings> {
                               ////// TODO: replace textbutton with DropdownMenu
                             ],
                           ),
-                          Row(
-                            children: [
-                              Text(
-                                'Language',
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                              Spacer(),
-                              TextButton(
-                                style: TextButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.all(
-                                      Radius.circular(8),
-                                    ),
-                                    side: BorderSide(
-                                      color: Palette.basicBitchWhite,
-                                      width: 1,
-                                    ),
-                                  ),
-                                ),
-                                onPressed: () {},
-                                child: Text(
-                                  'English',
-                                  style: TextStyle(
-                                    color: Palette.basicBitchWhite,
-                                  ),
-                                ),
-                              ),
-                              ////// TODO: replace textbutton with DropdownMenu
-                            ],
+                          // Row(
+                          //   children: [
+                          //     Text(
+                          //       'Language',
+                          //       style: Theme.of(context).textTheme.bodyMedium,
+                          //     ),
+                          //     Spacer(),
+                          //     TextButton(
+                          //       style: TextButton.styleFrom(
+                          //         shape: RoundedRectangleBorder(
+                          //           borderRadius: BorderRadius.all(
+                          //             Radius.circular(8),
+                          //           ),
+                          //           side: BorderSide(
+                          //             color: Palette.basicBitchWhite,
+                          //             width: 1,
+                          //           ),
+                          //         ),
+                          //       ),
+                          //       onPressed: () {},
+                          //       child: Text(
+                          //         'English',
+                          //         style: TextStyle(
+                          //           color: Palette.basicBitchWhite,
+                          //         ),
+                          //       ),
+                          //     ),
+                          //     ////// TODO: replace textbutton with DropdownMenu
+                          //   ],
+                          // ),
+                          OverlayPortal(
+                            controller: overlayController,
+                            overlayChildBuilder: (BuildContext context) {
+                              return ViewUserData(
+                                onClose: () {
+                                  overlayController.toggle();
+                                },
+                              );
+                            },
                           ),
                           Row(
                             children: [
                               GestureDetector(
-                                onTap: () {},
+                                onTap: () {
+                                  overlayController.toggle();
+                                },
                                 child: Text(
-                                  'Check for updates',
+                                  'View User Data',
                                   style: Theme.of(context).textTheme.bodyMedium
                                       ?.copyWith(color: Palette.lightTeal),
                                 ),
                               ),
                             ],
                           ),
-                          Row(
-                            children: [
-                              GestureDetector(
-                                onTap: () {},
-                                child: Text(
-                                  'Backup your data',
-                                  style: Theme.of(context).textTheme.bodyMedium
-                                      ?.copyWith(color: Palette.lightTeal),
-                                ),
-                              ),
-                            ],
-                          ),
+                          // Row(
+                          //   children: [
+                          //     GestureDetector(
+                          //       onTap: () {},
+                          //       child: Text(
+                          //         'Check for updates',
+                          //         style: Theme.of(context).textTheme.bodyMedium
+                          //             ?.copyWith(color: Palette.lightTeal),
+                          //       ),
+                          //     ),
+                          //   ],
+                          // ),
                           Row(
                             children: [
                               GestureDetector(

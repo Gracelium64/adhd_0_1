@@ -110,20 +110,15 @@ Future<void> main() async {
   //  // // SPRINT 2 // // ---------------------- OVERDUE ---------------------- // //
   // Functionality // //
   //TODO: how to save files outside of shared memory / sharing files / save local backup of user data from local repository
-  //TODO: Prize Share Functionality
-  // // Visual // //
   //TODO: responsive design - this design is problematic for up- and downscaling
+  // // Visual // //
   //TODO: good morning notification with tip of day
-  //TODO: backup overlays
   //TODO: about overlay
-  //TODO: when setting appSkinColor to null it still displays pink *************************
   // // TASK MANAGEMENT // //
   //TODO: BUG - Daily reset - daily tasks shown as isDone=false only after navigating to another screen, progress bar updates and resets only after completing a task
   //TODO: BUG - weeklyTaskWidget - if day is "any" don't show it
   //TODO: BUG - confirm button in edit_task_widget.dart only works when taskDescription is changed
   // // SECURITY // //
-  //TODO: Autogenerate random password to replace current default
-  //TODO: aleart user to it's userId and password through the settings menu and make it clickable copy to clipboard
   //TODO: SECURITY RULES FIRESTORE
 
   //
@@ -137,6 +132,7 @@ Future<void> main() async {
 
   //  // // SPRINT 3 // // ---------------------- OVERDUE ---------------------- // //
   // Functionality // //
+  //TODO: backup overlays
   //TODO: weather API
   //TODO: good morning overlay with tip of day + weather + tasks for the day
   // // SYNCREPOSITORY // //

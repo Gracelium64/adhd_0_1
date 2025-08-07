@@ -91,7 +91,7 @@ class _OnboardingFourthLocationState extends State<OnboardingFourthLocation> {
                           selectedCapital.label,
                           currentSettings?.startOfDay ??
                               TimeOfDay(hour: 8, minute: 0),
-                          currentSettings?.startOfWeek ?? Weekday.any,
+                          currentSettings?.startOfWeek ?? Weekday.mon,
                         );
 
                         WidgetsBinding.instance.addPostFrameCallback((_) {

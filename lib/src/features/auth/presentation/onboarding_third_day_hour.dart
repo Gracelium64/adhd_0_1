@@ -64,8 +64,11 @@ class _OnboardingThirdDayHourState extends State<OnboardingThirdDayHour> {
                           });
                         }
                       },
-                      items:
-                          Weekday.values.map((day) {
+                      items: Weekday.values
+                          .where((day) {
+                            return day != Weekday.any;
+                          })
+                          .map((day) {
                             return DropdownMenuItem(
                               value: day,
                               child: Text(day.label),
@@ -112,7 +115,7 @@ class _OnboardingThirdDayHourState extends State<OnboardingThirdDayHour> {
                         final currentSettings = await repository.getSettings();
 
                         await repository.setSettings(
-                          currentSettings?.appSkinColor ?? true,
+                          currentSettings?.appSkinColor,
                           currentSettings?.language ?? 'en',
                           currentSettings?.location ?? 'default_location',
                           selectedTime ?? TimeOfDay(hour: 8, minute: 0),

@@ -7,6 +7,8 @@ import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
 import 'package:adhd_0_1/src/features/prizes/presentation/widgets/prizes_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'dart:io';
 
 class PrizesScreen extends StatefulWidget {
   const PrizesScreen({super.key});
@@ -16,7 +18,28 @@ class PrizesScreen extends StatefulWidget {
 }
 
 class _PrizesScreenState extends State<PrizesScreen> {
-   void _showAddTaskOverlay() {
+  Future<void> _sharePrizeImageAndClose(String imagePath) async {
+    final byteData = await DefaultAssetBundle.of(context).load(imagePath);
+    final buffer = byteData.buffer;
+    final tempDir = Directory.systemTemp;
+    final file = File('${tempDir.path}/shared_prize.png');
+    await file.writeAsBytes(
+      buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes),
+    );
+
+    await Future.delayed(const Duration(milliseconds: 300));
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [XFile(file.path)],
+        text: 'Look! A.. Not sure what this is actually...',
+      ),
+    );
+    if (overlayControllerPrize.isShowing) {
+      overlayControllerPrize.hide();
+    }
+  }
+
+  void _showAddTaskOverlay() {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -42,7 +65,7 @@ class _PrizesScreenState extends State<PrizesScreen> {
     );
   }
 
-   late Future<List<Task>> myList;
+  late Future<List<Task>> myList;
 
   final overlayController = OverlayPortalController();
   final overlayControllerPrize = OverlayPortalController();
@@ -103,9 +126,9 @@ class _PrizesScreenState extends State<PrizesScreen> {
           overlayChildBuilder:
               (_) => PrizeOverlay(
                 prizeImageUrl: selectedPrizeUrl,
-                onShare: () {
+                onShare: () async {
                   debugPrint('SHARE TAP ✅: $selectedPrizeUrl');
-                  // Implement actual share logic
+                  await _sharePrizeImageAndClose(selectedPrizeUrl);
                 },
                 onClose: () {
                   debugPrint('OVERLAY CLOSED');
