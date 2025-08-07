@@ -110,7 +110,7 @@ Future<void> main() async {
   //  // // SPRINT 2 // // ---------------------- OVERDUE ---------------------- // //
   // Functionality // //
   //TODO: how to save files outside of shared memory / sharing files / save local backup of user data from local repository
-  //TODO: responsive design - this design is problematic for up- and downscaling
+  //TODO: responsive design - this design is problematic for up and downscaling
   // // Visual // //
   //TODO: good morning notification with tip of day
   //TODO: about overlay
