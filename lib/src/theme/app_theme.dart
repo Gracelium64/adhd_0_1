@@ -15,7 +15,7 @@ abstract class AppTheme {
     ),
 
     snackBarTheme: SnackBarThemeData(
-      backgroundColor: Palette.lightTeal,
+      backgroundColor: Palette.darkTeal,
       actionBackgroundColor: Palette.basicBitchWhite,
     ),
   );

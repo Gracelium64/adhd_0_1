@@ -39,108 +39,84 @@ class ViewUserData extends StatelessWidget {
           children: [
             BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 2.5, sigmaY: 2.5),
-              child: Opacity(
-                opacity: 0.9,
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.all(Radius.circular(25)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Palette.basicBitchWhite.withAlpha(175),
-                        offset: Offset(-0, -0),
-                        blurRadius: 5,
-                        blurStyle: BlurStyle.inner,
-                      ),
-                      BoxShadow(
-                        color: Palette.basicBitchBlack.withAlpha(125),
-                        offset: Offset(4, 4),
-                        blurRadius: 5,
-                      ),
-                      BoxShadow(
-                        color: Palette.basicBitchBlack,
-                        offset: Offset(0, 0),
-                        blurRadius: 20,
-                        blurStyle: BlurStyle.solid,
-                      ),
-                    ],
-                  ),
-                  height: 293,
-                  width: 300,
-                  child: FutureBuilder(
-                    future: Future.wait([
-                      getUserName(storage),
-                      getUserPassword(storage),
-                    ]),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(child: CircularProgressIndicator());
-                      } else if (snapshot.hasError) {
-                        return Center(child: Text('Error: ${snapshot.error}'));
-                      } else if (snapshot.hasData) {
-                        final data = snapshot.data as List<String>;
-                        final userName = data[0];
-                        final userPassword = data[1];
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(25)),
+                  boxShadow: [BoxShadow(color: Palette.basicBitchBlack)],
+                  border: Border.all(color: Palette.basicBitchWhite, width: 2),
+                ),
+                height: 293,
+                width: 300,
+                child: FutureBuilder(
+                  future: Future.wait([
+                    getUserName(storage),
+                    getUserPassword(storage),
+                  ]),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else if (snapshot.hasData) {
+                      final data = snapshot.data as List<String>;
+                      final userName = data[0];
+                      final userPassword = data[1];
 
-                        return Column(
-                          children: [
-                            SizedBox(height: 20),
-                            SizedBox(
-                              height: 95,
-                              width: 95,
-                              child: Image.asset(
-                                'assets/img/icons/icon_bw.png',
-                                fit: BoxFit.fill,
-                              ),
+                      return Column(
+                        children: [
+                          SizedBox(height: 20),
+                          SizedBox(
+                            height: 95,
+                            width: 95,
+                            child: Image.asset(
+                              'assets/img/icons/icon_bw.png',
+                              fit: BoxFit.fill,
                             ),
-                            SizedBox(height: 8),
-                            Text(
-                              'User Name: $userName',
-                              style: Theme.of(context).textTheme.bodySmall,
-                              textAlign: TextAlign.center,
-                              overflow: TextOverflow.fade,
-                              maxLines: 1,
-                            ),
-                            Text(
-                              'Password: $userPassword',
-                              style: Theme.of(context).textTheme.bodySmall,
-                              textAlign: TextAlign.center,
-                            ),
-                            SizedBox(height: 8),
-                            TextButton(
-                              onPressed: () {
-                                Clipboard.setData(
-                                  ClipboardData(
-                                    text:
-                                        'User Name: $userName\nPassword: $userPassword',
-                                  ),
-                                );
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Copied to Clipboard!'),
-                                  ),
-                                );
-                                onClose();
-                              },
-                              child: Text(
-                                'Copy to Clipboard',
-                                style: TextStyle(
-                                  color: Palette.basicBitchWhite,
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'User Name: $userName',
+                            style: Theme.of(context).textTheme.bodySmall,
+                            textAlign: TextAlign.center,
+                            overflow: TextOverflow.fade,
+                            maxLines: 1,
+                          ),
+                          Text(
+                            'Password: $userPassword',
+                            style: Theme.of(context).textTheme.bodySmall,
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(height: 8),
+                          TextButton(
+                            onPressed: () {
+                              Clipboard.setData(
+                                ClipboardData(
+                                  text:
+                                      'User Name: $userName\nPassword: $userPassword',
                                 ),
-                              ),
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Copied to Clipboard!')),
+                              );
+                              onClose();
+                            },
+                            child: Text(
+                              'Copy to Clipboard',
+                              style: TextStyle(color: Palette.basicBitchWhite),
                             ),
-                            SizedBox(height: 14),
-                            ConfirmButton(
-                              onPressed: () {
-                                onClose();
-                              },
-                            ),
-                          ],
-                        );
-                      } else {
-                        return Center(child: Text('No data available'));
-                      }
-                    },
-                  ),
+                          ),
+                          SizedBox(height: 14),
+                          ConfirmButton(
+                            onPressed: () {
+                              onClose();
+                            },
+                          ),
+                        ],
+                      );
+                    } else {
+                      return Center(child: Text('No data available'));
+                    }
+                  },
                 ),
               ),
             ),

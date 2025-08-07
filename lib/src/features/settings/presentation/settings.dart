@@ -1,6 +1,7 @@
 import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
 import 'package:adhd_0_1/src/data/firebase_auth_repository.dart';
+import 'package:adhd_0_1/src/features/settings/presentation/widgets/about.dart';
 import 'package:adhd_0_1/src/features/settings/presentation/widgets/view_user_data.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/add_task_widget.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
@@ -51,7 +52,9 @@ class _SettingsState extends State<Settings> {
     final repository = context.read<DataBaseRepository>();
     final auth = context.read<FirebaseAuthRepository>();
 
-    OverlayPortalController overlayController = OverlayPortalController();
+    OverlayPortalController overlayControllerUserData =
+        OverlayPortalController();
+    OverlayPortalController overlayControllerAbout = OverlayPortalController();
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -205,11 +208,11 @@ class _SettingsState extends State<Settings> {
                           //   ],
                           // ),
                           OverlayPortal(
-                            controller: overlayController,
+                            controller: overlayControllerUserData,
                             overlayChildBuilder: (BuildContext context) {
                               return ViewUserData(
                                 onClose: () {
-                                  overlayController.toggle();
+                                  overlayControllerUserData.toggle();
                                 },
                               );
                             },
@@ -218,7 +221,7 @@ class _SettingsState extends State<Settings> {
                             children: [
                               GestureDetector(
                                 onTap: () {
-                                  overlayController.toggle();
+                                  overlayControllerUserData.toggle();
                                 },
                                 child: Text(
                                   'View User Data',
@@ -240,10 +243,22 @@ class _SettingsState extends State<Settings> {
                           //     ),
                           //   ],
                           // ),
+                          OverlayPortal(
+                            controller: overlayControllerAbout,
+                            overlayChildBuilder: (BuildContext context) {
+                              return About(
+                                onClose: () {
+                                  overlayControllerAbout.toggle();
+                                },
+                              );
+                            },
+                          ),
                           Row(
                             children: [
                               GestureDetector(
-                                onTap: () {},
+                                onTap: () {
+                                  overlayControllerAbout.toggle();
+                                },
                                 child: Stack(
                                   children: [
                                     Text(

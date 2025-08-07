@@ -1,4 +1,5 @@
 import 'package:adhd_0_1/src/data/firebase_auth_repository.dart';
+import 'package:adhd_0_1/src/features/settings/presentation/widgets/about.dart';
 import 'package:adhd_0_1/src/features/settings/presentation/widgets/view_user_data.dart';
 import 'package:adhd_0_1/src/main_screen.dart';
 import 'package:adhd_0_1/src/cold_start.dart';

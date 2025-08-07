@@ -109,11 +109,9 @@ Future<void> main() async {
 
   //  // // SPRINT 2 // // ---------------------- OVERDUE ---------------------- // //
   // Functionality // //
-  //TODO: how to save files outside of shared memory / sharing files / save local backup of user data from local repository
-  //TODO: responsive design - this design is problematic for up and downscaling
+  //TODO: responsive design - this design is problematic for up- and downscaling
   // // Visual // //
-  //TODO: good morning notification with tip of day
-  //TODO: about overlay
+  //TODO: good morning notification with tip of the day
   // // TASK MANAGEMENT // //
   //TODO: BUG - Daily reset - daily tasks shown as isDone=false only after navigating to another screen, progress bar updates and resets only after completing a task
   //TODO: BUG - weeklyTaskWidget - if day is "any" don't show it
@@ -137,6 +135,7 @@ Future<void> main() async {
   //TODO: good morning overlay with tip of day + weather + tasks for the day
   // // SYNCREPOSITORY // //
   //TODO: BUG - syncrepository duplicates and wrecks havoc on the firestore repository. i still want to have it anyway.
+  //TODO: how to save files outside of shared memory - save local backup of user data from local repository
   // // Non MVP // //
   //TODO: UNDO Button in SncakBar when completing a Quest or Deadline Tasks
   //TODO: eastereggs
