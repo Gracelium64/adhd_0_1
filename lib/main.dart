@@ -108,8 +108,6 @@ Future<void> main() async {
   //
 
   //  // // SPRINT 2 // // ---------------------- OVERDUE ---------------------- // //
-  // Functionality // //
-  //TODO: responsive design - this design is problematic for up- and downscaling
   // // Visual // //
   //TODO: good morning notification with tip of the day
   // // TASK MANAGEMENT // //

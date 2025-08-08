@@ -77,62 +77,144 @@ class _AppBgState extends State<AppBg> {
           );
         }
 
-        return Stack(
-          children: [
-            SizedBox(
-              height: double.infinity,
-              width: double.infinity,
-              child: Image.asset(skinData),
-            ),
-            Scaffold(
-              backgroundColor: Colors.transparent,
-              body: Padding(
-                padding: const EdgeInsets.fromLTRB(48, 44, 0, 0),
-                child: Text(
-                  'Attention Deficit oH Dear',
-                  style: Theme.of(context).textTheme.headlineLarge,
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(80, 116, 0, 0),
-              child: ValueListenableBuilder<Future<double>>(
-                valueListenable: dailyProgressFuture,
-                builder: (context, future, _) {
-                  return FutureBuilder<double>(
-                    future: future,
-                    builder: (context, snapshot) {
-                      final progress = snapshot.data ?? 0;
-                      return ProgressBarDaily(
-                        progressBarStatus: progress,
-                        repository: widget.repository,
-                      );
-                    },
-                  );
-                },
-              ),
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final aspectRatio = constraints.maxHeight / constraints.maxWidth;
 
-              // 0 - 272 = 0% - 100% for ProgressBar
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(80, 140, 0, 0),
-              child: ValueListenableBuilder<Future<double>>(
-                valueListenable: weeklyProgressFuture,
-                builder: (context, future, _) {
-                  return FutureBuilder<double>(
-                    future: calculateWeeklyProgress(),
-                    builder: (context, snapshot) {
-                      final progress = snapshot.data ?? 0;
-                      return ProgressBarWeekly(
-                        progressBarStatus: progress,
-                        repository: widget.repository,
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-          ],
+            if (aspectRatio > 1.77 && aspectRatio < 1.8) {
+              // Aspect ratio close to 16:9
+              return Stack(
+                children: [
+                  SizedBox(
+                    height: constraints.maxHeight,
+                    width: constraints.maxWidth,
+                    child: Image.asset(skinData, fit: BoxFit.fill),
+                  ),
+                  Scaffold(
+                    backgroundColor: Colors.transparent,
+                    body: Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        constraints.maxWidth * 0.1,
+                        MediaQuery.of(context).padding.top +
+                            constraints.maxHeight * 0.01,
+                        0,
+                        0,
+                      ),
+                      child: Text(
+                        'Attention Deficit oH Dear',
+                        style: Theme.of(context).textTheme.headlineLarge,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      constraints.maxWidth * 0.2,
+                      MediaQuery.of(context).padding.top +
+                          constraints.maxHeight * 0.11,
+                      0,
+                      0,
+                    ),
+                    child: ValueListenableBuilder<Future<double>>(
+                      valueListenable: dailyProgressFuture,
+                      builder: (context, future, _) {
+                        return FutureBuilder<double>(
+                          future: future,
+                          builder: (context, snapshot) {
+                            final progress = snapshot.data ?? 0;
+                            return ProgressBarDaily(
+                              progressBarStatus: progress,
+                              repository: widget.repository,
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(
+                      constraints.maxWidth * 0.2,
+                      MediaQuery.of(context).padding.top +
+                          constraints.maxHeight * 0.14,
+                      0,
+                      0,
+                    ),
+                    child: ValueListenableBuilder<Future<double>>(
+                      valueListenable: weeklyProgressFuture,
+                      builder: (context, future, _) {
+                        return FutureBuilder<double>(
+                          future: calculateWeeklyProgress(),
+                          builder: (context, snapshot) {
+                            final progress = snapshot.data ?? 0;
+                            return ProgressBarWeekly(
+                              progressBarStatus: progress,
+                              repository: widget.repository,
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              );
+            } else {
+              // Aspect ratio close to 20:9
+              return Stack(
+                children: [
+                  SizedBox(
+                    height: double.infinity,
+                    width: double.infinity,
+                    child: Image.asset(skinData),
+                  ),
+                  Scaffold(
+                    backgroundColor: Colors.transparent,
+                    body: Padding(
+                      padding: const EdgeInsets.fromLTRB(48, 44, 0, 0),
+                      child: Text(
+                        'Attention Deficit oH Dear',
+                        style: Theme.of(context).textTheme.headlineLarge,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(80, 116, 0, 0),
+                    child: ValueListenableBuilder<Future<double>>(
+                      valueListenable: dailyProgressFuture,
+                      builder: (context, future, _) {
+                        return FutureBuilder<double>(
+                          future: future,
+                          builder: (context, snapshot) {
+                            final progress = snapshot.data ?? 0;
+                            return ProgressBarDaily(
+                              progressBarStatus: progress,
+                              repository: widget.repository,
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(80, 140, 0, 0),
+                    child: ValueListenableBuilder<Future<double>>(
+                      valueListenable: weeklyProgressFuture,
+                      builder: (context, future, _) {
+                        return FutureBuilder<double>(
+                          future: calculateWeeklyProgress(),
+                          builder: (context, snapshot) {
+                            final progress = snapshot.data ?? 0;
+                            return ProgressBarWeekly(
+                              progressBarStatus: progress,
+                              repository: widget.repository,
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              );
+            }
+          },
         );
       },
     );
