@@ -78,13 +78,19 @@ class FirestoreRepository implements DataBaseRepository {
         .doc(userId)
         .collection('weeklyTasks')
         .doc(taskIdCounter.toString());
+
+    // Normalize to enum name (e.g., 'mon', 'tue')
+    final String dayName = (day is Weekday)
+        ? day.name
+        : day.toString().split('.').last.toLowerCase();
+
     final Task task = Task(
       taskIdCounter.toString() + userId,
       'Weekly',
       data,
       null,
       null,
-      day.toString(),
+      dayName,
       false,
     );
     await docRef.set(task.toMap());
@@ -345,7 +351,8 @@ class FirestoreRepository implements DataBaseRepository {
 
     if (query.docs.isNotEmpty) {
       final docRef = query.docs.first.reference;
-      await docRef.update({'taskDesctiption': data, 'dayOfWeek': day.name});
+      final String dayName = day.name; // Weekday enum
+      await docRef.update({'taskDesctiption': data, 'dayOfWeek': dayName});
     } else {
       throw Exception('Task with ID $dataTaskId not found');
     }

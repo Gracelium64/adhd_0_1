@@ -33,6 +33,17 @@ class _WeeklyTaskWidgetState extends State<WeeklyTaskWidget> {
     isDone = widget.task.isDone;
   }
 
+  @override
+  void didUpdateWidget(covariant WeeklyTaskWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Sync with external changes (resets, deletions, reloads)
+    if (oldWidget.task.isDone != widget.task.isDone) {
+      setState(() {
+        isDone = widget.task.isDone;
+      });
+    }
+  }
+
   void _toggleTask() async {
     final newStatus = !widget.task.isDone;
 
@@ -43,13 +54,7 @@ class _WeeklyTaskWidgetState extends State<WeeklyTaskWidget> {
       widget.task.isDone = newStatus;
     });
 
-    weeklyProgressFuture.value = widget.repository.getWeeklyTasks().then((
-      tasks,
-    ) {
-      final total = tasks.length;
-      final completed = tasks.where((task) => task.isDone).length;
-      return total == 0 ? 0.0 : 272.0 * (completed / total);
-    });
+    await refreshWeeklyProgress(widget.repository);
   }
 
   @override
@@ -59,6 +64,18 @@ class _WeeklyTaskWidgetState extends State<WeeklyTaskWidget> {
         isDone
             ? 'assets/img/buttons/task_done.png'
             : 'assets/img/buttons/task_not_done.png';
+
+    // Normalize dayOfWeek for display: take last segment, lowercase, hide if 'any', capitalize first letter
+    final String? displayDay =
+        (() {
+          final raw = widget.task.dayOfWeek;
+          if (raw == null) return null;
+          final s = raw.toString();
+          final last = s.contains('.') ? s.split('.').last : s;
+          final lc = last.toLowerCase();
+          if (lc.isEmpty || lc == 'any') return null;
+          return lc[0].toUpperCase() + lc.substring(1);
+        })();
 
     return Row(
       children: [
@@ -145,15 +162,16 @@ class _WeeklyTaskWidgetState extends State<WeeklyTaskWidget> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      Row(
-                        spacing: 8,
-                        children: [
-                          Text(
-                            '${widget.task.dayOfWeek}',
-                            style: Theme.of(context).textTheme.labelSmall,
-                          ),
-                        ],
-                      ),
+                      if (displayDay != null)
+                        Row(
+                          spacing: 8,
+                          children: [
+                            Text(
+                              displayDay,
+                              style: Theme.of(context).textTheme.labelSmall,
+                            ),
+                          ],
+                        ),
                       SizedBox(height: 6),
                     ],
                   ),

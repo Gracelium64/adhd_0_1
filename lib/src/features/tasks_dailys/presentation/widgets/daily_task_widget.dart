@@ -4,7 +4,6 @@ import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/edit_task_widget.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class DailyTaskWidget extends StatefulWidget {
   final Task task;
@@ -34,6 +33,17 @@ class _DailyTaskWidgetState extends State<DailyTaskWidget> {
     isDone = widget.task.isDone;
   }
 
+  @override
+  void didUpdateWidget(covariant DailyTaskWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Sync with external changes (e.g., daily reset or data reload)
+    if (oldWidget.task.isDone != widget.task.isDone) {
+      setState(() {
+        isDone = widget.task.isDone;
+      });
+    }
+  }
+
   void _toggleTask() async {
     final newStatus = !widget.task.isDone;
 
@@ -44,11 +54,7 @@ class _DailyTaskWidgetState extends State<DailyTaskWidget> {
       widget.task.isDone = newStatus;
     });
 
-    dailyProgressFuture.value = widget.repository.getDailyTasks().then((tasks) {
-      final total = tasks.length;
-      final completed = tasks.where((task) => task.isDone).length;
-      return total == 0 ? 0.0 : 272.0 * (completed / total);
-    });
+    await refreshDailyProgress(widget.repository);
   }
 
   @override

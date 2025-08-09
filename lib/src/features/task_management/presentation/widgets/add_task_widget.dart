@@ -1,5 +1,6 @@
 import 'package:adhd_0_1/src/common/presentation/cancel_button.dart';
 import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
+import 'package:adhd_0_1/src/common/domain/progress_triggers.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
@@ -496,6 +497,9 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
                                           await repository.addDaily(
                                             userInput.text,
                                           );
+                                          await refreshDailyProgress(
+                                            repository,
+                                          );
                                           widget.onClose();
                                           debugPrint(
                                             'add task daily widget onClose',
@@ -506,6 +510,9 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
                                           await repository.addWeekly(
                                             userInput.text,
                                             selectedWeekday,
+                                          );
+                                          await refreshWeeklyProgress(
+                                            repository,
                                           );
                                           widget.onClose();
                                           debugPrint(

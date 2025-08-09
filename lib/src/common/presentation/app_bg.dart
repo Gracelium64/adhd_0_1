@@ -43,6 +43,13 @@ class _AppBgState extends State<AppBg> {
       final completed = tasks.where((task) => task.isDone).length;
       return total == 0 ? 0.0 : 272.0 * (completed / total);
     });
+    weeklyProgressFuture.value = widget.repository.getWeeklyTasks().then((
+      tasks,
+    ) {
+      final total = tasks.length;
+      final completed = tasks.where((task) => task.isDone).length;
+      return total == 0 ? 0.0 : 272.0 * (completed / total);
+    });
   }
 
   Future<String?> loadSkin() async {
@@ -142,7 +149,7 @@ class _AppBgState extends State<AppBg> {
                       valueListenable: weeklyProgressFuture,
                       builder: (context, future, _) {
                         return FutureBuilder<double>(
-                          future: calculateWeeklyProgress(),
+                          future: future,
                           builder: (context, snapshot) {
                             final progress = snapshot.data ?? 0;
                             return ProgressBarWeekly(
@@ -199,7 +206,7 @@ class _AppBgState extends State<AppBg> {
                       valueListenable: weeklyProgressFuture,
                       builder: (context, future, _) {
                         return FutureBuilder<double>(
-                          future: calculateWeeklyProgress(),
+                          future: future,
                           builder: (context, snapshot) {
                             final progress = snapshot.data ?? 0;
                             return ProgressBarWeekly(

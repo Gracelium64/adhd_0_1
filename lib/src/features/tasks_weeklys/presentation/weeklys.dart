@@ -29,7 +29,7 @@ class _WeeklysState extends State<Weeklys> {
             onClose: () {
               Navigator.of(context, rootNavigator: true).pop();
               setState(() {
-                myList = context.read<DataBaseRepository>().getDailyTasks();
+                myList = context.read<DataBaseRepository>().getWeeklyTasks();
               });
               debugPrint(
                 'Navigator stack closing from ${Navigator.of(context)}',
@@ -53,7 +53,7 @@ class _WeeklysState extends State<Weeklys> {
     final repository = context.read<DataBaseRepository>();
 
     myList = repository.getWeeklyTasks();
-    OverlayPortalController overlayController = OverlayPortalController();
+    // OverlayPortalController overlayController = OverlayPortalController();
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -94,7 +94,7 @@ class _WeeklysState extends State<Weeklys> {
                               onClose: () {
                                 debugPrint('weekly onClose triggered');
                                 setState(() {
-                                  myList = repository.getDailyTasks();
+                                  myList = repository.getWeeklyTasks();
                                 });
                               },
                             );

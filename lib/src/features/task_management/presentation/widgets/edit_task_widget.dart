@@ -3,6 +3,7 @@ import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
 import 'package:adhd_0_1/src/common/presentation/delete_button.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/common/domain/task.dart';
+import 'package:adhd_0_1/src/common/domain/progress_triggers.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -93,6 +94,24 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
 
   late TaskType selectedType;
 
+  Weekday? _weekdayFromString(String? raw) {
+    if (raw == null) return null;
+    final s = raw.toString();
+    final last = s.contains('.') ? s.split('.').last : s;
+    final lc = last.toLowerCase();
+    try {
+      return Weekday.values.firstWhere((w) => w.name == lc);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  String? _displayDayLabel(Weekday? day) {
+    if (day == null || day == Weekday.any) return null;
+    final label = day.name; // enum name like 'mon'
+    return label[0].toUpperCase() + label.substring(1);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -103,6 +122,9 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
       selectedDate = _parseDate(widget.task.deadlineDate);
       selectedTime = _parseTime(widget.task.deadlineTime);
     }
+    if (selectedType == TaskType.weekly) {
+      selectedWeekday = _weekdayFromString(widget.task.dayOfWeek);
+    }
   }
 
   @override
@@ -111,6 +133,17 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
 
     final isWeekly = selectedType == TaskType.weekly;
     final isDeadline = selectedType == TaskType.deadline;
+
+    final Weekday? initialWeeklyDay = _weekdayFromString(widget.task.dayOfWeek);
+    final String weeklyButtonLabel =
+        (() {
+          if (selectedWeekday != null) {
+            final l = selectedWeekday!.name;
+            return l[0].toUpperCase() + l.substring(1);
+          }
+          final d = _displayDayLabel(initialWeeklyDay);
+          return d ?? 'Select Day';
+        })();
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -259,12 +292,7 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
-                                          selectedWeekday != null
-                                              ? selectedWeekday!.label[0]
-                                                      .toUpperCase() +
-                                                  selectedWeekday!.label
-                                                      .substring(1)
-                                              : 'Select Day',
+                                          weeklyButtonLabel,
                                           style: TextStyle(
                                             color:
                                                 isWeekly
@@ -525,6 +553,7 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
                                   await repository.deleteDaily(
                                     widget.task.taskId,
                                   );
+                                  await refreshDailyProgress(repository);
                                   widget.onClose();
                                   debugPrint(
                                     'delete daily task widget onClose',
@@ -534,6 +563,7 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
                                   await repository.deleteWeekly(
                                     widget.task.taskId,
                                   );
+                                  await refreshWeeklyProgress(repository);
                                   widget.onClose();
                                   debugPrint(
                                     'delete daily task widget onClose',
@@ -565,83 +595,93 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
                               },
                             ),
                             ConfirmButton(
-                              onPressed:
-                                  isButtonEnabled
-                                      ? () {}
-                                      : () async {
-                                        if (selectedType == TaskType.daily) {
-                                          await repository.editDaily(
-                                            widget.task.taskId,
-                                            userInput.text,
-                                          );
-                                          widget.onClose();
-                                          debugPrint(
-                                            'edit task daily widget onClose',
-                                          );
-                                        } else if (selectedType ==
-                                                TaskType.weekly &&
-                                            selectedWeekday != null) {
-                                          await repository.editWeekly(
-                                            widget.task.taskId,
-                                            userInput.text,
-                                            selectedWeekday!,
-                                          );
-                                          widget.onClose();
-                                          debugPrint(
-                                            'edit task weekly widget onClose',
-                                          );
-                                        } else if (selectedType ==
-                                                TaskType.deadline &&
-                                            selectedDate != null &&
-                                            selectedTime != null) {
-                                          final dateStr = formatDate(
-                                            selectedDate,
-                                          );
-                                          final timeStr = formatTime(
-                                            selectedTime,
-                                          );
+                              onPressed: () async {
+                                // Determine changes by type
+                                final originalName =
+                                    widget.task.taskDesctiption;
+                                final newName = userInput.text;
+                                bool changed = false;
 
-                                          await repository.editDeadline(
-                                            widget.task.taskId,
-                                            userInput.text,
-                                            dateStr,
-                                            timeStr,
-                                          );
+                                if (selectedType == TaskType.daily) {
+                                  if (newName != originalName) {
+                                    await repository.editDaily(
+                                      widget.task.taskId,
+                                      newName,
+                                    );
+                                    await refreshDailyProgress(repository);
+                                    changed = true;
+                                  }
+                                } else if (selectedType == TaskType.weekly) {
+                                  final originalDay = _weekdayFromString(
+                                    widget.task.dayOfWeek,
+                                  );
+                                  if (newName != originalName ||
+                                      selectedWeekday != null &&
+                                          selectedWeekday != originalDay) {
+                                    await repository.editWeekly(
+                                      widget.task.taskId,
+                                      newName,
+                                      selectedWeekday ?? originalDay!,
+                                    );
+                                    await refreshWeeklyProgress(repository);
+                                    changed = true;
+                                  }
+                                } else if (selectedType == TaskType.deadline) {
+                                  final originalDate = _parseDate(
+                                    widget.task.deadlineDate,
+                                  );
+                                  final originalTime = _parseTime(
+                                    widget.task.deadlineTime,
+                                  );
+                                  final dateChanged =
+                                      selectedDate != null &&
+                                      selectedDate != originalDate;
+                                  final timeChanged =
+                                      selectedTime != null &&
+                                      selectedTime != originalTime;
 
-                                          // 🔥 Update the local task object so the parent sees the change
-                                          widget.task.taskDesctiption =
-                                              userInput.text;
-                                          widget.task.deadlineDate = dateStr;
-                                          widget.task.deadlineTime = timeStr;
+                                  if (newName != originalName ||
+                                      dateChanged ||
+                                      timeChanged) {
+                                    final dateStr = formatDate(
+                                      selectedDate ?? originalDate,
+                                    );
+                                    final timeStr = formatTime(
+                                      selectedTime ?? originalTime,
+                                    );
 
-                                          widget.onClose();
-                                          debugPrint(
-                                            'edit task deadline widget onClose',
-                                          );
-                                        } else if (selectedType ==
-                                            TaskType.quest) {
-                                          await repository.editQuest(
-                                            widget.task.taskId,
-                                            userInput.text,
-                                          );
-                                          widget.onClose();
-                                          debugPrint('edit task quest onClose');
-                                        } else {
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                'Please complete all required fields',
-                                                style:
-                                                    Theme.of(context)
-                                                        .snackBarTheme
-                                                        .contentTextStyle,
-                                              ),
-                                            ),
-                                          );
-                                        }
-                                      },
+                                    await repository.editDeadline(
+                                      widget.task.taskId,
+                                      newName,
+                                      dateStr,
+                                      timeStr,
+                                    );
+
+                                    widget.task.taskDesctiption = newName;
+                                    widget.task.deadlineDate = dateStr;
+                                    widget.task.deadlineTime = timeStr;
+
+                                    changed = true;
+                                  }
+                                } else if (selectedType == TaskType.quest) {
+                                  if (newName != originalName) {
+                                    await repository.editQuest(
+                                      widget.task.taskId,
+                                      newName,
+                                    );
+                                    changed = true;
+                                  }
+                                }
+
+                                // Close regardless; only saved if changed
+                                widget.onClose();
+
+                                if (changed) {
+                                  debugPrint('Edit saved and dialog closed');
+                                } else {
+                                  debugPrint('No changes; dialog closed');
+                                }
+                              },
                             ),
                           ],
                         ),

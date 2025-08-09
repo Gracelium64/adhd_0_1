@@ -110,12 +110,12 @@ Future<void> main() async {
   //  // // SPRINT 2 // // ---------------------- OVERDUE ---------------------- // //
   // // Visual // //
   //TODO: good morning notification with tip of the day
-  // // TASK MANAGEMENT // //
-  //TODO: BUG - Daily reset - daily tasks shown as isDone=false only after navigating to another screen, progress bar updates and resets only after completing a task
-  //TODO: BUG - weeklyTaskWidget - if day is "any" don't show it
-  //TODO: BUG - confirm button in edit_task_widget.dart only works when taskDescription is changed
   // // SECURITY // //
   //TODO: SECURITY RULES FIRESTORE
+  // // // // // // //
+  //TODO: settings screen
+  //TODO: overflow when keyboard comes up
+  //TODO: overflow android TaskWidgets
 
   //
   // v.0.1.2 //
@@ -128,6 +128,7 @@ Future<void> main() async {
 
   //  // // SPRINT 3 // // ---------------------- OVERDUE ---------------------- // //
   // Functionality // //
+  //TODO: responsive design - fine tune 16:9 aspect ratio elemnts placement in AppBg
   //TODO: backup overlays
   //TODO: weather API
   //TODO: good morning overlay with tip of day + weather + tasks for the day

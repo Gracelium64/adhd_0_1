@@ -50,6 +50,13 @@ class SharedPreferencesRepository implements DataBaseRepository {
     if (userId == null) throw Exception('User ID not found');
 
     final list = await _loadTasks(PrefsKeys.weeklyKey);
+
+    // Normalize to enum name (e.g., 'mon', 'tue')
+    final String dayName =
+        (day is Weekday)
+            ? day.name
+            : day.toString().split('.').last.toLowerCase();
+
     list.add(
       Task(
         (taskIdCounter++).toString() + userId,
@@ -57,7 +64,7 @@ class SharedPreferencesRepository implements DataBaseRepository {
         data,
         null,
         null,
-        day.toString(),
+        dayName,
         false,
       ),
     );
@@ -182,7 +189,7 @@ class SharedPreferencesRepository implements DataBaseRepository {
   Future<void> editWeekly(String taskId, String data, day) async =>
       _edit(PrefsKeys.weeklyKey, taskId, (t) {
         t.taskDesctiption = data;
-        t.dayOfWeek = day.label;
+        t.dayOfWeek = day.name; // normalize to enum name
       });
 
   @override
@@ -365,4 +372,4 @@ class SharedPreferencesRepository implements DataBaseRepository {
 //       ████        ██  ██ ██▒ ███ ██▓ ██ ██      ██░
 //         ░▓███████   ▒ ██▒    ███  █ ███    █████▒
 //                 █████     ████░███     █████
-//                 ░  ▒█████▓      
+//                 ░  ▒█████▓

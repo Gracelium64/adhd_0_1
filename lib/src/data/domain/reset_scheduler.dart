@@ -1,6 +1,7 @@
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/domain/prize_manager.dart';
 import 'package:adhd_0_1/src/common/domain/prizes.dart';
+import 'package:adhd_0_1/src/common/domain/progress_triggers.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -21,10 +22,14 @@ class ResetScheduler {
     final now = DateTime.now();
 
     // === DAILY RESET ===
-    final lastDailyReset = DateTime.tryParse(prefs.getString('lastDailyReset') ?? '');
+    final lastDailyReset = DateTime.tryParse(
+      prefs.getString('lastDailyReset') ?? '',
+    );
     if (lastDailyReset == null || !_isSameDay(lastDailyReset, now)) {
       debugPrint('🔄 Performing daily reset...');
       await _resetDailyTasks();
+      // Refresh progress after reset
+      await refreshDailyProgress(repository);
       await prizeManager.resetDailyCompletionCounters();
       await prefs.setString('lastDailyReset', now.toIso8601String());
     }
@@ -39,11 +44,14 @@ class ResetScheduler {
       final nowWeekday = now.weekday;
       final targetWeekday = _weekdayToInt(startOfWeek);
 
-      final isSameWeek = lastWeeklyReset != null &&
+      final isSameWeek =
+          lastWeeklyReset != null &&
           _isSameIsoWeek(lastWeeklyReset, now, startOfWeek);
 
       final shouldReset = nowWeekday == targetWeekday && !isSameWeek;
-      final isFirstWeek = lastWeeklyResetRaw == null && !(prefs.getBool('firstWeekRewardGiven') ?? false);
+      final isFirstWeek =
+          lastWeeklyResetRaw == null &&
+          !(prefs.getBool('firstWeekRewardGiven') ?? false);
 
       if (shouldReset || isFirstWeek) {
         debugPrint('🔁 Performing weekly reset...');
@@ -52,6 +60,8 @@ class ResetScheduler {
         awardedPrizesHolder.addAll(prizes);
 
         await _resetWeeklyTasks();
+        // Refresh progress after reset
+        await refreshWeeklyProgress(repository);
         await prizeManager.resetWeeklyCounters();
         await prefs.setString('lastWeeklyReset', now.toIso8601String());
 
@@ -88,8 +98,16 @@ class ResetScheduler {
     final int lastOffset = (lastReset.weekday - _weekdayToInt(startOfWeek)) % 7;
     final int nowOffset = (now.weekday - _weekdayToInt(startOfWeek)) % 7;
 
-    final startOfLastWeek = DateTime(lastReset.year, lastReset.month, lastReset.day - lastOffset);
-    final startOfCurrentWeek = DateTime(now.year, now.month, now.day - nowOffset);
+    final startOfLastWeek = DateTime(
+      lastReset.year,
+      lastReset.month,
+      lastReset.day - lastOffset,
+    );
+    final startOfCurrentWeek = DateTime(
+      now.year,
+      now.month,
+      now.day - nowOffset,
+    );
 
     return startOfLastWeek == startOfCurrentWeek;
   }

@@ -18,7 +18,7 @@ class FridgeLock extends StatefulWidget {
 }
 
 class _FridgeLockState extends State<FridgeLock> {
- void _showAddTaskOverlay() {
+  void _showAddTaskOverlay() {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -45,7 +45,6 @@ class _FridgeLockState extends State<FridgeLock> {
   }
 
   late Future<List<Task>> myList;
-
 
   final storage = FlutterSecureStorage();
 
@@ -76,15 +75,12 @@ class _FridgeLockState extends State<FridgeLock> {
                       children: [
                         SizedBox(height: 150),
                         Text(
-                          'Not available',
+                          '[Instance of v.0.1.4 Update]',
                           style: Theme.of(context).textTheme.displayMedium,
                         ),
-                        Text(
-                          'Planned for next update',
-                          style: Theme.of(context).textTheme.displayMedium,
-                        ),
+
                         SizedBox(height: 50),
-                        Text('[v.0.1 SPRINT 1.1]'),
+                        Text('[v.0.1.12 SPRINT 2 Debug Tools]'),
                         SizedBox(height: 4),
                         ElevatedButton(
                           onPressed: () async {
@@ -124,10 +120,7 @@ class _FridgeLockState extends State<FridgeLock> {
                 ),
               ),
             ),
-            GestureDetector(
-                  onTap: _showAddTaskOverlay,
-                  child: AddTaskButton(),
-                ),
+            GestureDetector(onTap: _showAddTaskOverlay, child: AddTaskButton()),
             SizedBox(height: 40),
           ],
         ),

@@ -70,11 +70,11 @@ class _TutorialState extends State<Tutorial> {
                   imgUrl: 'assets/img/sidebar/star.png',
                 ),
                 TutorialItem(
-                  title: 'Here you block Apps',
+                  title: '[Instance of v.0.1.4 Update]',
                   imgUrl: 'assets/img/sidebar/fridge.png',
                 ),
                 TutorialItem(
-                  title: 'Fidget screen! Good luck with that...',
+                  title: 'Fidget screen !  Good luck with that...',
                   imgUrl: 'assets/img/sidebar/fidget.png',
                 ),
                 TutorialItem(
