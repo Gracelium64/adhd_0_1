@@ -112,8 +112,6 @@ Future<void> main() async {
   //TODO: good morning notification with tip of the day
   // // SECURITY // //
   //TODO: SECURITY RULES FIRESTORE
-  // // // // // // //
-  //TODO: overflow android TaskWidgets
 
   //
   // v.0.1.2 //

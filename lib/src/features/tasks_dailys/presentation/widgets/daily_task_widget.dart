@@ -93,54 +93,59 @@ class _DailyTaskWidgetState extends State<DailyTaskWidget> {
           ),
         ),
         SizedBox(width: 1),
-        GestureDetector(
-          onTap: () {
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder:
-                  (context) => Dialog(
-                    backgroundColor: Colors.transparent,
-                    insetPadding: EdgeInsets.all(16),
-                    child: EditTaskWidget(
-                      task: widget.task,
-                      taskType: TaskType.daily,
-                      onClose: () {
-                        Navigator.of(context, rootNavigator: true).pop();
-                        widget.onClose();
-                      },
+        Expanded(
+          child: GestureDetector(
+            onTap: () {
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder:
+                    (context) => Dialog(
+                      backgroundColor: Colors.transparent,
+                      insetPadding: EdgeInsets.all(16),
+                      child: EditTaskWidget(
+                        task: widget.task,
+                        taskType: TaskType.daily,
+                        onClose: () {
+                          Navigator.of(context, rootNavigator: true).pop();
+                          widget.onClose();
+                        },
+                      ),
                     ),
+              );
+            },
+            child: Container(
+              constraints: const BoxConstraints(minHeight: 60),
+              height: 60,
+              decoration: ShapeDecoration(
+                shadows: [
+                  BoxShadow(color: Palette.boxShadow1),
+                  BoxShadow(
+                    color: Palette.monarchPurple2,
+                    blurRadius: 11.8,
+                    spreadRadius: -0.1,
+                    blurStyle: BlurStyle.inner,
                   ),
-            );
-          },
-          child: Container(
-            width: 257,
-            height: 60,
-            decoration: ShapeDecoration(
-              shadows: [
-                BoxShadow(color: Palette.boxShadow1),
-                BoxShadow(
-                  color: Palette.monarchPurple2,
-                  blurRadius: 11.8,
-                  spreadRadius: -0.1,
-                  blurStyle: BlurStyle.inner,
-                ),
-              ],
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(25),
-                  bottomRight: Radius.circular(25),
+                ],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(25),
+                    bottomRight: Radius.circular(25),
+                  ),
                 ),
               ),
-            ),
-            child: Row(
-              children: [
-                SizedBox(width: 8),
-                Text(
-                  widget.task.taskDesctiption,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ],
+              child: Row(
+                children: [
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      widget.task.taskDesctiption,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
