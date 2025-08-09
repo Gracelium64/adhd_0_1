@@ -15,7 +15,6 @@ class AppBg extends StatefulWidget {
 }
 
 class _AppBgState extends State<AppBg> {
-  late Future<String?> mySkin;
   Future<double> calculateDailyProgress() async {
     final allTasks = await widget.repository.getDailyTasks();
     final total = allTasks.length;
@@ -37,7 +36,7 @@ class _AppBgState extends State<AppBg> {
   @override
   void initState() {
     super.initState();
-    mySkin = loadSkin();
+  _seedSkin();
     dailyProgressFuture.value = widget.repository.getDailyTasks().then((tasks) {
       final total = tasks.length;
       final completed = tasks.where((task) => task.isDone).length;
@@ -51,39 +50,20 @@ class _AppBgState extends State<AppBg> {
       return total == 0 ? 0.0 : 272.0 * (completed / total);
     });
   }
-
-  Future<String?> loadSkin() async {
+  Future<void> _seedSkin() async {
     try {
       final settings = await widget.repository.getSettings();
-      final skin = settings?.appSkinColor;
-      return appBgSkin(skin);
+      updateAppBgAsset(settings?.appSkinColor);
     } catch (e) {
-      return appBgSkin(null);
+      updateAppBgAsset(null);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<String?>(
-      future: mySkin,
-      builder: (context, snapshot) {
-        final skinData =
-            snapshot.data ?? 'assets/img/app_bg/png/app_bg_white.png';
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Scaffold(
-            body: Center(
-              child: SizedBox(
-                height: double.infinity,
-                width: double.infinity,
-                child: Image.asset(
-                  'assets/img/app_bg/png/app_bg_load.png',
-                  fit: BoxFit.fill,
-                ),
-              ),
-            ),
-          );
-        }
-
+    return ValueListenableBuilder<String>(
+      valueListenable: appBgAsset,
+      builder: (context, skinData, _) {
         return LayoutBuilder(
           builder: (context, constraints) {
             final aspectRatio = constraints.maxHeight / constraints.maxWidth;

@@ -1,15 +1,23 @@
 import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
-import 'package:adhd_0_1/src/data/firebase_auth_repository.dart';
 import 'package:adhd_0_1/src/features/settings/presentation/widgets/about.dart';
 import 'package:adhd_0_1/src/features/settings/presentation/widgets/view_user_data.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/add_task_widget.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
+import 'package:adhd_0_1/src/common/domain/prizes.dart';
+import 'package:adhd_0_1/src/data/domain/reset_scheduler.dart';
+import 'package:adhd_0_1/src/features/weekly_summery/presentation/widgets/weekly_summery_overlay.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:simple_gradient_text/simple_gradient_text.dart';
+import 'package:adhd_0_1/src/common/domain/skin.dart';
+
+class _SkinOpt {
+  final bool? value;
+  final String label;
+  const _SkinOpt(this.value, this.label);
+}
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
@@ -19,6 +27,258 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
+  // Saved settings bits we care about here
+  String? _location;
+  Weekday? _startOfWeek;
+  TimeOfDay? _startOfDay;
+  bool? _appSkinColor;
+  final GlobalKey _locationBtnKey = GlobalKey();
+  final GlobalKey _weekBtnKey = GlobalKey();
+  final GlobalKey _dayBtnKey = GlobalKey();
+  final GlobalKey _skinBtnKey = GlobalKey();
+  final OverlayPortalController overlayControllerSummery =
+      OverlayPortalController();
+  final List<Prizes> weeklyPrizes = [];
+
+  @override
+  void initState() {
+    super.initState();
+    // Load saved settings to display current location
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final repo = context.read<DataBaseRepository>();
+      final s = await repo.getSettings();
+      setState(() {
+        _appSkinColor = s?.appSkinColor;
+        _location = s?.location ?? 'Berlin';
+        _startOfWeek = s?.startOfWeek ?? Weekday.mon;
+        _startOfDay = s?.startOfDay ?? const TimeOfDay(hour: 7, minute: 15);
+      });
+    });
+  }
+
+  // Map skin setting to asset path
+  String _skinAsset(bool? skin) {
+    if (skin == true) return 'assets/img/buttons/skin_true.png';
+    if (skin == false) return 'assets/img/buttons/skin_false.png';
+    return 'assets/img/buttons/skin_null.png';
+  }
+
+  Future<void> _pickSkin() async {
+    final repo = context.read<DataBaseRepository>();
+    final current = await repo.getSettings();
+
+    // Anchor to the image container
+    final RenderBox button =
+        _skinBtnKey.currentContext!.findRenderObject() as RenderBox;
+    final RenderBox overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox;
+    final position = RelativeRect.fromRect(
+      button.localToGlobal(Offset.zero, ancestor: overlay) & button.size,
+      Offset.zero & overlay.size,
+    );
+
+    final options = const [
+      _SkinOpt(true, 'Pink'),
+      _SkinOpt(null, 'White'),
+      _SkinOpt(false, 'Blue'),
+    ];
+
+    final selected = await showMenu<_SkinOpt>(
+      context: context,
+      position: position,
+      items:
+          options
+              .map(
+                (o) => PopupMenuItem<_SkinOpt>(
+                  value: o,
+                  child: Text(
+                    o.label,
+                    style: TextStyle(color: Palette.basicBitchWhite),
+                  ),
+                ),
+              )
+              .toList(),
+      color: Palette.monarchPurple2,
+    );
+
+    if (selected != null) {
+  if (!mounted) return;
+      final updated = await repo.setSettings(
+        selected.value, // appSkinColor
+        current?.language ?? 'English',
+        current?.location ?? 'Berlin',
+        current?.startOfDay ?? const TimeOfDay(hour: 7, minute: 15),
+        current?.startOfWeek ?? Weekday.mon,
+      );
+  if (!mounted) return;
+      // Update local UI and notify background to refresh instantly
+      setState(() => _appSkinColor = updated.appSkinColor);
+      updateAppBgAsset(updated.appSkinColor);
+    }
+  }
+
+  Future<void> _pickLocation() async {
+    final repo = context.read<DataBaseRepository>();
+    final current = await repo.getSettings();
+
+    // Compute popup position anchored to the button
+    final RenderBox button =
+        _locationBtnKey.currentContext!.findRenderObject() as RenderBox;
+    final RenderBox overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox;
+    final position = RelativeRect.fromRect(
+      button.localToGlobal(Offset.zero, ancestor: overlay) & button.size,
+      Offset.zero & overlay.size,
+    );
+
+    final selected = await showMenu<WorldCapital>(
+      context: context,
+      position: position,
+      items:
+          WorldCapital.values.map((wc) {
+            return PopupMenuItem<WorldCapital>(
+              value: wc,
+              child: Text(
+                wc.label,
+                style: TextStyle(color: Palette.basicBitchWhite),
+              ),
+            );
+          }).toList(),
+      color: Palette.monarchPurple2,
+    );
+
+    if (selected != null) {
+  if (!mounted) return;
+      // Persist keeping other fields intact
+      final updated = await repo.setSettings(
+        current?.appSkinColor,
+        current?.language ?? 'English',
+        selected.label,
+        current?.startOfDay ?? const TimeOfDay(hour: 7, minute: 15),
+        current?.startOfWeek ?? Weekday.mon,
+      );
+  if (!mounted) return;
+      setState(() => _location = updated.location);
+    }
+  }
+
+  String _formatTime(TimeOfDay t) {
+    final h = t.hour.toString().padLeft(2, '0');
+    final m = t.minute.toString().padLeft(2, '0');
+    return '$h:$m';
+  }
+
+  Future<void> _pickStartOfWeek() async {
+    final repo = context.read<DataBaseRepository>();
+    final current = await repo.getSettings();
+
+    final RenderBox button =
+        _weekBtnKey.currentContext!.findRenderObject() as RenderBox;
+    final RenderBox overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox;
+    final position = RelativeRect.fromRect(
+      button.localToGlobal(Offset.zero, ancestor: overlay) & button.size,
+      Offset.zero & overlay.size,
+    );
+
+    final selected = await showMenu<Weekday>(
+      context: context,
+      position: position,
+      items:
+          Weekday.values.map((d) {
+            return PopupMenuItem<Weekday>(
+              value: d,
+              child: Text(
+                d.label,
+                style: TextStyle(color: Palette.basicBitchWhite),
+              ),
+            );
+          }).toList(),
+      color: Palette.monarchPurple2,
+    );
+
+    if (selected != null) {
+  if (!mounted) return;
+      final updated = await repo.setSettings(
+        current?.appSkinColor,
+        current?.language ?? 'English',
+        current?.location ?? 'Berlin',
+        current?.startOfDay ?? const TimeOfDay(hour: 7, minute: 15),
+        selected,
+      );
+  if (!mounted) return;
+      setState(() => _startOfWeek = updated.startOfWeek);
+      await _confirmAndApplyResets();
+    }
+  }
+
+  Future<void> _pickStartOfDay() async {
+    final repo = context.read<DataBaseRepository>();
+    final current = await repo.getSettings();
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _startOfDay ?? (current?.startOfDay ?? TimeOfDay.now()),
+    );
+    if (picked != null) {
+  if (!mounted) return;
+      final updated = await repo.setSettings(
+        current?.appSkinColor,
+        current?.language ?? 'English',
+        current?.location ?? 'Berlin',
+        picked,
+        current?.startOfWeek ?? Weekday.mon,
+      );
+  if (!mounted) return;
+      setState(() => _startOfDay = updated.startOfDay);
+      await _confirmAndApplyResets();
+    }
+  }
+
+  Future<void> _confirmAndApplyResets() async {
+    final proceed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (context) => AlertDialog(
+            backgroundColor: Palette.monarchPurple2,
+            title: Text(
+              'Apply schedule changes now?',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            content: Text(
+              'This may immediately reset today\'s or this week\'s tasks and recalculate prizes based on your new schedule.',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text(
+                  'Not now',
+                  style: TextStyle(color: Palette.basicBitchWhite),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text(
+                  'Apply now',
+                  style: TextStyle(color: Palette.lightTeal),
+                ),
+              ),
+            ],
+          ),
+    );
+
+    if (proceed == true) {
+      final repo = context.read<DataBaseRepository>();
+      final resetScheduler = ResetScheduler(
+        repo,
+        controller: overlayControllerSummery,
+        awardedPrizesHolder: weeklyPrizes,
+      );
+      await resetScheduler.performResetsIfNeeded();
+    }
+  }
+
   void _showAddTaskOverlay() {
     showDialog(
       context: context,
@@ -49,8 +309,8 @@ class _SettingsState extends State<Settings> {
 
   @override
   Widget build(BuildContext context) {
-    final repository = context.read<DataBaseRepository>();
-    final auth = context.read<FirebaseAuthRepository>();
+    // final repository = context.read<DataBaseRepository>();
+    // final auth = context.read<FirebaseAuthRepository>();
 
     OverlayPortalController overlayControllerUserData =
         OverlayPortalController();
@@ -76,6 +336,14 @@ class _SettingsState extends State<Settings> {
                       child: Column(
                         spacing: 24,
                         children: [
+                          OverlayPortal(
+                            controller: overlayControllerSummery,
+                            overlayChildBuilder:
+                                (_) => WeeklySummaryOverlay(
+                                  prizes: weeklyPrizes,
+                                  controller: overlayControllerSummery,
+                                ),
+                          ),
                           SizedBox(height: 4),
                           Row(
                             children: [
@@ -84,7 +352,13 @@ class _SettingsState extends State<Settings> {
                                 style: Theme.of(context).textTheme.bodyMedium,
                               ),
                               Spacer(),
-                              Image.asset('assets/img/buttons/skin_true.png'),
+                              GestureDetector(
+                                onTap: _pickSkin,
+                                child: Container(
+                                  key: _skinBtnKey,
+                                  child: Image.asset(_skinAsset(_appSkinColor)),
+                                ),
+                              ),
                             ],
                           ),
                           Row(
@@ -95,6 +369,7 @@ class _SettingsState extends State<Settings> {
                               ),
                               Spacer(),
                               TextButton(
+                                key: _weekBtnKey,
                                 style: TextButton.styleFrom(
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.all(
@@ -106,15 +381,14 @@ class _SettingsState extends State<Settings> {
                                     ),
                                   ),
                                 ),
-                                onPressed: () {},
+                                onPressed: _pickStartOfWeek,
                                 child: Text(
-                                  'DAY',
+                                  _startOfWeek?.label ?? 'DAY',
                                   style: TextStyle(
                                     color: Palette.basicBitchWhite,
                                   ),
                                 ),
                               ),
-                              ////// TODO: replace textbutton with DropdownMenu
                             ],
                           ),
                           Row(
@@ -125,6 +399,7 @@ class _SettingsState extends State<Settings> {
                               ),
                               Spacer(),
                               TextButton(
+                                key: _dayBtnKey,
                                 style: TextButton.styleFrom(
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.all(
@@ -136,15 +411,16 @@ class _SettingsState extends State<Settings> {
                                     ),
                                   ),
                                 ),
-                                onPressed: () {},
+                                onPressed: _pickStartOfDay,
                                 child: Text(
-                                  'HH:MM',
+                                  _startOfDay != null
+                                      ? _formatTime(_startOfDay!)
+                                      : 'HH:MM',
                                   style: TextStyle(
                                     color: Palette.basicBitchWhite,
                                   ),
                                 ),
                               ),
-                              ////// TODO: replace textbutton with TimeInput
                             ],
                           ),
                           Row(
@@ -155,6 +431,7 @@ class _SettingsState extends State<Settings> {
                               ),
                               Spacer(),
                               TextButton(
+                                key: _locationBtnKey,
                                 style: TextButton.styleFrom(
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.all(
@@ -166,15 +443,14 @@ class _SettingsState extends State<Settings> {
                                     ),
                                   ),
                                 ),
-                                onPressed: () {},
+                                onPressed: _pickLocation,
                                 child: Text(
-                                  'Berlin',
+                                  _location ?? 'Berlin',
                                   style: TextStyle(
                                     color: Palette.basicBitchWhite,
                                   ),
                                 ),
                               ),
-                              ////// TODO: replace textbutton with DropdownMenu
                             ],
                           ),
                           // Row(

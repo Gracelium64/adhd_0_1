@@ -54,10 +54,19 @@ class _OnboardingFourthLocationState extends State<OnboardingFourthLocation> {
 
                     Padding(
                       padding: const EdgeInsets.fromLTRB(42, 0, 42, 0),
-                      child: Text(
-                        'I need it only for your daily weather report, I promise :)',
-                        style: Theme.of(context).textTheme.titleSmall,
-                        textAlign: TextAlign.center,
+                      child: Column(
+                        children: [
+                          Text(
+                            'I need it only for your daily weather report, I promise :)',
+                            style: Theme.of(context).textTheme.titleSmall,
+                            textAlign: TextAlign.center,
+                          ),
+                          Text(
+                            '[Testing version, limited choices available]',
+                            style: Theme.of(context).textTheme.titleSmall,
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
                     ),
                     SizedBox(height: 12),
