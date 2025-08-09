@@ -102,7 +102,7 @@ class _SettingsState extends State<Settings> {
     );
 
     if (selected != null) {
-  if (!mounted) return;
+      if (!mounted) return;
       final updated = await repo.setSettings(
         selected.value, // appSkinColor
         current?.language ?? 'English',
@@ -110,7 +110,7 @@ class _SettingsState extends State<Settings> {
         current?.startOfDay ?? const TimeOfDay(hour: 7, minute: 15),
         current?.startOfWeek ?? Weekday.mon,
       );
-  if (!mounted) return;
+      if (!mounted) return;
       // Update local UI and notify background to refresh instantly
       setState(() => _appSkinColor = updated.appSkinColor);
       updateAppBgAsset(updated.appSkinColor);
@@ -148,7 +148,7 @@ class _SettingsState extends State<Settings> {
     );
 
     if (selected != null) {
-  if (!mounted) return;
+      if (!mounted) return;
       // Persist keeping other fields intact
       final updated = await repo.setSettings(
         current?.appSkinColor,
@@ -157,7 +157,7 @@ class _SettingsState extends State<Settings> {
         current?.startOfDay ?? const TimeOfDay(hour: 7, minute: 15),
         current?.startOfWeek ?? Weekday.mon,
       );
-  if (!mounted) return;
+      if (!mounted) return;
       setState(() => _location = updated.location);
     }
   }
@@ -198,7 +198,7 @@ class _SettingsState extends State<Settings> {
     );
 
     if (selected != null) {
-  if (!mounted) return;
+      if (!mounted) return;
       final updated = await repo.setSettings(
         current?.appSkinColor,
         current?.language ?? 'English',
@@ -206,7 +206,7 @@ class _SettingsState extends State<Settings> {
         current?.startOfDay ?? const TimeOfDay(hour: 7, minute: 15),
         selected,
       );
-  if (!mounted) return;
+      if (!mounted) return;
       setState(() => _startOfWeek = updated.startOfWeek);
       await _confirmAndApplyResets();
     }
@@ -220,7 +220,7 @@ class _SettingsState extends State<Settings> {
       initialTime: _startOfDay ?? (current?.startOfDay ?? TimeOfDay.now()),
     );
     if (picked != null) {
-  if (!mounted) return;
+      if (!mounted) return;
       final updated = await repo.setSettings(
         current?.appSkinColor,
         current?.language ?? 'English',
@@ -228,7 +228,7 @@ class _SettingsState extends State<Settings> {
         picked,
         current?.startOfWeek ?? Weekday.mon,
       );
-  if (!mounted) return;
+      if (!mounted) return;
       setState(() => _startOfDay = updated.startOfDay);
       await _confirmAndApplyResets();
     }

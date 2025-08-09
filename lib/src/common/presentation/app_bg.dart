@@ -36,7 +36,7 @@ class _AppBgState extends State<AppBg> {
   @override
   void initState() {
     super.initState();
-  _seedSkin();
+    _seedSkin();
     dailyProgressFuture.value = widget.repository.getDailyTasks().then((tasks) {
       final total = tasks.length;
       final completed = tasks.where((task) => task.isDone).length;
@@ -50,6 +50,7 @@ class _AppBgState extends State<AppBg> {
       return total == 0 ? 0.0 : 272.0 * (completed / total);
     });
   }
+
   Future<void> _seedSkin() async {
     try {
       final settings = await widget.repository.getSettings();

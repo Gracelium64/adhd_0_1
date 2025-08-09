@@ -76,11 +76,16 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
     final isWeekly = selectedType == TaskType.weekly;
     final isDeadline = selectedType == TaskType.deadline;
 
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: Padding(
-        padding: const EdgeInsets.only(left: 25),
-        child: Center(
+      resizeToAvoidBottomInset: true,
+      body: AnimatedPadding(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        padding: EdgeInsets.only(left: 25, bottom: bottomInset),
+        child: SingleChildScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [

@@ -20,8 +20,9 @@ String skinAssetFromBool(bool? skin) {
 }
 
 // Reactive notifier so the background can update instantly when skin changes.
-final ValueNotifier<String> appBgAsset =
-    ValueNotifier<String>(skinAssetFromBool(null));
+final ValueNotifier<String> appBgAsset = ValueNotifier<String>(
+  skinAssetFromBool(null),
+);
 
 void updateAppBgAsset(bool? skin) {
   appBgAsset.value = skinAssetFromBool(skin);

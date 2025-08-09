@@ -113,8 +113,6 @@ Future<void> main() async {
   // // SECURITY // //
   //TODO: SECURITY RULES FIRESTORE
   // // // // // // //
-  //TODO: settings screen
-  //TODO: overflow when keyboard comes up
   //TODO: overflow android TaskWidgets
 
   //

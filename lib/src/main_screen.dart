@@ -87,6 +87,7 @@ class _MainScreenState extends State<MainScreen> {
               ),
         ),
         Scaffold(
+          resizeToAvoidBottomInset: false,
           backgroundColor: Colors.transparent,
           body: SafeArea(
             child: Row(
@@ -184,10 +185,15 @@ class _MainScreenState extends State<MainScreen> {
                 ),
 
                 Expanded(
-                  child: SizedBox(
-                    height: screenSize.height / 1.12,
-                    width: screenSize.width,
-                    child: Center(child: pages[_pageIndex]),
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom,
+                    ),
+                    child: SizedBox(
+                      height: screenSize.height / 1.12,
+                      width: screenSize.width,
+                      child: Center(child: pages[_pageIndex]),
+                    ),
                   ),
                 ),
               ],

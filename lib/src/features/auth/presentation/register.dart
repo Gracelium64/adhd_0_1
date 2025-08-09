@@ -45,130 +45,147 @@ class _RegisterState extends State<Register> {
   Widget build(BuildContext context) {
     OverlayPortalController overlayController = OverlayPortalController();
 
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: Center(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 2.5, sigmaY: 2.5),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Palette.peasantGrey1Opacity,
-              borderRadius: BorderRadius.all(Radius.circular(25)),
-            ),
-            height: 578,
-            width: 300,
-            child: Column(
-              children: [
-                SizedBox(height: 28),
-                Image.asset('assets/img/app_bg/png/cold_start_icon.png'),
-                Text(
-                  'Hello Adventurer!',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(46, 36, 46, 0),
-                  child: Text(
-                    'Before we begin, could you tell me your name?',
-                    style: Theme.of(context).textTheme.bodyMedium,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: Form(
-                    key: formKey,
-                    child: TextFormField(
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                      validator: userNameValidator,
-                      controller: userName,
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Palette.basicBitchWhite,
-                        hintText: 'Enter name here to start',
-                        contentPadding: EdgeInsets.only(bottom: 14),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide.none,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Palette.basicBitchBlack,
-                            width: 1,
+      resizeToAvoidBottomInset: true,
+      body: AnimatedPadding(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        padding: EdgeInsets.only(bottom: bottomInset),
+        child: Center(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 2.5, sigmaY: 2.5),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Palette.peasantGrey1Opacity,
+                borderRadius: BorderRadius.all(Radius.circular(25)),
+              ),
+              height: 578,
+              width: 300,
+              child: SingleChildScrollView(
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                child: Column(
+                  children: [
+                    SizedBox(height: 28),
+                    Image.asset('assets/img/app_bg/png/cold_start_icon.png'),
+                    Text(
+                      'Hello Adventurer!',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(46, 36, 46, 0),
+                      child: Text(
+                        'Before we begin, could you tell me your name?',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: Form(
+                        key: formKey,
+                        child: TextFormField(
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          validator: userNameValidator,
+                          controller: userName,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Palette.basicBitchWhite,
+                            hintText: 'Enter name here to start',
+                            contentPadding: EdgeInsets.only(bottom: 14),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide.none,
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Palette.basicBitchBlack,
+                                width: 1,
+                              ),
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            hintStyle: TextStyle(
+                              color: Palette.basicBitchBlack,
+                              fontFamily: 'Inter',
+                              fontSize: 12,
+                            ),
                           ),
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        hintStyle: TextStyle(
-                          color: Palette.basicBitchBlack,
-                          fontFamily: 'Inter',
-                          fontSize: 12,
+                          textAlign: TextAlign.center,
+                          textAlignVertical: TextAlignVertical.center,
                         ),
                       ),
-                      textAlign: TextAlign.center,
-                      textAlignVertical: TextAlignVertical.center,
                     ),
-                  ),
+                    SizedBox(height: 84),
+                    OverlayPortal(
+                      controller: overlayController,
+                      overlayChildBuilder: (BuildContext context) {
+                        return RegisterConfirmation(userName: userName.text);
+                      },
+                      child: ConfirmButton(
+                        onPressed: () async {
+                          if (!formKey.currentState!.validate()) return;
+
+                          try {
+                            final userId = generateUserId(userName.text);
+                            final userPassword =
+                                generateRandom8DigitNumber().toString();
+                            await storage.write(
+                              key: 'email',
+                              value: '$userId@adventurer.adhd',
+                            );
+                            await storage.write(
+                              key: 'password',
+                              value: userPassword,
+                            );
+                            await storage.write(key: 'userId', value: userId);
+                            await storage.write(
+                              key: 'name',
+                              value: userName.text,
+                            );
+
+                            await onSubmit(
+                              '$userId@adventurer.adhd',
+                              'password',
+                            );
+
+                            if (!context.mounted) return;
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Welcome $userId!',
+                                  style:
+                                      Theme.of(
+                                        context,
+                                      ).snackBarTheme.contentTextStyle,
+                                ),
+                              ),
+                            );
+                            overlayController.toggle();
+                          } catch (e) {
+                            if (!context.mounted) return;
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  e.toString(),
+                                  style:
+                                      Theme.of(
+                                        context,
+                                      ).snackBarTheme.contentTextStyle,
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(height: 84),
-                OverlayPortal(
-                  controller: overlayController,
-                  overlayChildBuilder: (BuildContext context) {
-                    return RegisterConfirmation(userName: userName.text);
-                  },
-                  child: ConfirmButton(
-                    onPressed: () async {
-                      if (!formKey.currentState!.validate()) return;
-
-                      try {
-                        final userId = generateUserId(userName.text);
-                        final userPassword =
-                            generateRandom8DigitNumber().toString();
-                        await storage.write(
-                          key: 'email',
-                          value: '$userId@adventurer.adhd',
-                        );
-                        await storage.write(
-                          key: 'password',
-                          value: userPassword,
-                        );
-                        await storage.write(key: 'userId', value: userId);
-                        await storage.write(key: 'name', value: userName.text);
-
-                        await onSubmit('$userId@adventurer.adhd', 'password');
-
-                        if (!context.mounted) return;
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Welcome $userId!',
-                              style:
-                                  Theme.of(
-                                    context,
-                                  ).snackBarTheme.contentTextStyle,
-                            ),
-                          ),
-                        );
-                        overlayController.toggle();
-                      } catch (e) {
-                        if (!context.mounted) return;
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              e.toString(),
-                              style:
-                                  Theme.of(
-                                    context,
-                                  ).snackBarTheme.contentTextStyle,
-                            ),
-                          ),
-                        );
-                      }
-                    },
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),
