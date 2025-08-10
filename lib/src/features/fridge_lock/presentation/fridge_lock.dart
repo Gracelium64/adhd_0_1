@@ -79,41 +79,41 @@ class _FridgeLockState extends State<FridgeLock> {
                           style: Theme.of(context).textTheme.displayMedium,
                         ),
 
-                        SizedBox(height: 50),
-                        Text('[v.0.1.12 SPRINT 2 Debug Tools]'),
-                        SizedBox(height: 4),
-                        ElevatedButton(
-                          onPressed: () async {
-                            await storage.write(key: 'userId', value: null);
+                        // SizedBox(height: 50),
+                        // Text('[v.0.1.12 SPRINT 2 Debug Tools]'),
+                        // SizedBox(height: 4),
+                        // ElevatedButton(
+                        //   onPressed: () async {
+                        //     await storage.write(key: 'userId', value: null);
 
-                            debugPrint('Reset complete');
-                          },
-                          child: Text('Reset userId to null'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () async {
-                            final prefs = await SharedPreferences.getInstance();
-                            await prefs.setBool('onboardingComplete', false);
-                            debugPrint('Reset complete');
-                          },
-                          child: Text('Reset Cold Start Flag'),
-                        ),
+                        //     debugPrint('Reset complete');
+                        //   },
+                        //   child: Text('Reset userId to null'),
+                        // ),
+                        // ElevatedButton(
+                        //   onPressed: () async {
+                        //     final prefs = await SharedPreferences.getInstance();
+                        //     await prefs.setBool('onboardingComplete', false);
+                        //     debugPrint('Reset complete');
+                        //   },
+                        //   child: Text('Reset Cold Start Flag'),
+                        // ),
 
-                        ElevatedButton(
-                          onPressed: () async {
-                            await auth.signOut();
-                          },
-                          child: Text('Log Out'),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            repository.addPrize(
-                              001,
-                              'assets/img/prizes/Sticker1.png',
-                            );
-                          },
-                          child: Text('prize'),
-                        ),
+                        // ElevatedButton(
+                        //   onPressed: () async {
+                        //     await auth.signOut();
+                        //   },
+                        //   child: Text('Log Out'),
+                        // ),
+                        // ElevatedButton(
+                        //   onPressed: () {
+                        //     repository.addPrize(
+                        //       001,
+                        //       'assets/img/prizes/Sticker1.png',
+                        //     );
+                        //   },
+                        //   child: Text('prize'),
+                        // ),
                       ],
                     ),
                   ),
@@ -125,10 +125,10 @@ class _FridgeLockState extends State<FridgeLock> {
           ],
         ),
       ),
-      floatingActionButton: Stack(
-        alignment: Alignment.bottomRight,
-        children: [const DebugPrefsOverlay()],
-      ),
+      // floatingActionButton: Stack(
+      // alignment: Alignment.bottomRight,
+      // children: [const DebugPrefsOverlay()],
+      // ),
     );
   }
 }
