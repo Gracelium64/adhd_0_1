@@ -117,11 +117,6 @@ Future<void> main() async {
   // v.0.1.2 //
   //
 
-  // // READY FOR CLINICAL TRIALS // //
-  //TODO: recruit test subjects
-  //TODO: automated testing (?)
-  //
-
   //  // // SPRINT 3 // // ---------------------- OVERDUE ---------------------- // //
   // Functionality // //
   //TODO: responsive design - fine tune 16:9 aspect ratio elemnts placement in AppBg
