@@ -1,14 +1,14 @@
 import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
-import 'package:adhd_0_1/src/data/firebase_auth_repository.dart';
-import 'package:adhd_0_1/src/features/fridge_lock/presentation/widgets/debug_prefs_overlay.dart';
+// import 'package:adhd_0_1/src/data/firebase_auth_repository.dart';
+// import 'package:adhd_0_1/src/features/fridge_lock/presentation/widgets/debug_prefs_overlay.dart';
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/add_task_widget.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
 
 class FridgeLock extends StatefulWidget {
   const FridgeLock({super.key});
@@ -50,8 +50,8 @@ class _FridgeLockState extends State<FridgeLock> {
 
   @override
   Widget build(BuildContext context) {
-    final repository = context.read<DataBaseRepository>();
-    final auth = context.read<FirebaseAuthRepository>();
+    // final repository = context.read<DataBaseRepository>();
+    // final auth = context.read<FirebaseAuthRepository>();
 
     // OverlayPortalController overlayController = OverlayPortalController();
     // OverlayPortalController overlayControllerDebug = OverlayPortalController();
