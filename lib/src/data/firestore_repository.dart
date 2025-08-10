@@ -7,11 +7,24 @@ import 'package:adhd_0_1/src/data/domain/functions.dart';
 import 'package:adhd_0_1/src/data/domain/prize_manager.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' hide Settings;
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class FirestoreRepository implements DataBaseRepository {
   final fs = FirebaseFirestore.instance;
   final storage = FlutterSecureStorage();
+
+  Future<void> _ensureUserDoc(String userId) async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return; // not signed in; skip creating
+    // Write without pre-read to avoid permission-denied on read before ownerUid exists.
+    // - If doc doesn't exist: this is a create with ownerUid (allowed by rules).
+    // - If doc exists without ownerUid: merge backfills ownerUid (allowed once).
+    // - If doc exists with same ownerUid: merge is a no-op and allowed.
+    // - If doc exists with different ownerUid: rules will block, which is desired.
+    final userDoc = fs.collection('users').doc(userId);
+    await userDoc.set({'ownerUid': uid}, SetOptions(merge: true));
+  }
 
   // Future<String?> loadUserId() async {
   //   String? storedValue = await storage.read(key: 'userId');
@@ -80,9 +93,10 @@ class FirestoreRepository implements DataBaseRepository {
         .doc(taskIdCounter.toString());
 
     // Normalize to enum name (e.g., 'mon', 'tue')
-    final String dayName = (day is Weekday)
-        ? day.name
-        : day.toString().split('.').last.toLowerCase();
+    final String dayName =
+        (day is Weekday)
+            ? day.name
+            : day.toString().split('.').last.toLowerCase();
 
     final Task task = Task(
       taskIdCounter.toString() + userId,
@@ -483,6 +497,9 @@ class FirestoreRepository implements DataBaseRepository {
     final String? userId = await loadUserId();
     if (userId == null) throw Exception('User ID not found');
 
+    // Ensure parent user doc is present and owned by current user
+    await _ensureUserDoc(userId);
+
     final settings = Settings(
       appSkinColor: dataAppSkinColor,
       language: dataLanguage,
@@ -510,8 +527,21 @@ class FirestoreRepository implements DataBaseRepository {
 
   @override
   Future<Settings?> getSettings() async {
+    // If not signed in yet (e.g., early onboarding), return defaults locally
+    final authUser = FirebaseAuth.instance.currentUser;
     final String? userId = await loadUserId();
-    if (userId == null) throw Exception('User ID not found');
+    if (authUser == null || userId == null) {
+      return Settings(
+        appSkinColor: null,
+        language: 'English',
+        location: 'Berlin',
+        startOfDay: TimeOfDay(hour: 07, minute: 15),
+        startOfWeek: Weekday.mon,
+      );
+    }
+
+    // Ensure the parent user doc exists and has ownerUid before reading
+    await _ensureUserDoc(userId);
 
     final query =
         await fs
@@ -553,7 +583,20 @@ class FirestoreRepository implements DataBaseRepository {
       isPowerUser: isPowerUser,
     );
 
-    await fs.collection('users').doc(userId).set(user.toMap());
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) {
+      throw Exception('Not signed in');
+    }
+
+    final userDoc = fs.collection('users').doc(userId);
+    final snap = await userDoc.get();
+
+    if (snap.exists) {
+      // Preserve existing ownerUid; only update other fields
+      await userDoc.update({...user.toMap()});
+    } else {
+      await userDoc.set({...user.toMap(), 'ownerUid': uid});
+    }
   }
 
   @override

@@ -114,14 +114,6 @@ Future<void> main() async {
   //
 
   //
-  // v.0.1.12 //
-  //
-
-  //  // // SPRINT 2 // // ---------------------- OVERDUE ---------------------- // //
-  // // SECURITY // //
-  //TODO: SECURITY RULES FIRESTORE
-
-  //
   // v.0.1.2 //
   //
 

@@ -6,6 +6,7 @@ import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ViewUserData extends StatelessWidget {
   final void Function() onClose;
@@ -18,6 +19,10 @@ class ViewUserData extends StatelessWidget {
 
   Future<String> getUserPassword(FlutterSecureStorage storage) async {
     return await storage.read(key: 'password') ?? 'No User';
+  }
+
+  Future<String> getIdentifier() async {
+    return FirebaseAuth.instance.currentUser?.uid ?? 'Not signed in';
   }
 
   Widget grayscaleImage(String assetPath, {BoxFit fit = BoxFit.fill}) {
@@ -45,12 +50,13 @@ class ViewUserData extends StatelessWidget {
                   boxShadow: [BoxShadow(color: Palette.basicBitchBlack)],
                   border: Border.all(color: Palette.basicBitchWhite, width: 2),
                 ),
-                height: 293,
+                height: 330,
                 width: 300,
                 child: FutureBuilder(
                   future: Future.wait([
                     getUserName(storage),
                     getUserPassword(storage),
+                    getIdentifier(),
                   ]),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -61,6 +67,7 @@ class ViewUserData extends StatelessWidget {
                       final data = snapshot.data as List<String>;
                       final userName = data[0];
                       final userPassword = data[1];
+                      final identifier = data[2];
 
                       return Column(
                         children: [
@@ -74,17 +81,27 @@ class ViewUserData extends StatelessWidget {
                             ),
                           ),
                           SizedBox(height: 8),
-                          Text(
-                            'User Name: $userName',
-                            style: Theme.of(context).textTheme.bodySmall,
-                            textAlign: TextAlign.center,
-                            overflow: TextOverflow.fade,
-                            maxLines: 1,
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            child: Text(
+                              'User Name: $userName',
+                              style: Theme.of(context).textTheme.bodySmall,
+                              textAlign: TextAlign.center,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
                           ),
                           Text(
                             'Password: $userPassword',
                             style: Theme.of(context).textTheme.bodySmall,
                             textAlign: TextAlign.center,
+                          ),
+                          Text(
+                            'Identifier: $identifier',
+                            style: Theme.of(context).textTheme.bodySmall,
+                            textAlign: TextAlign.center,
+                            overflow: TextOverflow.fade,
+                            maxLines: 1,
                           ),
                           SizedBox(height: 8),
                           TextButton(
@@ -92,7 +109,7 @@ class ViewUserData extends StatelessWidget {
                               Clipboard.setData(
                                 ClipboardData(
                                   text:
-                                      'User Name: $userName\nPassword: $userPassword',
+                                      'User Name: $userName\nPassword: $userPassword\nIdentifier: $identifier',
                                 ),
                               );
                               ScaffoldMessenger.of(context).showSnackBar(

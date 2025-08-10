@@ -145,6 +145,8 @@ class _RegisterState extends State<Register> {
                               key: 'name',
                               value: userName.text,
                             );
+                            final name =
+                                await storage.read(key: 'name') ?? 'No User';
 
                             await onSubmit(
                               '$userId@adventurer.adhd',
@@ -156,7 +158,7 @@ class _RegisterState extends State<Register> {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  'Welcome $userId!',
+                                  'Welcome $name!',
                                   style:
                                       Theme.of(
                                         context,
