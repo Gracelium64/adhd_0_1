@@ -12,6 +12,7 @@ import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:adhd_0_1/src/common/domain/skin.dart';
+import 'package:adhd_0_1/src/features/morning_greeting/domain/daily_quote_notifier.dart';
 
 class _SkinOpt {
   final bool? value;
@@ -47,12 +48,17 @@ class _SettingsState extends State<Settings> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final repo = context.read<DataBaseRepository>();
       final s = await repo.getSettings();
+      if (!mounted) return;
       setState(() {
         _appSkinColor = s?.appSkinColor;
         _location = s?.location ?? 'Berlin';
         _startOfWeek = s?.startOfWeek ?? Weekday.mon;
         _startOfDay = s?.startOfDay ?? const TimeOfDay(hour: 7, minute: 15);
       });
+      // Best-effort: ensure permissions are requested at least once
+      try {
+        await DailyQuoteNotifier.instance.requestPermissions();
+      } catch (_) {}
     });
   }
 
@@ -66,6 +72,7 @@ class _SettingsState extends State<Settings> {
   Future<void> _pickSkin() async {
     final repo = context.read<DataBaseRepository>();
     final current = await repo.getSettings();
+    if (!mounted) return;
 
     // Anchor to the image container
     final RenderBox button =
@@ -120,6 +127,7 @@ class _SettingsState extends State<Settings> {
   Future<void> _pickLocation() async {
     final repo = context.read<DataBaseRepository>();
     final current = await repo.getSettings();
+    if (!mounted) return;
 
     // Compute popup position anchored to the button
     final RenderBox button =
@@ -171,6 +179,7 @@ class _SettingsState extends State<Settings> {
   Future<void> _pickStartOfWeek() async {
     final repo = context.read<DataBaseRepository>();
     final current = await repo.getSettings();
+    if (!mounted) return;
 
     final RenderBox button =
         _weekBtnKey.currentContext!.findRenderObject() as RenderBox;
@@ -215,6 +224,7 @@ class _SettingsState extends State<Settings> {
   Future<void> _pickStartOfDay() async {
     final repo = context.read<DataBaseRepository>();
     final current = await repo.getSettings();
+    if (!mounted) return;
     final picked = await showTimePicker(
       context: context,
       initialTime: _startOfDay ?? (current?.startOfDay ?? TimeOfDay.now()),
@@ -231,6 +241,8 @@ class _SettingsState extends State<Settings> {
       if (!mounted) return;
       setState(() => _startOfDay = updated.startOfDay);
       await _confirmAndApplyResets();
+      // reschedule daily notification at new startOfDay
+      await DailyQuoteNotifier.instance.scheduleDailyQuote(updated.startOfDay);
     }
   }
 
@@ -267,6 +279,8 @@ class _SettingsState extends State<Settings> {
             ],
           ),
     );
+
+    if (!mounted) return;
 
     if (proceed == true) {
       final repo = context.read<DataBaseRepository>();
@@ -393,9 +407,18 @@ class _SettingsState extends State<Settings> {
                           ),
                           Row(
                             children: [
-                              Text(
-                                'When does your day start?',
-                                style: Theme.of(context).textTheme.bodyMedium,
+                              GestureDetector(
+                                onLongPress: () async {
+                                  // Hidden debug: send an immediate test notification
+                                  await DailyQuoteNotifier.instance
+                                      .showTestNow();
+                                  await DailyQuoteNotifier.instance
+                                      .debugStatus();
+                                },
+                                child: Text(
+                                  'When does your day start?',
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
                               ),
                               Spacer(),
                               TextButton(

@@ -1,24 +1,25 @@
 import 'package:adhd_0_1/firebase_options.dart';
 import 'package:adhd_0_1/src/app.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
-import 'package:adhd_0_1/src/data/domain/firestore_initializer.dart';
-import 'package:adhd_0_1/src/data/domain/reset_scheduler.dart';
+// import 'package:adhd_0_1/src/data/domain/firestore_initializer.dart';
+// import 'package:adhd_0_1/src/data/domain/reset_scheduler.dart';
 import 'package:adhd_0_1/src/data/firebase_auth_repository.dart';
-import 'package:adhd_0_1/src/data/domain/sharedpreferences_initializer.dart';
+// import 'package:adhd_0_1/src/data/domain/sharedpreferences_initializer.dart';
 import 'package:adhd_0_1/src/data/firestore_repository.dart';
-import 'package:adhd_0_1/src/data/sharedpreferencesrepository.dart';
-import 'package:adhd_0_1/src/data/domain/prize_manager.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:adhd_0_1/src/data/sharedpreferencesrepository.dart';
+// import 'package:adhd_0_1/src/data/domain/prize_manager.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:connectivity_plus/connectivity_plus.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:adhd_0_1/src/data/syncrepository.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+// import 'package:adhd_0_1/src/data/syncrepository.dart';
+// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
+import 'package:adhd_0_1/src/features/morning_greeting/domain/daily_quote_notifier.dart';
 
 // import 'package:flutter/foundation.dart';
 // import 'package:device_preview/device_preview.dart';
@@ -93,6 +94,15 @@ Future<void> main() async {
     ),
   );
 
+  // Initialize local notifications and schedule daily quote at user's startOfDay
+  try {
+    await DailyQuoteNotifier.instance.init();
+    await DailyQuoteNotifier.instance.requestPermissions();
+    await DailyQuoteNotifier.instance.rescheduleFromRepository(mainRepo);
+  } catch (e) {
+    debugPrint('⚠️ Notification init/schedule failed: $e');
+  }
+
   // runApp(
   //   DevicePreview(
   //     enabled: !kReleaseMode,
@@ -108,8 +118,6 @@ Future<void> main() async {
   //
 
   //  // // SPRINT 2 // // ---------------------- OVERDUE ---------------------- // //
-  // // Visual // //
-  //TODO: good morning notification with tip of the day
   // // SECURITY // //
   //TODO: SECURITY RULES FIRESTORE
 

@@ -14,7 +14,7 @@ class FidgetScreen extends StatefulWidget {
 }
 
 class _FidgetScreenState extends State<FidgetScreen> {
- void _showAddTaskOverlay() {
+  void _showAddTaskOverlay() {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -42,12 +42,9 @@ class _FidgetScreenState extends State<FidgetScreen> {
 
   late Future<List<Task>> myList;
 
-
-
   @override
   Widget build(BuildContext context) {
-    
-    OverlayPortalController overlayController = OverlayPortalController();
+    // OverlayPortalController overlayController = OverlayPortalController();
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -82,10 +79,7 @@ class _FidgetScreenState extends State<FidgetScreen> {
                 ),
               ),
             ),
-            GestureDetector(
-                  onTap: _showAddTaskOverlay,
-                  child: AddTaskButton(),
-                ),
+            GestureDetector(onTap: _showAddTaskOverlay, child: AddTaskButton()),
             SizedBox(height: 40),
           ],
         ),

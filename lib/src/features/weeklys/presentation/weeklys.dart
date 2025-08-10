@@ -44,9 +44,12 @@ class _WeeklysState extends State<Weeklys> {
         );
       },
     );
-
+    // Capture overlay now to avoid using context after an async gap
+    final overlayState = Overlay.of(context, rootOverlay: true);
     Future.delayed(Duration(milliseconds: 50), () {
-      Overlay.of(context, rootOverlay: true).insert(_overlayEntry!);
+      if (_overlayEntry != null) {
+        overlayState.insert(_overlayEntry!);
+      }
     });
   }
 
@@ -68,7 +71,7 @@ class _WeeklysState extends State<Weeklys> {
 
   @override
   Widget build(BuildContext context) {
-    OverlayPortalController overlayController = OverlayPortalController();
+    // OverlayPortalController overlayController = OverlayPortalController();
 
     return Scaffold(
       backgroundColor: Colors.transparent,

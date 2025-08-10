@@ -24,6 +24,9 @@ dependencies:
   flutter_dotenv: ^5.2.1
   share_plus: ^11.0.0
   url_launcher: ^6.1.7
+  flutter_local_notifications: ^17.2.1
+  timezone: ^0.9.4
+  flutter_timezone: ^4.1.0
 
 flutter_native_splash:
   android_12: 
@@ -59,6 +62,7 @@ flutter:
     - assets/img/prizes/
     - assets/img/icons/
     - black_speech.env
+    - assets/sound/lizard.wav
     
   fonts:
     - family: Inter

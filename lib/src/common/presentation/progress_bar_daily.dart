@@ -23,7 +23,7 @@ class ProgressBarDaily extends StatelessWidget {
         Expanded(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final double barWidth = constraints.maxWidth;
+              final double barWidth = constraints.maxWidth - 4;
               // Normalize incoming status (0..272) to fraction of available width
               final double fraction =
                   (progressBarStatus.clamp(0, canonicalWidth)) / canonicalWidth;

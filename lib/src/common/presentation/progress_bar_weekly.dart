@@ -23,7 +23,7 @@ class ProgressBarWeekly extends StatelessWidget {
         Expanded(
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final double barWidth = constraints.maxWidth;
+              final double barWidth = constraints.maxWidth - 4;
               final double fraction =
                   (progressBarStatus.clamp(0, canonicalWidth)) / canonicalWidth;
               final double fillWidth = barWidth * fraction;

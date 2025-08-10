@@ -53,8 +53,8 @@ class _FridgeLockState extends State<FridgeLock> {
     final repository = context.read<DataBaseRepository>();
     final auth = context.read<FirebaseAuthRepository>();
 
-    OverlayPortalController overlayController = OverlayPortalController();
-    OverlayPortalController overlayControllerDebug = OverlayPortalController();
+    // OverlayPortalController overlayController = OverlayPortalController();
+    // OverlayPortalController overlayControllerDebug = OverlayPortalController();
 
     return Scaffold(
       backgroundColor: Colors.transparent,
