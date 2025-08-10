@@ -18,6 +18,8 @@ class Register extends StatefulWidget {
 class _RegisterState extends State<Register> {
   TextEditingController userName = TextEditingController(text: '');
   final storage = FlutterSecureStorage();
+  // Keep one controller instance; recreating it in build can cause toggling a stale controller
+  final OverlayPortalController overlayController = OverlayPortalController();
 
   Future<void> onSubmit(String userName, String pw) async {
     final auth = context.read<FirebaseAuthRepository>();
@@ -43,8 +45,6 @@ class _RegisterState extends State<Register> {
 
   @override
   Widget build(BuildContext context) {
-    OverlayPortalController overlayController = OverlayPortalController();
-
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     return Scaffold(
       backgroundColor: Colors.transparent,
