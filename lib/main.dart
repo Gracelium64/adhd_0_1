@@ -120,11 +120,15 @@ Future<void> main() async {
   //  // // SPRINT 3 // // ---------------------- OVERDUE ---------------------- // //
   // Functionality // //
   //TODO: responsive design - fine tune 16:9 aspect ratio elemnts placement in AppBg
+  //TODO: responsive design - RESPONSIVE FUCKING DESIGN, collect device data from bug reports and adapt
+  //TODO: responsive design - move subTitle to AppBg?
+  //TODO: BUG - syncrepository duplicates and wrecks havoc on the firestore repository. i still want to have it anyway.
+  //TODO: confirm bug fixes with testers after deployment
+  //TODO: responsive design - accesibility big fonts (wtf)
   //TODO: backup overlays
   //TODO: weather API
   //TODO: good morning overlay with tip of day + weather + tasks for the day
   // // SYNCREPOSITORY // //
-  //TODO: BUG - syncrepository duplicates and wrecks havoc on the firestore repository. i still want to have it anyway.
   //TODO: how to save files outside of shared memory - save local backup of user data from local repository
   // // Non MVP // //
   //TODO: UNDO Button in SncakBar when completing a Quest or Deadline Tasks
