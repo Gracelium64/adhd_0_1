@@ -85,12 +85,42 @@ class About extends StatelessWidget {
                             final url = Uri.parse(
                               'https://www.paypal.com/paypalme/gracelium64',
                             );
-                            if (await canLaunchUrl(url)) {
-                              await launchUrl(url);
-                            } else {
-                              throw 'Could not launch $url';
+                            try {
+                              final ok = await launchUrl(
+                                url,
+                                mode: LaunchMode.externalApplication,
+                              );
+                              if (!ok && context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      'Could not open browser',
+                                      style:
+                                          Theme.of(
+                                            context,
+                                          ).snackBarTheme.contentTextStyle,
+                                    ),
+                                    duration: Duration(milliseconds: 1200),
+                                  ),
+                                );
+                              } else {
+                                onClose();
+                              }
+                            } catch (_) {
+                              if (!context.mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Could not open browser',
+                                    style:
+                                        Theme.of(
+                                          context,
+                                        ).snackBarTheme.contentTextStyle,
+                                  ),
+                                  duration: Duration(milliseconds: 1200),
+                                ),
+                              );
                             }
-                            onClose();
                           },
                           child: Image.asset(
                             'assets/img/buttons/credit_card.png',
