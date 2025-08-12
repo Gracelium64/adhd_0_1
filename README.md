@@ -10,6 +10,9 @@ Good luck.
 # Attention Deficit oH Dear
 
 
+// V.0.1.2 //            10/8/25
+MVP features ready for clinical trials
+
 // v.0.1.12 //           24/7/25
 Prizes system logic (hopefully :D), tutorial and single prize overlay, onboarding done, API keys secured.
 Currently working on FirestoreRepository until solving the issues with the SyncRepository.

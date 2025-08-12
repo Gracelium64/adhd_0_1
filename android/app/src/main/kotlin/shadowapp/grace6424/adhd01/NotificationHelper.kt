@@ -40,6 +40,6 @@ object NotificationHelper {
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .build()
-        nm.notify(3001, notification)
+    nm.notify(1001, notification)
     }
 }

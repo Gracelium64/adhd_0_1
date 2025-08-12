@@ -1,9 +1,11 @@
 import 'dart:math';
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/morning_greeting/domain/tip_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
@@ -24,6 +26,7 @@ class DailyQuoteNotifier {
       FlutterLocalNotificationsPlugin();
 
   bool _initialized = false;
+  bool _scheduling = false;
 
   Future<void> init() async {
     if (_initialized) return;
@@ -90,190 +93,115 @@ class DailyQuoteNotifier {
   }
 
   Future<void> scheduleDailyQuote(TimeOfDay time) async {
-    await init();
-    // Ensure permissions are granted (Android 13+/iOS)
-    await requestPermissions();
-
-    // Cancel previous schedule to avoid duplicates
-    await _plugin.cancel(1001); // repeating daily id
-    await _plugin.cancel(1002); // one-shot next occurrence id
-
-    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-    // Candidate next occurrence today at chosen hh:mm; if it already passed, move to tomorrow
-    tz.TZDateTime next = tz.TZDateTime(
-      tz.local,
-      now.year,
-      now.month,
-      now.day,
-      time.hour,
-      time.minute,
-    );
-    if (!next.isAfter(now)) {
-      next = next.add(const Duration(days: 1));
+    if (_scheduling) {
+      debugPrint('[DailyQuoteNotifier] schedule already in progress; skipping');
+      return;
     }
-
-    debugPrint(
-      '[DailyQuoteNotifier] Scheduling next (one-shot) at '
-      '${next.toLocal()} (${tz.local})',
-    );
-
-    // Pick a random quote without quotes
-    final quote = _randomQuote();
-
-    const AndroidNotificationDetails androidDetails =
-        AndroidNotificationDetails(
-          _channelId,
-          _channelName,
-          channelDescription: _channelDescription,
-          importance: Importance.high,
-          priority: Priority.high,
-          sound: RawResourceAndroidNotificationSound('my_sound'),
-        );
-    const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
-      sound: 'my_sound.wav',
-    );
-
+    _scheduling = true;
     try {
-      // Try to check/request exact-alarms permission via native side (Android 12+)
-      const platform = MethodChannel('shadowapp.grace6424.adhd01/alarm');
-      bool allowed = true;
+      await init();
+      // Ensure permissions are granted (Android 13+/iOS)
+      await requestPermissions();
+
+      // Cancel previous notifications and native alarm to avoid duplicates
+      await _plugin.cancelAll();
       try {
-        final dynamic res = await platform.invokeMethod(
-          'hasExactAlarmPermission',
-        );
-        if (res is bool) allowed = res;
+        const platform = MethodChannel('shadowapp.grace6424.adhd01/alarm');
+        await platform.invokeMethod('cancelAlarm');
       } catch (e) {
-        debugPrint(
-          '[DailyQuoteNotifier] hasExactAlarmPermission check failed: $e',
-        );
+        debugPrint('[DailyQuoteNotifier] cancelAlarm failed: $e');
       }
-      debugPrint('[DailyQuoteNotifier] hasExactAlarmPermission: $allowed');
-      if (!allowed) {
-        try {
-          await platform.invokeMethod('requestExactAlarmPermission');
-          debugPrint(
-            '[DailyQuoteNotifier] Prompted user to allow exact alarms',
+
+      final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+      // Candidate next occurrence today at chosen hh:mm; if it already passed, move to tomorrow
+      tz.TZDateTime next = tz.TZDateTime(
+        tz.local,
+        now.year,
+        now.month,
+        now.day,
+        time.hour,
+        time.minute,
+      );
+      if (!next.isAfter(now)) {
+        next = next.add(const Duration(days: 1));
+      }
+
+      // Pick a random quote without quotes
+      final quote = _randomQuote();
+
+      const AndroidNotificationDetails androidDetails =
+          AndroidNotificationDetails(
+            _channelId,
+            _channelName,
+            channelDescription: _channelDescription,
+            importance: Importance.high,
+            priority: Priority.high,
+            sound: RawResourceAndroidNotificationSound('my_sound'),
           );
-        } catch (e) {
+      const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
+        sound: 'my_sound.wav',
+        interruptionLevel: InterruptionLevel.timeSensitive,
+      );
+
+      try {
+        // Android: prefer native one-shot exact alarm chain for reliability (Samsung/OEM)
+        if (Platform.isAndroid) {
+          const platform = MethodChannel('shadowapp.grace6424.adhd01/alarm');
+          bool allowed = true;
+          try {
+            final dynamic res = await platform.invokeMethod(
+              'hasExactAlarmPermission',
+            );
+            if (res is bool) allowed = res;
+          } catch (e) {
+            debugPrint(
+              '[DailyQuoteNotifier] hasExactAlarmPermission check failed: $e',
+            );
+          }
+          if (!allowed) {
+            try {
+              await platform.invokeMethod('requestExactAlarmPermission');
+            } catch (_) {}
+          }
+          // Persist time and schedule next one-shot natively
+          await platform.invokeMethod('saveStartOfDay', {
+            'hour': time.hour,
+            'minute': time.minute,
+          });
+          await platform.invokeMethod('scheduleNextAlarm', {
+            'hour': time.hour,
+            'minute': time.minute,
+          });
           debugPrint(
-            '[DailyQuoteNotifier] requestExactAlarmPermission failed: $e',
+            '[DailyQuoteNotifier] Scheduled native next alarm for ${next.toLocal()}',
+          );
+        } else {
+          // iOS: use plugin daily repeating schedule
+          await _plugin.zonedSchedule(
+            1001,
+            'Good morning',
+            quote,
+            next,
+            const NotificationDetails(android: androidDetails, iOS: iosDetails),
+            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+            uiLocalNotificationDateInterpretation:
+                UILocalNotificationDateInterpretation.absoluteTime,
+            matchDateTimeComponents: DateTimeComponents.time,
+            payload: 'open_app',
           );
         }
+      } on PlatformException catch (e) {
+        debugPrint('Schedule failed (${e.code}): ${e.message}.');
       }
-      // Prefer exact scheduling when allowed
-      await _plugin.zonedSchedule(
-        1002,
-        'Good morning',
-        quote,
-        next,
-        const NotificationDetails(android: androidDetails, iOS: iosDetails),
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-        payload: 'open_app',
-      );
 
-      tz.TZDateTime repeatStart = tz.TZDateTime(
-        tz.local,
-        now.year,
-        now.month,
-        now.day,
-        time.hour,
-        time.minute,
-      ).add(const Duration(days: 1));
-      debugPrint(
-        '[DailyQuoteNotifier] Scheduling repeating daily (EXACT) from '
-        '${repeatStart.toLocal()} (${tz.local})',
-      );
-      await _plugin.zonedSchedule(
-        1001,
-        'Good morning',
-        quote,
-        repeatStart,
-        const NotificationDetails(android: androidDetails, iOS: iosDetails),
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-        matchDateTimeComponents: DateTimeComponents.time,
-        payload: 'open_app',
-      );
-    } on PlatformException catch (e) {
-      debugPrint(
-        'Exact schedule not allowed (${e.code}): ${e.message}. Fallback to inexact.',
-      );
-      // Fallback to inexact when exact alarms are not permitted
-      await _plugin.zonedSchedule(
-        1002,
-        'Good morning',
-        quote,
-        next,
-        const NotificationDetails(android: androidDetails, iOS: iosDetails),
-        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-        payload: 'open_app',
-      );
+      // Print pending notifications for diagnostics
+      await debugStatus();
 
-      tz.TZDateTime repeatStart = tz.TZDateTime(
-        tz.local,
-        now.year,
-        now.month,
-        now.day,
-        time.hour,
-        time.minute,
-      ).add(const Duration(days: 1));
-      debugPrint(
-        '[DailyQuoteNotifier] Scheduling repeating daily (INEXACT) from '
-        '${repeatStart.toLocal()} (${tz.local})',
-      );
-      await _plugin.zonedSchedule(
-        1001,
-        'Good morning',
-        quote,
-        repeatStart,
-        const NotificationDetails(android: androidDetails, iOS: iosDetails),
-        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-        matchDateTimeComponents: DateTimeComponents.time,
-        payload: 'open_app',
-      );
-    }
+      // Removed the near-term fallback timer used for emulator testing
 
-    // Print pending notifications for diagnostics
-    await debugStatus();
-
-    // Removed the near-term fallback timer used for emulator testing
-
-    // Persist startOfDay for native AlarmScheduler (BOOT_COMPLETED reschedule)
-    try {
-      const platform = MethodChannel('shadowapp.grace6424.adhd01/alarm');
-      await platform.invokeMethod('saveStartOfDay', {
-        'hour': time.hour,
-        'minute': time.minute,
-      });
-      bool allowed = true;
-      try {
-        final dynamic res = await platform.invokeMethod(
-          'hasExactAlarmPermission',
-        );
-        if (res is bool) allowed = res;
-      } catch (_) {}
-      if (allowed) {
-        await platform.invokeMethod('scheduleAlarm', {
-          'hour': time.hour,
-          'minute': time.minute,
-        });
-        debugPrint(
-          '[DailyQuoteNotifier] Native alarm scheduled via AlarmManager',
-        );
-      } else {
-        debugPrint(
-          '[DailyQuoteNotifier] Skipping native AlarmManager schedule (no exact-alarm permission)',
-        );
-      }
-    } catch (e) {
-      debugPrint('[DailyQuoteNotifier] Native alarm schedule failed: $e');
+      // Note: saveStartOfDay is called above on Android; iOS doesn't need it.
+    } finally {
+      _scheduling = false;
     }
   }
 
