@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:adhd_0_1/src/common/domain/prizes.dart';
 import 'package:adhd_0_1/src/common/presentation/app_bg.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
@@ -25,24 +26,44 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   OverlayPortalController overlayControllerTutorial = OverlayPortalController();
   OverlayPortalController overlayControllerSummery = OverlayPortalController();
   int _pageIndex = 1;
   final List<Prizes> weeklyPrizes = [];
+  Timer? _dayWatcher;
+  DateTime _lastDay = DateTime.now();
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.showTutorial) {
         overlayControllerTutorial.show();
       }
     });
     performResetsIfNeeded();
+    _startDayWatcher();
   }
 
-  void performResetsIfNeeded() async {
+  void _startDayWatcher() {
+    _dayWatcher?.cancel();
+    _lastDay = DateTime.now();
+    _dayWatcher = Timer.periodic(const Duration(minutes: 1), (_) async {
+      final now = DateTime.now();
+      final changed =
+          now.year != _lastDay.year ||
+          now.month != _lastDay.month ||
+          now.day != _lastDay.day;
+      if (changed) {
+        _lastDay = now;
+        await performResetsIfNeeded();
+      }
+    });
+  }
+
+  Future<void> performResetsIfNeeded() async {
     final repository = context.read<DataBaseRepository>();
     final resetScheduler = ResetScheduler(
       repository,
@@ -50,6 +71,24 @@ class _MainScreenState extends State<MainScreen> {
       awardedPrizesHolder: weeklyPrizes,
     );
     await resetScheduler.performResetsIfNeeded();
+    if (!mounted) return;
+    // Force a rebuild so task lists refetch after reset (updates isDone visuals)
+    setState(() {});
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // On resume, ensure we catch up on any missed day change
+      performResetsIfNeeded();
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _dayWatcher?.cancel();
+    super.dispose();
   }
 
   @override
