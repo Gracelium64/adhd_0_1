@@ -164,6 +164,7 @@ class _RegisterState extends State<Register> {
                                         context,
                                       ).snackBarTheme.contentTextStyle,
                                 ),
+                                duration: Duration(milliseconds: 300),
                               ),
                             );
                             overlayController.toggle();
@@ -179,6 +180,7 @@ class _RegisterState extends State<Register> {
                                         context,
                                       ).snackBarTheme.contentTextStyle,
                                 ),
+                                duration: Duration(milliseconds: 300),
                               ),
                             );
                           }
