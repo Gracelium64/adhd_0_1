@@ -9,14 +9,14 @@ import 'package:provider/provider.dart';
 enum TaskType { daily, weekly, deadline, quest }
 
 class AddTaskWidget extends StatefulWidget {
-  // // final OverlayPortalController controller;
-
   final TaskType taskType;
   final void Function() onClose;
 
-  const AddTaskWidget(
-  // // this.controller,
-  {super.key, required this.taskType, required this.onClose});
+  const AddTaskWidget({
+    super.key,
+    required this.taskType,
+    required this.onClose,
+  });
 
   @override
   State<AddTaskWidget> createState() => _AddTaskWidgetState();
@@ -43,7 +43,7 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
 
   Weekday? selectedWeekday;
   final formKey = GlobalKey<FormState>();
-  bool isButtonEnabled = true;
+  bool isFormValid = false;
 
   String? _taskLengthValidator(String? userInput) {
     if (userInput == null || userInput.isEmpty) {
@@ -80,101 +80,104 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       resizeToAvoidBottomInset: true,
-      body: AnimatedPadding(
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-        padding: EdgeInsets.only(left: 25, bottom: bottomInset),
-        child: SingleChildScrollView(
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(height: 82),
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(25)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Palette.basicBitchWhite.withAlpha(175),
-                      blurRadius: 5,
-                      blurStyle: BlurStyle.inner,
-                    ),
-                    BoxShadow(
-                      color: Palette.basicBitchBlack.withAlpha(125),
-                      offset: Offset(4, 4),
-                      blurRadius: 5,
-                    ),
-                    BoxShadow(
-                      color: Palette.monarchPurple1Opacity,
-                      blurStyle: BlurStyle.solid,
-                    ),
-                  ],
-                ),
-                height: 578,
-                width: 300,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 36, 16, 0),
-                  child: Form(
-                    key: formKey,
-                    onChanged: () {
-                      setState(() {
-                        final bool isFormValid =
-                            formKey.currentState!.validate();
-                        isButtonEnabled = !isFormValid;
-                      });
-                    },
-
-                    child: Column(
-                      spacing: 8,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Task name',
-                          style: Theme.of(context).textTheme.displayMedium,
-                          textAlign: TextAlign.center,
-                        ),
-                        TextFormField(
-                          autovalidateMode: AutovalidateMode.onUserInteraction,
-                          validator: _taskLengthValidator,
-                          controller: userInput,
-                          style: TextStyle(color: Palette.basicBitchWhite),
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Palette.monarchPurple2.withAlpha(100),
-
-                            contentPadding: EdgeInsets.only(bottom: 14),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide.none,
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Palette.basicBitchBlack,
-                                width: 1,
-                              ),
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            hintStyle: TextStyle(
-                              color: Palette.basicBitchBlack,
-                              fontFamily: 'Inter',
-                              fontSize: 12,
-                            ),
+      body: SafeArea(
+        child: AnimatedPadding(
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+          padding: EdgeInsets.only(
+            left: 25,
+            right: 25,
+            bottom: bottomInset + 12,
+          ),
+          child: SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 82),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.all(Radius.circular(25)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Palette.basicBitchWhite.withAlpha(175),
+                        blurRadius: 5,
+                        blurStyle: BlurStyle.inner,
+                      ),
+                      BoxShadow(
+                        color: Palette.basicBitchBlack.withAlpha(125),
+                        offset: const Offset(4, 4),
+                        blurRadius: 5,
+                      ),
+                      BoxShadow(
+                        color: Palette.monarchPurple1Opacity,
+                        blurStyle: BlurStyle.solid,
+                      ),
+                    ],
+                  ),
+                  height: 578,
+                  width: 300,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 36, 16, 0),
+                    child: Form(
+                      key: formKey,
+                      onChanged: () {
+                        setState(() {
+                          isFormValid =
+                              formKey.currentState?.validate() == true;
+                        });
+                      },
+                      child: Column(
+                        // keep existing project style using spacing if available
+                        spacing: 8,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Task name',
+                            style: Theme.of(context).textTheme.displayMedium,
+                            textAlign: TextAlign.center,
                           ),
-                          textAlign: TextAlign.center,
-                          textAlignVertical: TextAlignVertical.center,
-                        ),
+                          TextFormField(
+                            autovalidateMode:
+                                AutovalidateMode.onUserInteraction,
+                            validator: _taskLengthValidator,
+                            controller: userInput,
+                            style: TextStyle(color: Palette.basicBitchWhite),
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Palette.monarchPurple2.withAlpha(100),
+                              contentPadding: const EdgeInsets.only(bottom: 14),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide.none,
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Palette.basicBitchBlack,
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              hintStyle: TextStyle(
+                                color: Palette.basicBitchBlack,
+                                fontFamily: 'Inter',
+                                fontSize: 12,
+                              ),
+                            ),
+                            textAlign: TextAlign.center,
+                            textAlignVertical: TextAlignVertical.center,
+                          ),
 
-                        Text(
-                          'Day of the week',
-                          style: Theme.of(context).textTheme.displayMedium,
-                          textAlign: TextAlign.center,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            GestureDetector(
-                              onTap: () {},
-                              child: AbsorbPointer(
+                          Text(
+                            'Day of the week',
+                            style: Theme.of(context).textTheme.displayMedium,
+                            textAlign: TextAlign.center,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              AbsorbPointer(
                                 absorbing: !isWeekly,
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
@@ -256,111 +259,141 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                        Text(
-                          'Deadline',
-                          style: Theme.of(context).textTheme.displayMedium,
-                          textAlign: TextAlign.center,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            AbsorbPointer(
-                              absorbing: !isDeadline,
-                              child: TextButton(
-                                style: TextButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.all(
-                                      Radius.circular(8),
+                            ],
+                          ),
+                          Text(
+                            'Deadline',
+                            style: Theme.of(context).textTheme.displayMedium,
+                            textAlign: TextAlign.center,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              AbsorbPointer(
+                                absorbing: !isDeadline,
+                                child: TextButton(
+                                  style: TextButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: const BorderRadius.all(
+                                        Radius.circular(8),
+                                      ),
+                                      side: BorderSide(
+                                        color:
+                                            isDeadline
+                                                ? Palette.basicBitchWhite
+                                                : Palette.basicBitchWhite
+                                                    .withAlpha(85),
+                                        width: 1,
+                                      ),
                                     ),
-                                    side: BorderSide(
+                                  ),
+                                  onPressed: () async {
+                                    final picked = await showDatePicker(
+                                      context: context,
+                                      initialDate:
+                                          selectedDate ?? DateTime.now(),
+                                      firstDate: DateTime(2020),
+                                      lastDate: DateTime(2100),
+                                    );
+                                    if (picked != null) {
+                                      setState(() => selectedDate = picked);
+                                    }
+                                  },
+                                  child: Text(
+                                    formatDate(selectedDate),
+                                    style: TextStyle(
                                       color:
                                           isDeadline
                                               ? Palette.basicBitchWhite
                                               : Palette.basicBitchWhite
-                                                  .withAlpha(85),
-                                      width: 1,
+                                                  .withAlpha(127),
                                     ),
-                                  ),
-                                ),
-                                onPressed: () async {
-                                  final picked = await showDatePicker(
-                                    context: context,
-                                    initialDate: selectedDate ?? DateTime.now(),
-                                    firstDate: DateTime(2020),
-                                    lastDate: DateTime(2100),
-                                  );
-                                  if (picked != null) {
-                                    setState(() => selectedDate = picked);
-                                  }
-                                },
-                                child: Text(
-                                  formatDate(selectedDate),
-                                  style: TextStyle(
-                                    color:
-                                        isDeadline
-                                            ? Palette.basicBitchWhite
-                                            : Palette.basicBitchWhite.withAlpha(
-                                              127,
-                                            ),
                                   ),
                                 ),
                               ),
-                            ),
-                            AbsorbPointer(
-                              absorbing: !isDeadline,
-                              child: TextButton(
-                                style: TextButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.all(
-                                      Radius.circular(8),
+                              AbsorbPointer(
+                                absorbing: !isDeadline,
+                                child: TextButton(
+                                  style: TextButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: const BorderRadius.all(
+                                        Radius.circular(8),
+                                      ),
+                                      side: BorderSide(
+                                        color:
+                                            isDeadline
+                                                ? Palette.basicBitchWhite
+                                                : Palette.basicBitchWhite
+                                                    .withAlpha(85),
+                                        width: 1,
+                                      ),
                                     ),
-                                    side: BorderSide(
+                                  ),
+                                  onPressed: () async {
+                                    final picked = await showTimePicker(
+                                      context: context,
+                                      initialTime:
+                                          selectedTime ?? TimeOfDay.now(),
+                                    );
+                                    if (picked != null) {
+                                      setState(() => selectedTime = picked);
+                                    }
+                                  },
+                                  child: Text(
+                                    formatTime(selectedTime),
+                                    style: TextStyle(
                                       color:
                                           isDeadline
                                               ? Palette.basicBitchWhite
                                               : Palette.basicBitchWhite
-                                                  .withAlpha(85),
-                                      width: 1,
+                                                  .withAlpha(127),
                                     ),
                                   ),
                                 ),
-                                onPressed: () async {
-                                  final picked = await showTimePicker(
-                                    context: context,
-                                    initialTime:
-                                        selectedTime ?? TimeOfDay.now(),
-                                  );
-                                  if (picked != null) {
-                                    setState(() => selectedTime = picked);
-                                  }
-                                },
-                                child: Text(
-                                  formatTime(selectedTime),
-                                  style: TextStyle(
-                                    color:
-                                        isDeadline
-                                            ? Palette.basicBitchWhite
-                                            : Palette.basicBitchWhite.withAlpha(
-                                              127,
-                                            ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              AbsorbPointer(
+                                absorbing: selectedType == TaskType.daily,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      selectedType = TaskType.daily;
+                                    });
+                                  },
+                                  child: Container(
+                                    height: 40,
+                                    width: 130,
+                                    decoration: BoxDecoration(
+                                      color:
+                                          selectedType == TaskType.daily
+                                              ? activeButtonColor
+                                              : passiveButtonColor,
+                                      borderRadius: const BorderRadius.all(
+                                        Radius.circular(15),
+                                      ),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(10),
+                                      child: Text(
+                                        'Dailys',
+                                        style:
+                                            Theme.of(
+                                              context,
+                                            ).textTheme.bodyMedium,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            AbsorbPointer(
-                              absorbing: selectedType == TaskType.daily,
-                              child: GestureDetector(
+                              GestureDetector(
                                 onTap: () {
                                   setState(() {
-                                    selectedType = TaskType.daily;
+                                    selectedType = TaskType.weekly;
                                   });
                                 },
                                 child: Container(
@@ -368,17 +401,17 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
                                   width: 130,
                                   decoration: BoxDecoration(
                                     color:
-                                        selectedType == TaskType.daily
+                                        selectedType == TaskType.weekly
                                             ? activeButtonColor
                                             : passiveButtonColor,
-                                    borderRadius: BorderRadius.all(
+                                    borderRadius: const BorderRadius.all(
                                       Radius.circular(15),
                                     ),
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(10),
                                     child: Text(
-                                      'Dailys',
+                                      'Weeklys',
                                       style:
                                           Theme.of(
                                             context,
@@ -388,193 +421,170 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
                                   ),
                                 ),
                               ),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  selectedType = TaskType.weekly;
-                                });
-                              },
-                              child: Container(
-                                height: 40,
-                                width: 130,
-                                decoration: BoxDecoration(
-                                  color:
-                                      selectedType == TaskType.weekly
-                                          ? activeButtonColor
-                                          : passiveButtonColor,
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(15),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    selectedType = TaskType.deadline;
+                                  });
+                                },
+                                child: Container(
+                                  height: 40,
+                                  width: 130,
+                                  decoration: BoxDecoration(
+                                    color:
+                                        selectedType == TaskType.deadline
+                                            ? activeButtonColor
+                                            : passiveButtonColor,
+                                    borderRadius: const BorderRadius.all(
+                                      Radius.circular(15),
+                                    ),
                                   ),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10),
-                                  child: Text(
-                                    'Weeklys',
-                                    style:
-                                        Theme.of(context).textTheme.bodyMedium,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 4),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  selectedType = TaskType.deadline;
-                                });
-                              },
-                              child: Container(
-                                height: 40,
-                                width: 130,
-                                decoration: BoxDecoration(
-                                  color:
-                                      selectedType == TaskType.deadline
-                                          ? activeButtonColor
-                                          : passiveButtonColor,
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(15),
-                                  ),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10),
-                                  child: Text(
-                                    'Deadlineys',
-                                    style:
-                                        Theme.of(context).textTheme.bodyMedium,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  selectedType = TaskType.quest;
-                                });
-                              },
-                              child: Container(
-                                height: 40,
-                                width: 130,
-                                decoration: BoxDecoration(
-                                  color:
-                                      selectedType == TaskType.quest
-                                          ? activeButtonColor
-                                          : passiveButtonColor,
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(15),
-                                  ),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10),
-                                  child: Text(
-                                    'Quest',
-                                    style:
-                                        Theme.of(context).textTheme.bodyMedium,
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 36),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            CancelButton(
-                              onPressed: () {
-                                widget.onClose();
-                              },
-                            ),
-                            ConfirmButton(
-                              onPressed:
-                                  isButtonEnabled
-                                      ? () {}
-                                      : () async {
-                                        if (selectedType == TaskType.daily) {
-                                          await repository.addDaily(
-                                            userInput.text,
-                                          );
-                                          await refreshDailyProgress(
-                                            repository,
-                                          );
-                                          widget.onClose();
-                                          debugPrint(
-                                            'add task daily widget onClose',
-                                          );
-                                        } else if (selectedType ==
-                                                TaskType.weekly &&
-                                            selectedWeekday != null) {
-                                          await repository.addWeekly(
-                                            userInput.text,
-                                            selectedWeekday,
-                                          );
-                                          await refreshWeeklyProgress(
-                                            repository,
-                                          );
-                                          widget.onClose();
-                                          debugPrint(
-                                            'add task weekly widget onClose',
-                                          );
-                                        } else if (selectedType ==
-                                                TaskType.deadline &&
-                                            selectedDate != null &&
-                                            selectedTime != null) {
-                                          final dateStr = formatDate(
-                                            selectedDate,
-                                          );
-                                          final timeStr = formatTime(
-                                            selectedTime,
-                                          );
-
-                                          await repository.addDeadline(
-                                            userInput.text,
-                                            dateStr,
-                                            timeStr,
-                                          );
-                                          widget.onClose();
-                                          debugPrint(
-                                            'add task deadline widget onClose',
-                                          );
-                                        } else if (selectedType ==
-                                            TaskType.quest) {
-                                          await repository.addQuest(
-                                            userInput.text,
-                                          );
-                                          widget.onClose();
-                                          debugPrint('add task quest onClose');
-                                        } else {
-                                          ScaffoldMessenger.of(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10),
+                                    child: Text(
+                                      'Deadlineys',
+                                      style:
+                                          Theme.of(
                                             context,
-                                          ).showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                'Please complete all required fields',
-                                                style:
-                                                    Theme.of(context)
-                                                        .snackBarTheme
-                                                        .contentTextStyle,
+                                          ).textTheme.bodyMedium,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    selectedType = TaskType.quest;
+                                  });
+                                },
+                                child: Container(
+                                  height: 40,
+                                  width: 130,
+                                  decoration: BoxDecoration(
+                                    color:
+                                        selectedType == TaskType.quest
+                                            ? activeButtonColor
+                                            : passiveButtonColor,
+                                    borderRadius: const BorderRadius.all(
+                                      Radius.circular(15),
+                                    ),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10),
+                                    child: Text(
+                                      'Quest',
+                                      style:
+                                          Theme.of(
+                                            context,
+                                          ).textTheme.bodyMedium,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 36),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              CancelButton(
+                                onPressed: () {
+                                  widget.onClose();
+                                },
+                              ),
+                              ConfirmButton(
+                                onPressed:
+                                    isFormValid
+                                        ? () async {
+                                          FocusScope.of(context).unfocus();
+                                          if (selectedType == TaskType.daily) {
+                                            await repository.addDaily(
+                                              userInput.text,
+                                            );
+                                            await refreshDailyProgress(
+                                              repository,
+                                            );
+                                            widget.onClose();
+                                            debugPrint(
+                                              'add task daily widget onClose',
+                                            );
+                                          } else if (selectedType ==
+                                                  TaskType.weekly &&
+                                              selectedWeekday != null) {
+                                            await repository.addWeekly(
+                                              userInput.text,
+                                              selectedWeekday,
+                                            );
+                                            await refreshWeeklyProgress(
+                                              repository,
+                                            );
+                                            widget.onClose();
+                                            debugPrint(
+                                              'add task weekly widget onClose',
+                                            );
+                                          } else if (selectedType ==
+                                                  TaskType.deadline &&
+                                              selectedDate != null &&
+                                              selectedTime != null) {
+                                            final dateStr = formatDate(
+                                              selectedDate,
+                                            );
+                                            final timeStr = formatTime(
+                                              selectedTime,
+                                            );
+                                            await repository.addDeadline(
+                                              userInput.text,
+                                              dateStr,
+                                              timeStr,
+                                            );
+                                            widget.onClose();
+                                            debugPrint(
+                                              'add task deadline widget onClose',
+                                            );
+                                          } else if (selectedType ==
+                                              TaskType.quest) {
+                                            await repository.addQuest(
+                                              userInput.text,
+                                            );
+                                            widget.onClose();
+                                            debugPrint(
+                                              'add task quest onClose',
+                                            );
+                                          } else {
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  'Please complete all required fields',
+                                                  style:
+                                                      Theme.of(context)
+                                                          .snackBarTheme
+                                                          .contentTextStyle,
+                                                ),
                                               ),
-                                            ),
-                                          );
+                                            );
+                                          }
                                         }
-                                      },
-                            ),
-                          ],
-                        ),
-                      ],
+                                        : null,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
