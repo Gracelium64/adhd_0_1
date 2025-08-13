@@ -34,7 +34,7 @@ object NotificationHelper {
         }
     }
 
-    fun showDailyQuote(context: Context, body: String? = null) {
+    fun showDailyQuote(context: Context) {
         ensureChannel(context)
         val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         // Prefer a previously saved quote from Flutter, fallback to provided body, then default

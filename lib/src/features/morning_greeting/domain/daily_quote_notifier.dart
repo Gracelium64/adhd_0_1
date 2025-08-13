@@ -261,7 +261,7 @@ class DailyQuoteNotifier {
   }
 
   String _randomQuote() {
-    if (tipOfTheDay.isEmpty) return 'Make today count.';
+    if (tipOfTheDay.isEmpty) return 'Mood is for love play and cattle.';
     final rnd = Random();
     final s = tipOfTheDay[rnd.nextInt(tipOfTheDay.length)];
     // strip surrounding quotes if any; and trim
