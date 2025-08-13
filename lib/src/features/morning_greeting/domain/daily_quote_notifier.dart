@@ -5,8 +5,8 @@ import 'dart:io' show Platform;
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/morning_greeting/domain/tip_database.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:adhd_0_1/src/navigation/notification_router.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
@@ -57,7 +57,8 @@ class DailyQuoteNotifier {
     await _plugin.initialize(
       initSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) async {
-        // Tapping opens app by default; nothing else needed here for now.
+        // Route to Dailys tab when user taps the notification
+        NotificationRouter.instance.openDailys();
       },
     );
 
@@ -163,7 +164,14 @@ class DailyQuoteNotifier {
               await platform.invokeMethod('requestExactAlarmPermission');
             } catch (_) {}
           }
-          // Persist time and schedule next one-shot natively
+          // Persist the next quote and time, then schedule next one-shot natively
+          try {
+            await platform.invokeMethod('saveNextQuote', {
+              'quote': quote,
+            });
+          } catch (e) {
+            debugPrint('[DailyQuoteNotifier] saveNextQuote failed: $e');
+          }
           await platform.invokeMethod('saveStartOfDay', {
             'hour': time.hour,
             'minute': time.minute,

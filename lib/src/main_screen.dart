@@ -16,6 +16,8 @@ import 'package:adhd_0_1/src/features/weekly_summery/presentation/widgets/weekly
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:adhd_0_1/src/navigation/notification_router.dart';
+import 'package:flutter/services.dart';
 
 class MainScreen extends StatefulWidget {
   final bool showTutorial;
@@ -33,11 +35,13 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   final List<Prizes> weeklyPrizes = [];
   Timer? _dayWatcher;
   DateTime _lastDay = DateTime.now();
+  late final VoidCallback _notifListener;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _checkAndroidInitialRoute();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.showTutorial) {
         overlayControllerTutorial.show();
@@ -45,6 +49,16 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     });
     performResetsIfNeeded();
     _startDayWatcher();
+
+    // Listen for notification tap requests to open Dailys tab
+    _notifListener = () {
+      if (NotificationRouter.instance.openDailysRequested.value) {
+        setState(() => _pageIndex = 1); // Dailys tab index
+        // reset the flag immediately so subsequent opens work
+        NotificationRouter.instance.openDailysRequested.value = false;
+      }
+    };
+    NotificationRouter.instance.openDailysRequested.addListener(_notifListener);
   }
 
   void _startDayWatcher() {
@@ -81,6 +95,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) {
       // On resume, ensure we catch up on any missed day change
       performResetsIfNeeded();
+      _checkAndroidInitialRoute();
     }
   }
 
@@ -88,7 +103,26 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _dayWatcher?.cancel();
+    NotificationRouter.instance.openDailysRequested.removeListener(
+      _notifListener,
+    );
     super.dispose();
+  }
+
+  Future<void> _checkAndroidInitialRoute() async {
+    // Android-only hook: check if MainActivity provided an initial route from a notification tap
+    try {
+      const String channel = 'shadowapp.grace6424.adhd01/alarm';
+      final platform = const MethodChannel(channel);
+      final String? route = await platform.invokeMethod<String>(
+        'getInitialRouteFromIntent',
+      );
+      if (route == 'dailys') {
+        if (mounted) setState(() => _pageIndex = 1);
+      }
+    } catch (_) {
+      // no-op on iOS or if method not available
+    }
   }
 
   @override

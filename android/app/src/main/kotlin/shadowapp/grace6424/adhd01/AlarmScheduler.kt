@@ -11,10 +11,17 @@ import androidx.core.content.edit
 object AlarmScheduler {
     private const val PREFS = "adhd_prefs"
     private const val KEY_START_OF_DAY = "startOfDay" // format HH:MM
+    private const val KEY_NEXT_QUOTE = "nextQuote"
 
     fun saveStartOfDay(context: Context, hh: Int, mm: Int) {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit {
             putString(KEY_START_OF_DAY, String.format("%02d:%02d", hh, mm))
+        }
+    }
+
+    fun saveNextQuote(context: Context, quote: String) {
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit {
+            putString(KEY_NEXT_QUOTE, quote)
         }
     }
 
@@ -40,7 +47,7 @@ object AlarmScheduler {
     fun schedule(context: Context, hour: Int, minute: Int, nextOnly: Boolean) {
         saveStartOfDay(context, hour, minute)
         val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intent = Intent(context, AlarmReceiver::class.java)
+    val intent = Intent(context, AlarmReceiver::class.java)
         val pi = PendingIntent.getBroadcast(
             context,
             2001,
