@@ -34,8 +34,8 @@ class _DeadlineTaskWidgetState extends State<DeadlineTaskWidget> {
 
   void _toggleTask() async {
     await widget.repository.completeDeadline(widget.task.taskId);
-widget.task.isDone = true;
-widget.onClose();
+    widget.task.isDone = true;
+    widget.onClose();
   }
 
   @override
