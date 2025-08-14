@@ -78,7 +78,6 @@ class OnboardingFifth extends StatelessWidget {
                                 rootNavigator: true,
                               ).pushReplacement(
                                 PageRouteBuilder(
-                                  opaque: false,
                                   pageBuilder:
                                       (_, __, ___) => OnboardingCompletion(),
                                   transitionsBuilder: (

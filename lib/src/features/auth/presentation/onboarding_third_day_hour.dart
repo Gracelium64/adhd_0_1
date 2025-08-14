@@ -4,6 +4,7 @@ import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/app_bg_coldstart.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/onboarding_fourth_location.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
+import 'package:adhd_0_1/src/common/presentation/blocking_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -64,16 +65,18 @@ class _OnboardingThirdDayHourState extends State<OnboardingThirdDayHour> {
                           });
                         }
                       },
-                      items: Weekday.values
-                          .where((day) {
-                            return day != Weekday.any;
-                          })
-                          .map((day) {
-                            return DropdownMenuItem(
-                              value: day,
-                              child: Text(day.label),
-                            );
-                          }).toList(),
+                      items:
+                          Weekday.values
+                              .where((day) {
+                                return day != Weekday.any;
+                              })
+                              .map((day) {
+                                return DropdownMenuItem(
+                                  value: day,
+                                  child: Text(day.label),
+                                );
+                              })
+                              .toList(),
                     ),
 
                     SizedBox(height: 12),
@@ -112,34 +115,36 @@ class _OnboardingThirdDayHourState extends State<OnboardingThirdDayHour> {
                     SizedBox(height: 36),
                     ConfirmButton(
                       onPressed: () async {
-                        final currentSettings = await repository.getSettings();
+                        await showBlockingLoaderDuring(context, () async {
+                          final currentSettings =
+                              await repository.getSettings();
 
-                        await repository.setSettings(
-                          currentSettings?.appSkinColor,
-                          currentSettings?.language ?? 'en',
-                          currentSettings?.location ?? 'default_location',
-                          selectedTime ?? TimeOfDay(hour: 8, minute: 0),
-                          selectedWeekday,
-                        );
-
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          Navigator.of(
-                            context,
-                            rootNavigator: true,
-                          ).pushReplacement(
-                            PageRouteBuilder(
-                              opaque: false,
-                              pageBuilder:
-                                  (_, __, ___) => OnboardingFourthLocation(),
-                              transitionsBuilder: (_, animation, __, child) {
-                                return FadeTransition(
-                                  opacity: animation,
-                                  child: child,
-                                );
-                              },
-                            ),
+                          await repository.setSettings(
+                            currentSettings?.appSkinColor,
+                            currentSettings?.language ?? 'en',
+                            currentSettings?.location ?? 'default_location',
+                            selectedTime ?? TimeOfDay(hour: 8, minute: 0),
+                            selectedWeekday,
                           );
                         });
+
+                        if (!context.mounted) return;
+
+                        Navigator.of(
+                          context,
+                          rootNavigator: true,
+                        ).pushReplacement(
+                          PageRouteBuilder(
+                            pageBuilder:
+                                (_, __, ___) => OnboardingFourthLocation(),
+                            transitionsBuilder: (_, animation, __, child) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              );
+                            },
+                          ),
+                        );
                       },
                     ),
                   ],

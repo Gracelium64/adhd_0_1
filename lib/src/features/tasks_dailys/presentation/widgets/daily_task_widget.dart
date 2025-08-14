@@ -149,7 +149,6 @@ class _DailyTaskWidgetState extends State<DailyTaskWidget> {
             ),
           ),
         ),
-        // ),
       ],
     );
   }

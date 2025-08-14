@@ -77,7 +77,6 @@ class RegisterConfirmation extends StatelessWidget {
                             rootNavigator: true,
                           ).pushReplacement(
                             PageRouteBuilder(
-                              opaque: false,
                               pageBuilder:
                                   (_, __, ___) => OnboardingFirstSkin(),
                               transitionsBuilder: (_, animation, __, child) {

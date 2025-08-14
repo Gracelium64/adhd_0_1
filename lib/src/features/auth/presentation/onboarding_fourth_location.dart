@@ -4,6 +4,7 @@ import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/app_bg_coldstart.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/onboarding_fifth.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
+import 'package:adhd_0_1/src/common/presentation/blocking_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -92,34 +93,36 @@ class _OnboardingFourthLocationState extends State<OnboardingFourthLocation> {
                     SizedBox(height: 108),
                     ConfirmButton(
                       onPressed: () async {
-                        final currentSettings = await repository.getSettings();
+                        await showBlockingLoaderDuring(context, () async {
+                          final currentSettings =
+                              await repository.getSettings();
 
-                        await repository.setSettings(
-                          currentSettings?.appSkinColor,
-                          currentSettings?.language ?? 'en',
-                          selectedCapital.label,
-                          currentSettings?.startOfDay ??
-                              TimeOfDay(hour: 8, minute: 0),
-                          currentSettings?.startOfWeek ?? Weekday.mon,
-                        );
-
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          Navigator.of(
-                            context,
-                            rootNavigator: true,
-                          ).pushReplacement(
-                            PageRouteBuilder(
-                              opaque: false,
-                              pageBuilder: (_, __, ___) => OnboardingFifth(),
-                              transitionsBuilder: (_, animation, __, child) {
-                                return FadeTransition(
-                                  opacity: animation,
-                                  child: child,
-                                );
-                              },
-                            ),
+                          await repository.setSettings(
+                            currentSettings?.appSkinColor,
+                            currentSettings?.language ?? 'en',
+                            selectedCapital.label,
+                            currentSettings?.startOfDay ??
+                                TimeOfDay(hour: 8, minute: 0),
+                            currentSettings?.startOfWeek ?? Weekday.mon,
                           );
                         });
+
+                        if (!context.mounted) return;
+
+                        Navigator.of(
+                          context,
+                          rootNavigator: true,
+                        ).pushReplacement(
+                          PageRouteBuilder(
+                            pageBuilder: (_, __, ___) => OnboardingFifth(),
+                            transitionsBuilder: (_, animation, __, child) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              );
+                            },
+                          ),
+                        );
                       },
                     ),
                   ],

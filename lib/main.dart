@@ -119,6 +119,7 @@ Future<void> main() async {
 
   //  // // SPRINT 3 // // ---------------------- OVERDUE ---------------------- // //
   // Functionality // //
+  //TODO: app disclaimer after completing onboardingß
   //TODO: responsive design - fine tune 16:9 aspect ratio elemnts placement in AppBg
   //TODO: responsive design - RESPONSIVE FUCKING DESIGN, collect device data from bug reports and adapt
   //TODO: responsive design - move subTitle to AppBg?

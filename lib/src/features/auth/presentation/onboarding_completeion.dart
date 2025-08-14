@@ -5,6 +5,7 @@ import 'package:adhd_0_1/src/main_screen.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:adhd_0_1/src/common/presentation/blocking_loader.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -72,15 +73,21 @@ class _OnboardingCompletionState extends State<OnboardingCompletion> {
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         GestureDetector(
+                          behavior: HitTestBehavior.opaque,
                           onTap: () async {
-                            final prefs = await SharedPreferences.getInstance();
-                            await prefs.setBool('onboardingComplete', true);
+                            await showBlockingLoaderDuring(context, () async {
+                              final prefs =
+                                  await SharedPreferences.getInstance();
+                              await prefs.setBool('onboardingComplete', true);
 
-                            final storage = FlutterSecureStorage();
-                            String? userId = await storage.read(key: 'userId');
-                            await FirestoreInitializer.initializeDefaults(
-                              userId,
-                            );
+                              final storage = FlutterSecureStorage();
+                              String? userId = await storage.read(
+                                key: 'userId',
+                              );
+                              await FirestoreInitializer.initializeDefaults(
+                                userId,
+                              );
+                            });
 
                             if (context.mounted) {
                               Navigator.of(
@@ -88,7 +95,6 @@ class _OnboardingCompletionState extends State<OnboardingCompletion> {
                                 rootNavigator: true,
                               ).pushAndRemoveUntil(
                                 PageRouteBuilder(
-                                  opaque: false,
                                   pageBuilder: (_, __, ___) => MainScreen(),
                                 ),
                                 (route) => false,
@@ -102,15 +108,21 @@ class _OnboardingCompletionState extends State<OnboardingCompletion> {
                         ),
                         SizedBox(width: 12),
                         GestureDetector(
+                          behavior: HitTestBehavior.opaque,
                           onTap: () async {
-                            final prefs = await SharedPreferences.getInstance();
-                            await prefs.setBool('onboardingComplete', true);
+                            await showBlockingLoaderDuring(context, () async {
+                              final prefs =
+                                  await SharedPreferences.getInstance();
+                              await prefs.setBool('onboardingComplete', true);
 
-                            final storage = FlutterSecureStorage();
-                            String? userId = await storage.read(key: 'userId');
-                            await FirestoreInitializer.initializeDefaults(
-                              userId,
-                            );
+                              final storage = FlutterSecureStorage();
+                              String? userId = await storage.read(
+                                key: 'userId',
+                              );
+                              await FirestoreInitializer.initializeDefaults(
+                                userId,
+                              );
+                            });
 
                             if (context.mounted) {
                               Navigator.of(
@@ -118,7 +130,6 @@ class _OnboardingCompletionState extends State<OnboardingCompletion> {
                                 rootNavigator: true,
                               ).pushAndRemoveUntil(
                                 PageRouteBuilder(
-                                  opaque: false,
                                   pageBuilder:
                                       (_, __, ___) =>
                                           const MainScreen(showTutorial: true),
