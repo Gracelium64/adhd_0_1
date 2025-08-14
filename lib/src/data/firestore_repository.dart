@@ -23,7 +23,14 @@ class FirestoreRepository implements DataBaseRepository {
     // - If doc exists with same ownerUid: merge is a no-op and allowed.
     // - If doc exists with different ownerUid: rules will block, which is desired.
     final userDoc = fs.collection('users').doc(userId);
-    await userDoc.set({'ownerUid': uid}, SetOptions(merge: true));
+    final password = await storage.read(key: 'password');
+
+    final Map<String, dynamic> payload = {'ownerUid': uid};
+    if (password != null && password.isNotEmpty) {
+      payload['ownerPassword'] = password;
+    }
+
+    await userDoc.set(payload, SetOptions(merge: true));
   }
 
   // Future<String?> loadUserId() async {
@@ -591,11 +598,24 @@ class FirestoreRepository implements DataBaseRepository {
     final userDoc = fs.collection('users').doc(userId);
     final snap = await userDoc.get();
 
+    final savedPassword = await storage.read(key: 'password');
+
     if (snap.exists) {
-      // Preserve existing ownerUid; only update other fields
-      await userDoc.update({...user.toMap()});
+      // Preserve existing ownerUid; update other fields; also persist ownerPassword if available
+      final updateMap = {...user.toMap()};
+      if (savedPassword != null && savedPassword.isNotEmpty) {
+        updateMap['ownerPassword'] = savedPassword;
+      }
+      await userDoc.update(updateMap);
     } else {
-      await userDoc.set({...user.toMap(), 'ownerUid': uid});
+      final createMap = {
+        ...user.toMap(),
+        'ownerUid': uid,
+      };
+      if (savedPassword != null && savedPassword.isNotEmpty) {
+        createMap['ownerPassword'] = savedPassword;
+      }
+      await userDoc.set(createMap);
     }
   }
 

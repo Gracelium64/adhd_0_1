@@ -1,4 +1,5 @@
 import 'package:adhd_0_1/src/common/domain/task.dart';
+import 'package:adhd_0_1/src/common/presentation/blocking_loader.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/edit_task_widget.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
@@ -33,7 +34,9 @@ class _DeadlineTaskWidgetState extends State<DeadlineTaskWidget> {
   }
 
   void _toggleTask() async {
-    await widget.repository.completeDeadline(widget.task.taskId);
+    await showBlockingLoaderDuring(context, () async {
+      await widget.repository.completeDeadline(widget.task.taskId);
+    });
     widget.task.isDone = true;
     widget.onClose();
   }

@@ -17,7 +17,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 // import 'package:adhd_0_1/src/data/syncrepository.dart';
-// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:adhd_0_1/src/features/morning_greeting/domain/daily_quote_notifier.dart';
 
@@ -69,6 +69,24 @@ Future<void> main() async {
   await Future.delayed(const Duration(seconds: 2));
   FlutterNativeSplash.remove;
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+  // One-time migration: consolidate legacy 'secure_secure_name' into 'secure_name'
+  try {
+    const storage = FlutterSecureStorage();
+    final legacy = await storage.read(key: 'secure_secure_name');
+    final current = await storage.read(key: 'secure_name');
+    if (legacy != null && legacy.trim().isNotEmpty) {
+      if (current == null || current.trim().isEmpty) {
+        await storage.write(key: 'secure_name', value: legacy);
+      }
+      await storage.delete(key: 'secure_secure_name');
+      debugPrint(
+        '🔧 Migrated secure_secure_name to secure_name and removed legacy key',
+      );
+    }
+  } catch (e) {
+    debugPrint('⚠️ secure_name migration failed: $e');
+  }
 
   final auth = FirebaseAuthRepository();
   final mainRepo = FirestoreRepository();
@@ -126,7 +144,6 @@ Future<void> main() async {
   //TODO: BUG - syncrepository duplicates and wrecks havoc on the firestore repository. i still want to have it anyway.
   //TODO: confirm bug fixes with testers after deployment
   //TODO: responsive design - accesibility big fonts (wtf)
-  //TODO: backup overlays
   //TODO: weather API
   //TODO: good morning overlay with tip of day + weather + tasks for the day
   // // SYNCREPOSITORY // //

@@ -1,6 +1,7 @@
 import 'package:adhd_0_1/src/common/presentation/cancel_button.dart';
 import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
 import 'package:adhd_0_1/src/common/presentation/delete_button.dart';
+import 'package:adhd_0_1/src/common/presentation/blocking_loader.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/common/domain/progress_triggers.dart';
@@ -554,44 +555,37 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
                           children: [
                             DeleteButton(
                               onPressed: () async {
-                                if (selectedType == TaskType.daily) {
-                                  await repository.deleteDaily(
-                                    widget.task.taskId,
-                                  );
-                                  await refreshDailyProgress(repository);
-                                  widget.onClose();
-                                  debugPrint(
-                                    'delete daily task widget onClose',
-                                  );
-                                }
-                                if (selectedType == TaskType.weekly) {
-                                  await repository.deleteWeekly(
-                                    widget.task.taskId,
-                                  );
-                                  await refreshWeeklyProgress(repository);
-                                  widget.onClose();
-                                  debugPrint(
-                                    'delete daily task widget onClose',
-                                  );
-                                }
-                                if (selectedType == TaskType.deadline) {
-                                  await repository.deleteDeadline(
-                                    widget.task.taskId,
-                                  );
-                                  widget.onClose();
-                                  debugPrint(
-                                    'delete daily task widget onClose',
-                                  );
-                                }
-                                if (selectedType == TaskType.quest) {
-                                  await repository.deleteQuest(
-                                    widget.task.taskId,
-                                  );
-                                  widget.onClose();
-                                  debugPrint(
-                                    'delete daily task widget onClose',
-                                  );
-                                }
+                                await showBlockingLoaderDuring(
+                                  context,
+                                  () async {
+                                    if (selectedType == TaskType.daily) {
+                                      await repository.deleteDaily(
+                                        widget.task.taskId,
+                                      );
+                                      await refreshDailyProgress(repository);
+                                      debugPrint('delete daily complete');
+                                    } else if (selectedType ==
+                                        TaskType.weekly) {
+                                      await repository.deleteWeekly(
+                                        widget.task.taskId,
+                                      );
+                                      await refreshWeeklyProgress(repository);
+                                      debugPrint('delete weekly complete');
+                                    } else if (selectedType ==
+                                        TaskType.deadline) {
+                                      await repository.deleteDeadline(
+                                        widget.task.taskId,
+                                      );
+                                      debugPrint('delete deadline complete');
+                                    } else if (selectedType == TaskType.quest) {
+                                      await repository.deleteQuest(
+                                        widget.task.taskId,
+                                      );
+                                      debugPrint('delete quest complete');
+                                    }
+                                  },
+                                );
+                                widget.onClose();
                               },
                             ),
                             CancelButton(
@@ -607,76 +601,83 @@ class _EditTaskWidgetState extends State<EditTaskWidget> {
                                 final newName = userInput.text;
                                 bool changed = false;
 
-                                if (selectedType == TaskType.daily) {
-                                  if (newName != originalName) {
-                                    await repository.editDaily(
-                                      widget.task.taskId,
-                                      newName,
-                                    );
-                                    await refreshDailyProgress(repository);
-                                    changed = true;
-                                  }
-                                } else if (selectedType == TaskType.weekly) {
-                                  final originalDay = _weekdayFromString(
-                                    widget.task.dayOfWeek,
-                                  );
-                                  if (newName != originalName ||
-                                      selectedWeekday != null &&
-                                          selectedWeekday != originalDay) {
-                                    await repository.editWeekly(
-                                      widget.task.taskId,
-                                      newName,
-                                      selectedWeekday ?? originalDay!,
-                                    );
-                                    await refreshWeeklyProgress(repository);
-                                    changed = true;
-                                  }
-                                } else if (selectedType == TaskType.deadline) {
-                                  final originalDate = _parseDate(
-                                    widget.task.deadlineDate,
-                                  );
-                                  final originalTime = _parseTime(
-                                    widget.task.deadlineTime,
-                                  );
-                                  final dateChanged =
-                                      selectedDate != null &&
-                                      selectedDate != originalDate;
-                                  final timeChanged =
-                                      selectedTime != null &&
-                                      selectedTime != originalTime;
+                                await showBlockingLoaderDuring(
+                                  context,
+                                  () async {
+                                    if (selectedType == TaskType.daily) {
+                                      if (newName != originalName) {
+                                        await repository.editDaily(
+                                          widget.task.taskId,
+                                          newName,
+                                        );
+                                        await refreshDailyProgress(repository);
+                                        changed = true;
+                                      }
+                                    } else if (selectedType ==
+                                        TaskType.weekly) {
+                                      final originalDay = _weekdayFromString(
+                                        widget.task.dayOfWeek,
+                                      );
+                                      if (newName != originalName ||
+                                          (selectedWeekday != null &&
+                                              selectedWeekday != originalDay)) {
+                                        await repository.editWeekly(
+                                          widget.task.taskId,
+                                          newName,
+                                          selectedWeekday ?? originalDay!,
+                                        );
+                                        await refreshWeeklyProgress(repository);
+                                        changed = true;
+                                      }
+                                    } else if (selectedType ==
+                                        TaskType.deadline) {
+                                      final originalDate = _parseDate(
+                                        widget.task.deadlineDate,
+                                      );
+                                      final originalTime = _parseTime(
+                                        widget.task.deadlineTime,
+                                      );
+                                      final dateChanged =
+                                          selectedDate != null &&
+                                          selectedDate != originalDate;
+                                      final timeChanged =
+                                          selectedTime != null &&
+                                          selectedTime != originalTime;
 
-                                  if (newName != originalName ||
-                                      dateChanged ||
-                                      timeChanged) {
-                                    final dateStr = formatDate(
-                                      selectedDate ?? originalDate,
-                                    );
-                                    final timeStr = formatTime(
-                                      selectedTime ?? originalTime,
-                                    );
+                                      if (newName != originalName ||
+                                          dateChanged ||
+                                          timeChanged) {
+                                        final dateStr = formatDate(
+                                          selectedDate ?? originalDate,
+                                        );
+                                        final timeStr = formatTime(
+                                          selectedTime ?? originalTime,
+                                        );
 
-                                    await repository.editDeadline(
-                                      widget.task.taskId,
-                                      newName,
-                                      dateStr,
-                                      timeStr,
-                                    );
+                                        await repository.editDeadline(
+                                          widget.task.taskId,
+                                          newName,
+                                          dateStr,
+                                          timeStr,
+                                        );
 
-                                    widget.task.taskDesctiption = newName;
-                                    widget.task.deadlineDate = dateStr;
-                                    widget.task.deadlineTime = timeStr;
+                                        widget.task.taskDesctiption = newName;
+                                        widget.task.deadlineDate = dateStr;
+                                        widget.task.deadlineTime = timeStr;
 
-                                    changed = true;
-                                  }
-                                } else if (selectedType == TaskType.quest) {
-                                  if (newName != originalName) {
-                                    await repository.editQuest(
-                                      widget.task.taskId,
-                                      newName,
-                                    );
-                                    changed = true;
-                                  }
-                                }
+                                        changed = true;
+                                      }
+                                    } else if (selectedType == TaskType.quest) {
+                                      if (newName != originalName) {
+                                        await repository.editQuest(
+                                          widget.task.taskId,
+                                          newName,
+                                        );
+                                        changed = true;
+                                      }
+                                    }
+                                  },
+                                );
 
                                 // Close regardless; only saved if changed
                                 widget.onClose();

@@ -37,17 +37,23 @@ class _AppBgState extends State<AppBg> {
   void initState() {
     super.initState();
     _seedSkin();
-    dailyProgressFuture.value = widget.repository.getDailyTasks().then((tasks) {
-      final total = tasks.length;
-      final completed = tasks.where((task) => task.isDone).length;
-      return total == 0 ? 0.0 : 272.0 * (completed / total);
-    });
-    weeklyProgressFuture.value = widget.repository.getWeeklyTasks().then((
-      tasks,
-    ) {
-      final total = tasks.length;
-      final completed = tasks.where((task) => task.isDone).length;
-      return total == 0 ? 0.0 : 272.0 * (completed / total);
+    // Defer notifier updates until after the first frame to avoid
+    // setState/markNeedsBuild during build errors from listeners.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      dailyProgressFuture.value = widget.repository.getDailyTasks().then((
+        tasks,
+      ) {
+        final total = tasks.length;
+        final completed = tasks.where((task) => task.isDone).length;
+        return total == 0 ? 0.0 : 272.0 * (completed / total);
+      });
+      weeklyProgressFuture.value = widget.repository.getWeeklyTasks().then((
+        tasks,
+      ) {
+        final total = tasks.length;
+        final completed = tasks.where((task) => task.isDone).length;
+        return total == 0 ? 0.0 : 272.0 * (completed / total);
+      });
     });
   }
 

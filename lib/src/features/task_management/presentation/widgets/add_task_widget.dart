@@ -1,6 +1,7 @@
 import 'package:adhd_0_1/src/common/presentation/cancel_button.dart';
 import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
 import 'package:adhd_0_1/src/common/domain/progress_triggers.dart';
+import 'package:adhd_0_1/src/common/presentation/blocking_loader.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
@@ -505,60 +506,71 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
                                     isFormValid
                                         ? () async {
                                           FocusScope.of(context).unfocus();
-                                          if (selectedType == TaskType.daily) {
-                                            await repository.addDaily(
-                                              userInput.text,
-                                            );
-                                            await refreshDailyProgress(
-                                              repository,
-                                            );
-                                            widget.onClose();
-                                            debugPrint(
-                                              'add task daily widget onClose',
-                                            );
-                                          } else if (selectedType ==
-                                                  TaskType.weekly &&
-                                              selectedWeekday != null) {
-                                            await repository.addWeekly(
-                                              userInput.text,
-                                              selectedWeekday,
-                                            );
-                                            await refreshWeeklyProgress(
-                                              repository,
-                                            );
-                                            widget.onClose();
-                                            debugPrint(
-                                              'add task weekly widget onClose',
-                                            );
-                                          } else if (selectedType ==
-                                                  TaskType.deadline &&
-                                              selectedDate != null &&
-                                              selectedTime != null) {
-                                            final dateStr = formatDate(
-                                              selectedDate,
-                                            );
-                                            final timeStr = formatTime(
-                                              selectedTime,
-                                            );
-                                            await repository.addDeadline(
-                                              userInput.text,
-                                              dateStr,
-                                              timeStr,
-                                            );
-                                            widget.onClose();
-                                            debugPrint(
-                                              'add task deadline widget onClose',
-                                            );
-                                          } else if (selectedType ==
-                                              TaskType.quest) {
-                                            await repository.addQuest(
-                                              userInput.text,
-                                            );
-                                            widget.onClose();
-                                            debugPrint(
-                                              'add task quest onClose',
-                                            );
-                                          } else {
+                                          bool valid = true;
+                                          await showBlockingLoaderDuring(
+                                            context,
+                                            () async {
+                                              if (selectedType ==
+                                                  TaskType.daily) {
+                                                await repository.addDaily(
+                                                  userInput.text,
+                                                );
+                                                await refreshDailyProgress(
+                                                  repository,
+                                                );
+                                                debugPrint(
+                                                  'add task daily complete',
+                                                );
+                                              } else if (selectedType ==
+                                                  TaskType.weekly) {
+                                                if (selectedWeekday == null) {
+                                                  valid = false;
+                                                  return;
+                                                }
+                                                await repository.addWeekly(
+                                                  userInput.text,
+                                                  selectedWeekday,
+                                                );
+                                                await refreshWeeklyProgress(
+                                                  repository,
+                                                );
+                                                debugPrint(
+                                                  'add task weekly complete',
+                                                );
+                                              } else if (selectedType ==
+                                                  TaskType.deadline) {
+                                                if (selectedDate == null ||
+                                                    selectedTime == null) {
+                                                  valid = false;
+                                                  return;
+                                                }
+                                                final dateStr = formatDate(
+                                                  selectedDate,
+                                                );
+                                                final timeStr = formatTime(
+                                                  selectedTime,
+                                                );
+                                                await repository.addDeadline(
+                                                  userInput.text,
+                                                  dateStr,
+                                                  timeStr,
+                                                );
+                                                debugPrint(
+                                                  'add task deadline complete',
+                                                );
+                                              } else if (selectedType ==
+                                                  TaskType.quest) {
+                                                await repository.addQuest(
+                                                  userInput.text,
+                                                );
+                                                debugPrint(
+                                                  'add task quest complete',
+                                                );
+                                              }
+                                            },
+                                          );
+
+                                          if (!valid) {
                                             ScaffoldMessenger.of(
                                               context,
                                             ).showSnackBar(
@@ -572,7 +584,10 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
                                                 ),
                                               ),
                                             );
+                                            return;
                                           }
+
+                                          widget.onClose();
                                         }
                                         : null,
                               ),

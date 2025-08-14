@@ -1,6 +1,7 @@
 import 'package:adhd_0_1/src/data/auth_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+// Removed SharedPreferences for firebaseUid; using secure storage only.
 
 class FirebaseAuthRepository implements AuthRepository {
   final _storage = FlutterSecureStorage();
@@ -12,7 +13,7 @@ class FirebaseAuthRepository implements AuthRepository {
     );
     final uid = cred.user?.uid ?? FirebaseAuth.instance.currentUser?.uid;
     if (uid != null) {
-      await _storage.write(key: 'fUid', value: uid);
+      await _storage.write(key: 'firebaseUid', value: uid);
     }
   }
 
@@ -27,14 +28,14 @@ class FirebaseAuthRepository implements AuthRepository {
     );
     final uid = cred.user?.uid ?? FirebaseAuth.instance.currentUser?.uid;
     if (uid != null) {
-      await _storage.write(key: 'fUid', value: uid);
+      await _storage.write(key: 'firebaseUid', value: uid);
     }
   }
 
   @override
   Future<void> signOut() async {
     await FirebaseAuth.instance.signOut();
-    await _storage.delete(key: 'fUid');
+    await _storage.delete(key: 'firebaseUid');
   }
 
   @override

@@ -6,6 +6,7 @@ import 'package:adhd_0_1/src/features/auth/presentation/register_confirmation.da
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:adhd_0_1/src/features/settings/presentation/widgets/load_saved_game.dart';
 import 'package:provider/provider.dart';
 
 class Register extends StatefulWidget {
@@ -41,6 +42,12 @@ class _RegisterState extends State<Register> {
     return random;
   }
 
+  String extractBaseName(String input) {
+    final idx = input.indexOf('_');
+    if (idx <= 0) return input;
+    return input.substring(0, idx);
+  }
+
   final formKey = GlobalKey<FormState>();
 
   @override
@@ -49,6 +56,21 @@ class _RegisterState extends State<Register> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       resizeToAvoidBottomInset: true,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.of(context, rootNavigator: true).push(
+            PageRouteBuilder(
+              pageBuilder: (_, __, ___) => const LoadSaveGame(),
+              transitionsBuilder:
+                  (_, animation, __, child) =>
+                      FadeTransition(opacity: animation, child: child),
+            ),
+          );
+        },
+        backgroundColor: Palette.basicBitchBlack,
+        foregroundColor: Palette.basicBitchWhite,
+        label: const Text('Load Saved Game'),
+      ),
       body: AnimatedPadding(
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOut,
@@ -144,6 +166,10 @@ class _RegisterState extends State<Register> {
                             await storage.write(
                               key: 'name',
                               value: userName.text,
+                            );
+                            await storage.write(
+                              key: 'secure_name',
+                              value: extractBaseName(userId),
                             );
                             final name =
                                 await storage.read(key: 'name') ?? 'No User';

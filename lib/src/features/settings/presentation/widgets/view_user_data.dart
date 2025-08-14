@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:adhd_0_1/src/features/settings/presentation/widgets/load_saved_game.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ViewUserData extends StatelessWidget {
   final void Function() onClose;
@@ -50,7 +52,7 @@ class ViewUserData extends StatelessWidget {
                   boxShadow: [BoxShadow(color: Palette.basicBitchBlack)],
                   border: Border.all(color: Palette.basicBitchWhite, width: 2),
                 ),
-                height: 330,
+                height: 430,
                 width: 300,
                 child: FutureBuilder(
                   future: Future.wait([
@@ -104,33 +106,96 @@ class ViewUserData extends StatelessWidget {
                             maxLines: 1,
                           ),
                           SizedBox(height: 8),
-                          TextButton(
-                            onPressed: () {
-                              Clipboard.setData(
-                                ClipboardData(
-                                  text:
-                                      'User Name: $userName\nPassword: $userPassword\nIdentifier: $identifier',
-                                ),
-                              );
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Copied to Clipboard!',
-                                    style:
-                                        Theme.of(
-                                          context,
-                                        ).snackBarTheme.contentTextStyle,
+                          Builder(
+                            builder: (context) {
+                              final shareText =
+                                  'User Name: $userName\nPassword: $userPassword\nIdentifier: $identifier';
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Clipboard.setData(
+                                        ClipboardData(text: shareText),
+                                      );
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            'Copied to Clipboard!',
+                                            style:
+                                                Theme.of(context)
+                                                    .snackBarTheme
+                                                    .contentTextStyle,
+                                          ),
+                                        ),
+                                      );
+                                      onClose();
+                                    },
+                                    child: Text(
+                                      'Copy to Clipboard',
+                                      style: TextStyle(
+                                        color: Palette.basicBitchWhite,
+                                      ),
+                                    ),
                                   ),
-                                ),
+                                  const SizedBox(width: 12),
+                                  TextButton.icon(
+                                    onPressed: () async {
+                                      // Ensure same text is available in clipboard, then share it
+                                      await Clipboard.setData(
+                                        ClipboardData(text: shareText),
+                                      );
+                                      await SharePlus.instance.share(
+                                        ShareParams(text: shareText),
+                                      );
+                                    },
+                                    icon: Icon(
+                                      Icons.share,
+                                      color: Palette.basicBitchWhite,
+                                      size: 18,
+                                    ),
+                                    label: Text(
+                                      'Share',
+                                      style: TextStyle(
+                                        color: Palette.basicBitchWhite,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               );
-                              onClose();
                             },
-                            child: Text(
-                              'Copy to Clipboard',
-                              style: TextStyle(color: Palette.basicBitchWhite),
-                            ),
                           ),
                           SizedBox(height: 14),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.of(context, rootNavigator: true).push(
+                                PageRouteBuilder(
+                                  pageBuilder:
+                                      (_, __, ___) => const LoadSaveGame(),
+                                  transitionsBuilder:
+                                      (_, animation, __, child) =>
+                                          FadeTransition(
+                                            opacity: animation,
+                                            child: child,
+                                          ),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Palette.basicBitchBlack,
+                              foregroundColor: Palette.basicBitchWhite,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                side: BorderSide(
+                                  color: Palette.basicBitchWhite,
+                                ),
+                              ),
+                            ),
+                            child: const Text('Load Saved Game'),
+                          ),
+                          SizedBox(height: 42),
                           ConfirmButton(
                             onPressed: () {
                               onClose();

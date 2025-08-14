@@ -1,4 +1,5 @@
 import 'package:adhd_0_1/src/common/domain/task.dart';
+import 'package:adhd_0_1/src/common/presentation/blocking_loader.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/edit_task_widget.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
@@ -33,9 +34,11 @@ class _QuestTaskWidgetState extends State<QuestTaskWidget> {
   }
 
   void _toggleTask() async {
-   await widget.repository.completeQuest(widget.task.taskId);
-widget.task.isDone = true;
-widget.onClose();
+    await showBlockingLoaderDuring(context, () async {
+      await widget.repository.completeQuest(widget.task.taskId);
+    });
+    widget.task.isDone = true;
+    widget.onClose();
   }
 
   @override

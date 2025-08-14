@@ -194,7 +194,7 @@ class _SettingsState extends State<Settings> {
       context: context,
       position: position,
       items:
-          Weekday.values.map((d) {
+          Weekday.values.where((d) => d != Weekday.any).map((d) {
             return PopupMenuItem<Weekday>(
               value: d,
               child: Text(
