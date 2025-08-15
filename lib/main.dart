@@ -135,39 +135,44 @@ Future<void> main() async {
   // v.0.1.2 //
   //
 
-  //  // // SPRINT 3 // // ---------------------- OVERDUE ---------------------- // //
-  // Functionality // //
-  //TODO: app disclaimer after completing onboardingß
+  // Test Release 2 //
+  //TODO: NEW app disclaimer after completing onboarding
   //TODO: responsive design - fine tune 16:9 aspect ratio elemnts placement in AppBg
   //TODO: responsive design - RESPONSIVE FUCKING DESIGN, collect device data from bug reports and adapt
   //TODO: responsive design - move subTitle to AppBg?
-  //TODO: BUG - syncrepository duplicates and wrecks havoc on the firestore repository. i still want to have it anyway.
+  //TODO: BUG - syncrepository duplicates and wrecks havoc on the firestore repository. firestore in offline mode is very buggy.
   //TODO: confirm bug fixes with testers after deployment
-  //TODO: responsive design - accesibility big fonts (wtf)
+
+  // Test Release 3 //
   //TODO: weather API
   //TODO: good morning overlay with tip of day + weather + tasks for the day
-  // // SYNCREPOSITORY // //
-  //TODO: how to save files outside of shared memory - save local backup of user data from local repository
-  // // Non MVP // //
+  //TODO: cleanup - secure_name / secure_secure_name
   //TODO: UNDO Button in SncakBar when completing a Quest or Deadline Tasks
   //TODO: eastereggs
-  //TODO: translations
-  //TODO: display tasks for today
   //TODO: make more AI abominations for prizes
-  //TODO: review tip of the day
+  //TODO: confirm bug fixes with testers after deployment
+
+  // Test Release 4 //
+  //TODO: how to save files outside of shared memory - save local backup of user data from local repository
+  //TODO: user console area through settings, console looks and user input
+  //TODO:  [
+  //TODO:   delete user information,
+  //TODO:   load user information from file,
+  //TODO:   load user information of existing user
+  //TODO:   (copy in database from one user document with another with entering a valid unique userId),
+  //TODO:   backup user information to file, back to app
+  //TODO:   ]
+  //TODO: confirm bug fixes with testers after deployment
+
+  // Test Release 5 //
+  //TODO: responsive design - accesibility big fonts (wtf)
+  //TODO: translations
   //TODO: repurpose FridgeLock (?)
   //TODO: tasks with multiple subtasks
   //TODO: animated splash screen
-  //TODO: user console area through settings, console looks and user input
-  //  [
-  //delete user information,
-  //load user information from file,
-  //load user information of existing user
-  //(copy in database from one user document with another with entering a valid unique userId),
-  //backup user information to file, back to app
-  //  ]
+  //TODO: confirm bug fixes with testers after deployment
 
   //
-  // v.0.1.3 //
+  // v.0.1.3 // Ready for app release
   //
 }

@@ -570,6 +570,8 @@ class _AddTaskWidgetState extends State<AddTaskWidget> {
                                             },
                                           );
 
+                                          if (!context.mounted) return;
+
                                           if (!valid) {
                                             ScaffoldMessenger.of(
                                               context,
