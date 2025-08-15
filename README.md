@@ -9,8 +9,11 @@ Good luck.
 
 # Attention Deficit oH Dear
 
+// V.0.1.2.2 // Test Release 2 //       19/8/25
+This codebase is now around 90% human written and 10% AI written for the purpose of streamlining getting the app to minimum release standard.
 
-// V.0.1.2 //            10/8/25
+
+// V.0.1.2.1 // Test Release 1 //         10/8/25
 MVP features ready for clinical trials.
 Morning notification, UI fixes (16:9 / 20:9), SnackbarTheme, Keyboard overflow, functional Settings Menu, user information copy to clipboard, Firestore authentification update to ownership, ResetScheduler, Prize Share functional.
 

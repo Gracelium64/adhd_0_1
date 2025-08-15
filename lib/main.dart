@@ -132,7 +132,7 @@ Future<void> main() async {
   //
 
   //
-  // v.0.1.2 //
+  // v.0.1.2.1 //
   //
 
   // Test Release 2 //
@@ -141,6 +141,8 @@ Future<void> main() async {
   //TODO: responsive design - RESPONSIVE FUCKING DESIGN, collect device data from bug reports and adapt
   //TODO: responsive design - move subTitle to AppBg?
   //TODO: BUG - syncrepository duplicates and wrecks havoc on the firestore repository. firestore in offline mode is very buggy.
+  //TODO: skin choice icon in Settings menu - softer hue
+  //TODO: font size bottom in tutorial too small
   //TODO: confirm bug fixes with testers after deployment
 
   // Test Release 3 //
