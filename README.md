@@ -35,4 +35,4 @@ most HiFi screens programmed in, no function.
 # Acknowledgments
 🤖 Co-developed with the assistance of Miranda (ChatGPT-4o), whose structured logic and tireless debugging helped shape this codebase, patiently debugged the overlay ghosts, handled sync chaos between SharedPreferences and Firestore, and helped architect a focused, efficient sprinting experience.
 T.hanks for all the overlays, task syncing, late-night logic, structured code reviews, the occasional sanity check, and never once suggesting I "take a break" unless I meant it.
-Code hard, commit clean, and may all your overlays stay where they belong.
+Code hard, commit clean, and may all your overlays stay where they belong

@@ -80,7 +80,7 @@ void initSyncListeners(SyncRepository repository) {
                 // and push to server. Hydration is reserved for user migration/load saved game.
               }
             } catch (_) {}
-            // Force a sync push right after completing registration
+            // Force a sync push right after completing registration 
             debugPrint('🚀 Forcing sync after registration completion');
             repository.triggerSync(force: true);
           }
@@ -273,7 +273,7 @@ Future<void> main() async {
   //TODO: weather API
   //TODO: good morning overlay with tip of day + weather + tasks for the day
   //TODO: cleanup - secure_name / secure_secure_name
-  //TODO: UNDO Button in SncakBar when completing a Quest or Deadline Tasks
+  // //TODO: UNDO Button in SncakBar when completing a Quest or Deadline Tasks
   //TODO: eastereggs
   //TODO: make more AI abominations for prizes
   //TODO: confirm bug fixes with testers after deployment

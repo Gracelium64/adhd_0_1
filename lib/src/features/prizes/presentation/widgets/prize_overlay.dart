@@ -22,7 +22,7 @@ class PrizeOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Future<int> _dupCountFuture() async {
+    Future<int> dupCountFuture() async {
       final repo = context.read<DataBaseRepository>();
       final List<Prizes> list = await repo.getPrizes();
       return list.where((p) => p.prizeUrl == prizeImageUrl).length;
@@ -80,7 +80,7 @@ class PrizeOverlay extends StatelessWidget {
                   width: 230,
                   height: 230,
                   child: FutureBuilder<int>(
-                    future: _dupCountFuture(),
+                    future: dupCountFuture(),
                     builder: (context, snapshot) {
                       final count = snapshot.data ?? 1;
                       return Stack(

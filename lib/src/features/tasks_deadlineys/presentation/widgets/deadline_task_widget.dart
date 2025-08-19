@@ -67,6 +67,7 @@ class _DeadlineTaskWidgetState extends State<DeadlineTaskWidget> {
       opacity: _dismissing ? 0.0 : 1.0,
       child: Row(
         children: [
+          // Left toggle button
           GestureDetector(
             onTap: _toggleTask,
             child: Container(
@@ -88,7 +89,7 @@ class _DeadlineTaskWidgetState extends State<DeadlineTaskWidget> {
                       spreadRadius: 2,
                     ),
                 ],
-                shape: RoundedRectangleBorder(
+                shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(25),
                     bottomLeft: Radius.circular(25),
@@ -98,85 +99,76 @@ class _DeadlineTaskWidgetState extends State<DeadlineTaskWidget> {
               child: Image.asset(taskStatus),
             ),
           ),
-          SizedBox(width: 1),
-          GestureDetector(
-            onTap: () {
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder:
-                    (context) => Dialog(
-                      backgroundColor: Colors.transparent,
-                      insetPadding: EdgeInsets.all(16),
-                      child: EditTaskWidget(
-                        task: widget.task,
-                        taskType: TaskType.deadline,
-                        onClose: () {
-                          Navigator.of(context, rootNavigator: true).pop();
-                          widget.onClose();
-                        },
+          const SizedBox(width: 1),
+
+          // Right card
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder:
+                      (context) => Dialog(
+                        backgroundColor: Colors.transparent,
+                        insetPadding: const EdgeInsets.all(16),
+                        child: EditTaskWidget(
+                          task: widget.task,
+                          taskType: TaskType.deadline,
+                          onClose: () {
+                            Navigator.of(context, rootNavigator: true).pop();
+                            widget.onClose();
+                          },
+                        ),
                       ),
-                    ),
-              );
-            },
-            child: Container(
-              width: 257,
-              height: 60,
-              decoration: ShapeDecoration(
-                shadows: [
-                  BoxShadow(color: Palette.boxShadow1),
-                  BoxShadow(
-                    color: Palette.monarchPurple2,
-                    blurRadius: 11.8,
-                    spreadRadius: -0.1,
-                    blurStyle: BlurStyle.inner,
-                  ),
-                  if (goodGirl)
+                );
+              },
+              child: Container(
+                constraints: const BoxConstraints(minHeight: 60),
+                height: 60,
+                decoration: ShapeDecoration(
+                  shadows: [
+                    BoxShadow(color: Palette.boxShadow1),
                     BoxShadow(
-                      color: Palette.lightTeal.withAlpha(153),
-                      blurRadius: 18,
-                      spreadRadius: 2,
+                      color: Palette.monarchPurple2,
+                      blurRadius: 11.8,
+                      spreadRadius: -0.1,
+                      blurStyle: BlurStyle.inner,
                     ),
-                ],
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                    topRight: Radius.circular(25),
-                    bottomRight: Radius.circular(25),
+                    if (goodGirl)
+                      BoxShadow(
+                        color: Palette.lightTeal.withAlpha(153),
+                        blurRadius: 18,
+                        spreadRadius: 2,
+                      ),
+                  ],
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.only(
+                      topRight: Radius.circular(25),
+                      bottomRight: Radius.circular(25),
+                    ),
                   ),
                 ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  SizedBox(width: 8),
-                  Expanded(
-                    flex: 3,
-                    child: Text(
-                      widget.task.taskDesctiption,
-                      style: Theme.of(context).textTheme.bodyMedium,
+                child: Row(
+                  children: [
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        widget.task.taskDesctiption,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
                     ),
-                  ),
-                  Expanded(flex: 1, child: SizedBox(width: 8)),
-                  Expanded(
-                    flex: 1,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Text(
-                          '${widget.task.deadlineDate}',
-                          style: Theme.of(context).textTheme.labelSmall,
-                        ),
-
-                        Text(
-                          '${widget.task.deadlineTime}',
-                          style: Theme.of(context).textTheme.labelSmall,
-                        ),
-                        SizedBox(height: 6),
-                      ],
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: Text(
+                        '${widget.task.deadlineTime}',
+                        style: Theme.of(context).textTheme.labelSmall,
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 0.2),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

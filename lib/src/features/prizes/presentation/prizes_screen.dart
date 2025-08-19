@@ -12,6 +12,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 class PrizesScreen extends StatefulWidget {
   const PrizesScreen({super.key});
@@ -32,7 +33,9 @@ class _PrizesScreenState extends State<PrizesScreen> {
               as RenderRepaintBoundary?;
       if (boundary != null) {
         final ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+        if (!mounted) return;
         final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+        if (!mounted) return;
         if (byteData != null) {
           final Uint8List pngBytes = byteData.buffer.asUint8List();
           final tempDir = Directory.systemTemp;
@@ -56,8 +59,8 @@ class _PrizesScreenState extends State<PrizesScreen> {
       // fall through to asset fallback
     }
 
-    // Fallback: share the raw asset
-    final byteData = await DefaultAssetBundle.of(context).load(imagePath);
+    // Fallback: share the raw asset (avoid context after awaits)
+    final byteData = await rootBundle.load(imagePath);
     final buffer = byteData.buffer;
     final tempDir = Directory.systemTemp;
     final file = File('${tempDir.path}/shared_prize.png');
