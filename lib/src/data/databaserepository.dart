@@ -73,4 +73,11 @@ abstract class DataBaseRepository {
   Future<AppUser?> getAppUser();
   Future<void> toggleDaily(String dataTaskId, bool dataIsDone);
   Future<void> toggleWeekly(String dataTaskId, bool dataIsDone);
+
+  // Persisted ordering
+  Future<void> saveDailyOrder(List<String> orderedTaskIds);
+  Future<void> saveQuestOrder(List<String> orderedTaskIds);
+
+  /// Only applies to weekly tasks with dayOfWeek == null or 'any'
+  Future<void> saveWeeklyAnyOrder(List<String> orderedTaskIds);
 }

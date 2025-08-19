@@ -6,6 +6,7 @@ import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/tasks_weeklys/presentation/widgets/weekly_task_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:adhd_0_1/src/common/domain/refresh_bus.dart';
 
 class Weeklys extends StatefulWidget {
   const Weeklys({super.key});
@@ -15,6 +16,12 @@ class Weeklys extends StatefulWidget {
 }
 
 class _WeeklysState extends State<Weeklys> {
+  late DataBaseRepository _repository;
+  bool _loading = true;
+  List<Task> _items = [];
+  Weekday _startOfWeek = Weekday.mon;
+  bool _settingsLoaded = false;
+  int _refreshTick = 0;
   void _showAddTaskOverlay() {
     showDialog(
       context: context,
@@ -28,9 +35,7 @@ class _WeeklysState extends State<Weeklys> {
             taskType: TaskType.weekly,
             onClose: () {
               Navigator.of(context, rootNavigator: true).pop();
-              setState(() {
-                myList = context.read<DataBaseRepository>().getWeeklyTasks();
-              });
+              _refresh();
               debugPrint(
                 'Navigator stack closing from ${Navigator.of(context)}',
               );
@@ -41,7 +46,53 @@ class _WeeklysState extends State<Weeklys> {
     );
   }
 
-  late Future<List<Task>> myList;
+  int _weekdayRank(String? day) {
+    final d = (day ?? 'any').toLowerCase();
+    if (d == 'any') return 8;
+    // Build rotation starting at startOfWeek
+    final order = [
+      Weekday.mon,
+      Weekday.tue,
+      Weekday.wed,
+      Weekday.thu,
+      Weekday.fri,
+      Weekday.sat,
+      Weekday.sun,
+    ];
+    final startIndex = order.indexOf(_startOfWeek);
+    final rotated = [
+      ...order.sublist(startIndex),
+      ...order.sublist(0, startIndex),
+    ];
+    final idx = rotated.indexWhere((w) => w.name == d);
+    return (idx == -1) ? 8 : (idx + 1);
+  }
+
+  Future<void> _refresh() async {
+    if (!_settingsLoaded) {
+      final settings = await _repository.getSettings();
+      if (settings != null) {
+        _startOfWeek = settings.startOfWeek;
+      }
+      _settingsLoaded = true;
+    }
+    final items = await _repository.getWeeklyTasks();
+    items.sort((a, b) {
+      final ra = _weekdayRank(a.dayOfWeek);
+      final rb = _weekdayRank(b.dayOfWeek);
+      if (ra != rb) return ra.compareTo(rb);
+      if (ra == 8) {
+        final ai = a.orderIndex ?? 1 << 30;
+        final bi = b.orderIndex ?? 1 << 30;
+        return ai.compareTo(bi);
+      }
+      return 0; // keep relative order otherwise
+    });
+    setState(() {
+      _items = List<Task>.from(items);
+      _loading = false;
+    });
+  }
 
   // @override
   // void initState() {
@@ -50,69 +101,90 @@ class _WeeklysState extends State<Weeklys> {
 
   @override
   Widget build(BuildContext context) {
-    final repository = context.read<DataBaseRepository>();
-
-    myList = repository.getWeeklyTasks();
+    _repository = context.read<DataBaseRepository>();
+    final tick = context.watch<RefreshBus>().tick;
+    if (tick != _refreshTick) {
+      _refreshTick = tick;
+      WidgetsBinding.instance.addPostFrameCallback((_) => _refresh());
+    }
+    if (_loading && _items.isEmpty) {
+      // first build
+      WidgetsBinding.instance.addPostFrameCallback((_) => _refresh());
+    }
     // OverlayPortalController overlayController = OverlayPortalController();
 
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Center(
-        child: FutureBuilder<List<Task>>(
-          future: myList,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
-            } else if (snapshot.hasError) {
-              return Text(('Error: ${snapshot.error}'));
-            }
-            //  else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            //   return Text('No data available');
-            // }
+        child:
+            _loading
+                ? const CircularProgressIndicator()
+                : Column(
+                  children: [
+                    SubTitle(sub: 'Weeklys'),
 
-            final data = snapshot.data!;
-
-            return Column(
-              children: [
-                SubTitle(sub: 'Weeklys'),
-
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 48, 0, 0),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: SizedBox(
-                        height: 492,
-                        width: 304,
-                        child: ListView.builder(
-                          itemCount: data.length,
-                          itemBuilder: (context, index) {
-                            final task = data[index];
-                            return WeeklyTaskWidget(
-                              repository: repository,
-                              task: task,
-                              onClose: () {
-                                debugPrint('weekly onClose triggered');
-                                setState(() {
-                                  myList = repository.getWeeklyTasks();
-                                });
-                              },
-                            );
-                          },
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 48, 0, 0),
+                        child: SizedBox(
+                          height: 492,
+                          width: 304,
+                          child: ReorderableListView.builder(
+                            itemCount: _items.length,
+                            onReorder: (oldIndex, newIndex) async {
+                              bool changed = false;
+                              setState(() {
+                                if (newIndex > oldIndex) newIndex -= 1;
+                                final moving = _items[oldIndex];
+                                final isAny =
+                                    (moving.dayOfWeek == null) ||
+                                    (moving.dayOfWeek!.toLowerCase() == 'any');
+                                // Only allow reordering freely for 'any' items
+                                if (!isAny) return;
+                                _items.removeAt(oldIndex);
+                                _items.insert(newIndex, moving);
+                                changed = true;
+                              });
+                              if (changed) {
+                                final anyIds =
+                                    _items
+                                        .where(
+                                          (t) =>
+                                              (t.dayOfWeek == null) ||
+                                              (t.dayOfWeek!.toLowerCase() ==
+                                                  'any'),
+                                        )
+                                        .map((e) => e.taskId)
+                                        .toList();
+                                await _repository.saveWeeklyAnyOrder(anyIds);
+                              }
+                            },
+                            buildDefaultDragHandles: true,
+                            itemBuilder: (context, index) {
+                              final task = _items[index];
+                              return Container(
+                                key: ValueKey(task.taskId),
+                                child: WeeklyTaskWidget(
+                                  repository: _repository,
+                                  task: task,
+                                  onClose: () async {
+                                    debugPrint('weekly onClose triggered');
+                                    await _refresh();
+                                  },
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                    GestureDetector(
+                      onTap: _showAddTaskOverlay,
+                      child: AddTaskButton(),
+                    ),
+                    SizedBox(height: 40),
+                  ],
                 ),
-                GestureDetector(
-                  onTap: _showAddTaskOverlay,
-                  child: AddTaskButton(),
-                ),
-                SizedBox(height: 40),
-              ],
-            );
-          },
-        ),
       ),
     );
   }

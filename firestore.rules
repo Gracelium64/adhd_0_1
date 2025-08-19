@@ -1,0 +1,83 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Resolve ownership by reading the parent user doc's ownerUid field.
+    function isOwnerDoc(userId) {
+      return isSignedIn() &&
+             get(/databases/$(database)/documents/users/$(userId)).data.ownerUid == request.auth.uid;
+    }
+
+    function isValidTask(data) {
+      return data.taskDesctiption is string &&
+             data.taskDesctiption.size() > 0 &&
+             data.taskDesctiption.size() <= 100 &&
+             // Match codebase: expect 'taskCatagory' field
+             (('taskCatagory' in data) && data.taskCatagory in ['Daily', 'Weekly', 'Deadline', 'Quest']) &&
+             data.isDone is bool &&
+             (!('deadlineDate' in data) || data.deadlineDate is string) &&
+             (!('deadlineTime' in data) || data.deadlineTime is string) &&
+             (!('dayOfWeek' in data) || data.dayOfWeek is string);
+    }
+
+    // Optionally allow 'any' for startOfWeek to match your Weekday enum
+    function isValidUserSettings(data) {
+      return (!('language' in data) || data.language in ['English', 'German', 'Spanish']) &&
+             (!('location' in data) || (data.location is string && data.location.size() > 0)) &&
+             (!('startOfDay' in data) || data.startOfDay is string) &&
+             (!('startOfWeek' in data) || data.startOfWeek in ['mon', 'sun', 'tue', 'wed', 'thu', 'fri', 'sat', 'any']);
+    }
+
+    function isNotSpam() {
+      // Throttle per-document writes (no effect if lastWriteTime not stored on the doc)
+      return !('lastWriteTime' in resource.data) || 
+             (request.time > resource.data.lastWriteTime + duration.value(1, 's'));
+    }
+
+    match /users/{userId} {
+      // Create the user doc with an ownerUid field equal to the Firebase UID
+      allow create: if isSignedIn() && request.resource.data.ownerUid == request.auth.uid;
+
+      // Only the owner may read the user doc
+      allow read: if isOwnerDoc(userId);
+
+    // Update/delete: ownerUid is immutable. Allow a one-time backfill when missing.
+    allow update: if (
+                // Backfill path: existing doc has no ownerUid, caller sets it to their UID
+                (resource.data.ownerUid == null && request.resource.data.ownerUid == request.auth.uid)
+              ) || (
+                // Normal updates: must be owner, and ownerUid unchanged
+                isOwnerDoc(userId) && request.resource.data.ownerUid == resource.data.ownerUid
+              );
+
+    allow delete: if isOwnerDoc(userId);
+
+      // Subcollections under users/{userId}
+      match /{subCollection}/{docId} {
+        // Only the owner may read/delete
+        allow read, delete: if isOwnerDoc(userId);
+
+        // Create/update must be by owner and pass schema validation
+        allow create, update: if isOwnerDoc(userId) &&
+          (
+            subCollection in ['dailyTasks', 'weeklyTasks', 'deadlineTasks', 'questTasks']
+              ? isValidTask(request.resource.data)
+              : (
+                subCollection == 'userSettings'
+                  ? isValidUserSettings(request.resource.data)
+                  : true
+              )
+          ) && isNotSpam();
+      }
+
+      // Any deeper nesting under a user's doc is also owner-guarded
+      match /{subCollection}/{docId}/{nested=**} {
+        allow read, write: if isOwnerDoc(userId);
+      }
+    }
+  }
+}

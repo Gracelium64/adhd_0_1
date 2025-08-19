@@ -6,6 +6,7 @@ class Task {
   String? deadlineTime;
   String? dayOfWeek;
   bool isDone;
+  int? orderIndex; // for persistent custom ordering within a list/category
 
   Task(
     this.taskId,
@@ -14,8 +15,9 @@ class Task {
     this.deadlineDate,
     this.deadlineTime,
     this.dayOfWeek,
-    this.isDone,
-  );
+    this.isDone, {
+    this.orderIndex,
+  });
 
   Map<String, dynamic> toJson() {
     return {
@@ -26,6 +28,7 @@ class Task {
       'deadlineTime': deadlineTime,
       'dayOfWeek': dayOfWeek,
       'isDone': isDone,
+      'orderIndex': orderIndex,
     };
   }
 
@@ -38,6 +41,7 @@ class Task {
       json['deadlineTime'],
       json['dayOfWeek'],
       json['isDone'],
+      orderIndex: json['orderIndex'],
     );
   }
 
@@ -50,6 +54,7 @@ class Task {
       'deadlineTime': deadlineTime,
       'dayOfWeek': dayOfWeek,
       'isDone': isDone,
+      'orderIndex': orderIndex,
     };
   }
 
@@ -62,6 +67,7 @@ class Task {
       map['deadlineTime'],
       map['dayOfWeek'],
       map['isDone'],
+      orderIndex: map['orderIndex'],
     );
   }
 }

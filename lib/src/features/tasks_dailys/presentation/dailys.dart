@@ -6,6 +6,7 @@ import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/tasks_dailys/presentation/widgets/daily_task_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:adhd_0_1/src/common/domain/refresh_bus.dart';
 
 class Dailys extends StatefulWidget {
   const Dailys({super.key});
@@ -15,6 +16,11 @@ class Dailys extends StatefulWidget {
 }
 
 class _DailysState extends State<Dailys> {
+  late DataBaseRepository _repository;
+  bool _loading = true;
+  List<Task> _items = [];
+  int _refreshTick = 0;
+
   void _showAddTaskOverlay() {
     showDialog(
       context: context,
@@ -28,9 +34,7 @@ class _DailysState extends State<Dailys> {
             taskType: TaskType.daily,
             onClose: () {
               Navigator.of(context, rootNavigator: true).pop();
-              setState(() {
-                myList = context.read<DataBaseRepository>().getDailyTasks();
-              });
+              _refresh();
               debugPrint(
                 'Navigator stack closing from ${Navigator.of(context)}',
               );
@@ -41,81 +45,83 @@ class _DailysState extends State<Dailys> {
     );
   }
 
-  late Future<List<Task>> myList;
+  Future<void> _refresh() async {
+    final items = await _repository.getDailyTasks();
+    setState(() {
+      _items = List<Task>.from(items);
+      _loading = false;
+    });
+  }
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  // }
+  @override
+  void initState() {
+    super.initState();
+    _repository = context.read<DataBaseRepository>();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _refresh());
+  }
 
   @override
   Widget build(BuildContext context) {
-    final repository = context.read<DataBaseRepository>();
-
-    myList = repository.getDailyTasks();
-    // // OverlayPortalController overlayController = OverlayPortalController();
+    final repository = _repository;
+    final tick = context.watch<RefreshBus>().tick;
+    if (tick != _refreshTick) {
+      _refreshTick = tick;
+      WidgetsBinding.instance.addPostFrameCallback((_) => _refresh());
+    }
 
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Center(
-        child: FutureBuilder<List<Task>>(
-          future: myList,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
-            } else if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
-            }
-            // else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            //   return Text('No data available');
-            // }
-
-            final data = snapshot.data!;
-
-            return Column(
-              children: [
-                SubTitle(sub: 'Dailys'),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 48, 0, 0),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: Column(
-                        children: [
-                          SizedBox(
-                            height: 492,
-                            width: 304,
-                            child: ListView.builder(
-                              itemCount: data.length,
-                              itemBuilder: (context, index) {
-                                final task = data[index];
-                                return DailyTaskWidget(
+        child:
+            _loading
+                ? const CircularProgressIndicator()
+                : Column(
+                  children: [
+                    SubTitle(sub: 'Dailys'),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 48, 0, 0),
+                        child: SizedBox(
+                          height: 492,
+                          width: 304,
+                          child: ReorderableListView.builder(
+                            itemCount: _items.length,
+                            onReorder: (oldIndex, newIndex) async {
+                              setState(() {
+                                if (newIndex > oldIndex) newIndex -= 1;
+                                final item = _items.removeAt(oldIndex);
+                                _items.insert(newIndex, item);
+                              });
+                              // persist order
+                              final ids = _items.map((e) => e.taskId).toList();
+                              await repository.saveDailyOrder(ids);
+                            },
+                            buildDefaultDragHandles: true,
+                            itemBuilder: (context, index) {
+                              final task = _items[index];
+                              return Container(
+                                key: ValueKey(task.taskId),
+                                child: DailyTaskWidget(
                                   task: task,
                                   repository: repository,
-                                  onClose: () {
+                                  onClose: () async {
                                     debugPrint('dailys onClose triggered');
-                                    setState(() {
-                                      myList = repository.getDailyTasks();
-                                    });
+                                    await _refresh();
                                   },
-                                );
-                              },
-                            ),
+                                ),
+                              );
+                            },
                           ),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
+                    GestureDetector(
+                      onTap: _showAddTaskOverlay,
+                      child: AddTaskButton(),
+                    ),
+                    SizedBox(height: 40),
+                  ],
                 ),
-                GestureDetector(
-                  onTap: _showAddTaskOverlay,
-                  child: AddTaskButton(),
-                ),
-                SizedBox(height: 40),
-              ],
-            );
-          },
-        ),
       ),
     );
   }

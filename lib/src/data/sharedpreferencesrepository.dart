@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:adhd_0_1/src/common/domain/app_user.dart';
 import 'package:adhd_0_1/src/data/domain/functions.dart';
-import 'package:adhd_0_1/src/data/domain/prize_manager.dart';
+// Prize side-effects are handled by higher-level coordinator (SyncRepository).
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:adhd_0_1/src/common/domain/task.dart';
@@ -13,10 +13,36 @@ import 'package:adhd_0_1/src/data/domain/prefs_keys.dart';
 class SharedPreferencesRepository implements DataBaseRepository {
   int taskIdCounter = 1;
 
+  // Persisted local counter to generate IDs like "<counter><userId>"
+  static const _localCounterKey = 'local_task_id_counter_v1';
+
+  Future<int> _nextLocalCounter() async {
+    final prefs = await SharedPreferences.getInstance();
+    final current = prefs.getInt(_localCounterKey) ?? 0;
+    final next = current + 1;
+    await prefs.setInt(_localCounterKey, next);
+    return next;
+  }
+
+  Future<String> _newLocalTaskId(String userId) async {
+    final n = await _nextLocalCounter();
+    return '$n$userId';
+  }
+
   Future<List<Task>> _loadTasks(String key) async {
     final prefs = await SharedPreferences.getInstance();
     final data = prefs.getStringList(key) ?? [];
-    return data.map((e) => Task.fromJson(jsonDecode(e))).toList();
+    final list = data.map((e) => Task.fromJson(jsonDecode(e))).toList();
+    // Sort by orderIndex when present to respect saved custom order
+    final hasAnyOrder = list.any((t) => t.orderIndex != null);
+    if (hasAnyOrder) {
+      list.sort((a, b) {
+        final ai = a.orderIndex ?? 1 << 30;
+        final bi = b.orderIndex ?? 1 << 30;
+        return ai.compareTo(bi);
+      });
+    }
+    return list;
   }
 
   Future<void> _saveTasks(String key, List<Task> tasks) async {
@@ -25,20 +51,76 @@ class SharedPreferencesRepository implements DataBaseRepository {
     await prefs.setStringList(key, encoded);
   }
 
+  // ——— Hydration helpers (used by SyncRepository on user switch) ———
+  Future<void> setDailyTasks(List<Task> tasks) async =>
+      _saveTasks(PrefsKeys.dailyKey, tasks);
+
+  Future<void> setWeeklyTasks(List<Task> tasks) async =>
+      _saveTasks(PrefsKeys.weeklyKey, tasks);
+
+  Future<void> setDeadlineTasks(List<Task> tasks) async =>
+      _saveTasks(PrefsKeys.deadlineKey, tasks);
+
+  Future<void> setQuestTasks(List<Task> tasks) async =>
+      _saveTasks(PrefsKeys.questKey, tasks);
+
+  Future<void> replacePrizes(List<Prizes> prizes) async {
+    final prefs = await SharedPreferences.getInstance();
+    final list = prizes.map((p) => jsonEncode(p.toJson())).toList();
+    await prefs.setStringList(PrefsKeys.prizesKey, list);
+  }
+
+  Future<void> setSettingsLocal(Settings settings) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      PrefsKeys.settingsKey,
+      jsonEncode(settings.toJson()),
+    );
+  }
+
+  Future<void> setLocalTaskCounterAbsolute(int value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_localCounterKey, value);
+  }
+
+  Future<void> _saveOrder(
+    String key,
+    List<String> orderedTaskIds, {
+    bool weeklyAnyOnly = false,
+  }) async {
+    final list = await _loadTasks(key);
+    // Build map of indices
+    final idToIndex = <String, int>{};
+    for (int i = 0; i < orderedTaskIds.length; i++) {
+      idToIndex[orderedTaskIds[i]] = i;
+    }
+    for (final t in list) {
+      if (weeklyAnyOnly) {
+        final isAny =
+            (t.dayOfWeek == null) || (t.dayOfWeek!.toLowerCase() == 'any');
+        if (!isAny) continue;
+      }
+      t.orderIndex = idToIndex[t.taskId];
+    }
+    await _saveTasks(key, list);
+  }
+
   @override
   Future<void> addDaily(String data) async {
     final String? userId = await loadUserId();
     if (userId == null) throw Exception('User ID not found');
     final list = await _loadTasks(PrefsKeys.dailyKey);
+    final newId = await _newLocalTaskId(userId);
     list.add(
       Task(
-        (taskIdCounter++).toString() + userId,
+        newId,
         'Daily',
         data,
         null,
         null,
         null,
         false,
+        orderIndex: list.length,
       ),
     );
     await _saveTasks(PrefsKeys.dailyKey, list);
@@ -57,15 +139,27 @@ class SharedPreferencesRepository implements DataBaseRepository {
             ? day.name
             : day.toString().split('.').last.toLowerCase();
 
+    final newId = await _newLocalTaskId(userId);
     list.add(
       Task(
-        (taskIdCounter++).toString() + userId,
+        newId,
         'Weekly',
         data,
         null,
         null,
         dayName,
         false,
+        // only 'any' will be reorderable, but keep a stable default
+        orderIndex:
+            (dayName == 'any')
+                ? list
+                    .where(
+                      (t) =>
+                          (t.dayOfWeek == null) ||
+                          (t.dayOfWeek!.toLowerCase() == 'any'),
+                    )
+                    .length
+                : null,
       ),
     );
     await _saveTasks(PrefsKeys.weeklyKey, list);
@@ -77,9 +171,10 @@ class SharedPreferencesRepository implements DataBaseRepository {
     if (userId == null) throw Exception('User ID not found');
 
     final list = await _loadTasks(PrefsKeys.deadlineKey);
+    final newId = await _newLocalTaskId(userId);
     list.add(
       Task(
-        (taskIdCounter++).toString() + userId,
+        newId,
         'Deadline',
         data,
         date,
@@ -97,15 +192,17 @@ class SharedPreferencesRepository implements DataBaseRepository {
     if (userId == null) throw Exception('User ID not found');
 
     final list = await _loadTasks(PrefsKeys.questKey);
+    final newId = await _newLocalTaskId(userId);
     list.add(
       Task(
-        (taskIdCounter++).toString() + userId,
+        newId,
         'Quest',
         data,
         null,
         null,
         null,
         false,
+        orderIndex: list.length,
       ),
     );
     await _saveTasks(PrefsKeys.questKey, list);
@@ -134,16 +231,12 @@ class SharedPreferencesRepository implements DataBaseRepository {
   //     _markComplete(PrefsKeys.weeklyKey, dataTaskId);
 
   @override
-  Future<void> completeDeadline(String dataTaskId) async {
-    await PrizeManager(this).incrementDeadlineCounter();
-    return _markComplete(PrefsKeys.deadlineKey, dataTaskId, remove: true);
-  }
+  Future<void> completeDeadline(String dataTaskId) async =>
+      _markComplete(PrefsKeys.deadlineKey, dataTaskId, remove: true);
 
   @override
-  Future<void> completeQuest(String dataTaskId) async {
-    await PrizeManager(this).incrementQuestCounter();
-    return _markComplete(PrefsKeys.questKey, dataTaskId, remove: true);
-  }
+  Future<void> completeQuest(String dataTaskId) async =>
+      _markComplete(PrefsKeys.questKey, dataTaskId, remove: true);
 
   Future<void> _delete(String key, String taskId) async {
     final list = await _loadTasks(key);
@@ -215,6 +308,21 @@ class SharedPreferencesRepository implements DataBaseRepository {
 
   @override
   Future<List<Task>> getQuestTasks() => _loadTasks(PrefsKeys.questKey);
+
+  @override
+  Future<void> saveDailyOrder(List<String> orderedTaskIds) async {
+    await _saveOrder(PrefsKeys.dailyKey, orderedTaskIds);
+  }
+
+  @override
+  Future<void> saveQuestOrder(List<String> orderedTaskIds) async {
+    await _saveOrder(PrefsKeys.questKey, orderedTaskIds);
+  }
+
+  @override
+  Future<void> saveWeeklyAnyOrder(List<String> orderedTaskIds) async {
+    await _saveOrder(PrefsKeys.weeklyKey, orderedTaskIds, weeklyAnyOnly: true);
+  }
 
   @override
   Future<void> addPrize(int prizeId, String prizeUrl) async {
@@ -304,7 +412,7 @@ class SharedPreferencesRepository implements DataBaseRepository {
       await _saveTasks(PrefsKeys.dailyKey, tasks);
     }
 
-    await PrizeManager(this).trackDailyCompletion(dataIsDone);
+    // Side-effects handled by SyncRepository
   }
 
   @override
@@ -318,7 +426,7 @@ class SharedPreferencesRepository implements DataBaseRepository {
       await _saveTasks(PrefsKeys.weeklyKey, tasks);
     }
 
-    await PrizeManager(this).trackWeeklyCompletion(dataIsDone);
+    // Side-effects handled by SyncRepository
   }
 }
 

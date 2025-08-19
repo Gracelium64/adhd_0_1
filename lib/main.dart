@@ -1,27 +1,26 @@
 import 'package:adhd_0_1/firebase_options.dart';
 import 'package:adhd_0_1/src/app.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
-// import 'package:adhd_0_1/src/data/domain/firestore_initializer.dart';
-// import 'package:adhd_0_1/src/data/domain/reset_scheduler.dart';
+import 'package:adhd_0_1/src/data/domain/prize_manager.dart';
 import 'package:adhd_0_1/src/data/firebase_auth_repository.dart';
-// import 'package:adhd_0_1/src/data/domain/sharedpreferences_initializer.dart';
 import 'package:adhd_0_1/src/data/firestore_repository.dart';
-// import 'package:adhd_0_1/src/data/sharedpreferencesrepository.dart';
-// import 'package:adhd_0_1/src/data/domain/prize_manager.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:connectivity_plus/connectivity_plus.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
+import 'package:adhd_0_1/src/data/sharedpreferencesrepository.dart';
+import 'package:adhd_0_1/src/data/syncrepository.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-// import 'package:adhd_0_1/src/data/syncrepository.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:adhd_0_1/src/features/morning_greeting/domain/daily_quote_notifier.dart';
+import 'package:adhd_0_1/src/common/domain/refresh_bus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:adhd_0_1/src/data/domain/pending_registration.dart';
 
-// import 'package:flutter/foundation.dart';
+// import 'package/flutter/foundation.dart';
 // import 'package:device_preview/device_preview.dart';
 
 /*
@@ -35,19 +34,127 @@ Fuck it, the code stays.
 
 update 21.7.25 - fuck it, the code gets commented out until i figure out how to not make the syncs fight with each other.
 
+update 19.8.25 - I was a puritan at first when the course began, insisting writing my own code without AI.
+                 As time went by I learned the benefits of working with AI to better my code and to speed things up extremely.
+                 As of today, and with the help from a CoPilot subscription and ChatGPT5 - this app is finally an Offline First Architecture App.
+
 
 There will not be many comments in this project, you've just collected your first!  
 */
 
-// void initSyncListeners(SyncRepository repository) {
-//   final Connectivity connectivity = Connectivity();
+void initSyncListeners(SyncRepository repository) {
+  final Connectivity connectivity = Connectivity();
 
-//   connectivity.onConnectivityChanged.listen((status) {
-//     if (status != ConnectivityResult.none) {
-//       repository.syncAll();
-//     }
-//   });
-// }
+  connectivity.onConnectivityChanged.listen((status) async {
+    if (status != ConnectivityResult.none) {
+      debugPrint('📶 Connectivity regained: $status');
+      // First, try to complete any pending registrations before syncing
+      bool completed = false;
+      try {
+        final auth = FirebaseAuthRepository();
+        final has = await PendingRegistration.hasPending();
+        debugPrint('📝 Pending registration present: $has');
+        if (has) {
+          completed = await PendingRegistration.attempt(auth);
+          debugPrint('📝 Pending registration completed: $completed');
+          if (completed) {
+            // Ensure the Firestore user doc exists with ownerUid before any writes
+            try {
+              const storage = FlutterSecureStorage();
+              final userId = await storage.read(key: 'userId');
+              final name = await storage.read(key: 'name');
+              final email = await storage.read(key: 'email');
+              final password = await storage.read(key: 'password');
+              if (userId != null && email != null && password != null) {
+                debugPrint('👤 Finalizing user doc for userId=$userId');
+                final fsRepo = FirestoreRepository();
+                await fsRepo.setAppUser(
+                  userId,
+                  name ?? userId,
+                  email,
+                  password,
+                  false,
+                );
+                // Do NOT hydrate here. After registration we keep local as source of truth
+                // and push to server. Hydration is reserved for user migration/load saved game.
+              }
+            } catch (_) {}
+            // Force a sync push right after completing registration
+            debugPrint('🚀 Forcing sync after registration completion');
+            repository.triggerSync(force: true);
+          }
+        }
+        // If no pending registration, ensure we're signed in and user doc has ownerUid
+        if (!completed) {
+          try {
+            const storage = FlutterSecureStorage();
+            final email = await storage.read(key: 'email');
+            final password = await storage.read(key: 'password');
+            final userId = await storage.read(key: 'userId');
+            final name = await storage.read(key: 'name');
+            if (email != null && password != null && userId != null) {
+              final current = FirebaseAuth.instance.currentUser;
+              if (current == null) {
+                await auth.signInWithEmailAndPassword(email, password);
+                debugPrint('🔐 Signed in with stored credentials');
+              } else if ((current.email ?? '').toLowerCase() !=
+                  email.toLowerCase()) {
+                debugPrint(
+                  '� Auth/email mismatch (current=${current.email}, stored=$email). Switching session…',
+                );
+                await FirebaseAuth.instance.signOut();
+                await auth.signInWithEmailAndPassword(email, password);
+                debugPrint('🔐 Switched auth session to stored credentials');
+              } else {
+                debugPrint('🔐 Already signed in as ${current.uid}');
+              }
+              final fsRepo = FirestoreRepository();
+              try {
+                await fsRepo.setAppUser(
+                  userId,
+                  name ?? userId,
+                  email,
+                  password,
+                  false,
+                );
+              } catch (e) {
+                // If permission-denied, try a silent re-auth and retry once
+                final err = e.toString();
+                if (err.contains('permission-denied')) {
+                  try {
+                    await FirebaseAuth.instance.signOut();
+                    await auth.signInWithEmailAndPassword(email, password);
+                    await fsRepo.setAppUser(
+                      userId,
+                      name ?? userId,
+                      email,
+                      password,
+                      false,
+                    );
+                    debugPrint('🔁 OwnerUid stamp succeeded after re-auth');
+                  } catch (e2) {
+                    debugPrint(
+                      '⚠️ Sign-in/ownerUid stamp skipped after retry: $e2',
+                    );
+                  }
+                } else {
+                  debugPrint('⚠️ Sign-in/ownerUid stamp skipped: $e');
+                }
+              }
+            }
+          } catch (e) {
+            debugPrint('⚠️ Sign-in/ownerUid stamp skipped: $e');
+          }
+        }
+      } catch (_) {}
+
+      repository.runOneTimeDedupMarking();
+      // Normal connectivity regain: request a sync (non-forced)
+      debugPrint('🔔 Requesting normal sync after connectivity regain');
+      repository.triggerSync();
+    }
+  });
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -67,8 +174,15 @@ Future<void> main() async {
   // remove try-catch when finished //
 
   await Future.delayed(const Duration(seconds: 2));
-  FlutterNativeSplash.remove;
+  FlutterNativeSplash.remove();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+  // Pre-warm SharedPreferences to avoid first-call latency on overlays
+  try {
+    await SharedPreferences.getInstance();
+  } catch (e) {
+    debugPrint('⚠️ SharedPreferences prewarm failed: $e');
+  }
 
   // One-time migration: consolidate legacy 'secure_secure_name' into 'secure_name'
   try {
@@ -90,23 +204,26 @@ Future<void> main() async {
 
   final auth = FirebaseAuthRepository();
   final mainRepo = FirestoreRepository();
-  // final localRepo = SharedPreferencesRepository();
-  // final mainPrizeManager = PrizeManager(mainlRepo);
-  // final localPrizeManager = PrizeManager(localRepo);
+  final localRepo = SharedPreferencesRepository();
+  final prizeManager = PrizeManager(localRepo);
 
-  // final repository = SyncRepository(
-  //   mainRepo: mainRepo,
-  //   localRepo: localRepo,
-  //   prizeManager: prizeManager,
-  // );
+  final repository = SyncRepository(
+    mainRepo: mainRepo,
+    localRepo: localRepo,
+    prizeManager: prizeManager,
+  );
 
-  // initSyncListeners(repository);
+  initSyncListeners(repository);
+
+  // Kick a one-time dedup pass at cold start as well (safe: mark-only)
+  Future.microtask(() => repository.runOneTimeDedupMarking());
 
   runApp(
     MultiProvider(
       providers: [
-        Provider<DataBaseRepository>(create: (_) => mainRepo),
+        Provider<DataBaseRepository>(create: (_) => repository),
         Provider<FirebaseAuthRepository>(create: (_) => auth),
+        ChangeNotifierProvider<RefreshBus>(create: (_) => RefreshBus()),
       ],
       child: const App(),
     ),
@@ -133,19 +250,21 @@ Future<void> main() async {
 
   //
   // v.0.1.2.1 //
-  //
+  //....0033.
 
   // Test Release 2 //
   //TODO: NEW app disclaimer after completing onboarding
+  //TODO: font size bottom in tutorial too small
+  //TODO: responsive design - move subTitle to AppBg?
   //TODO: responsive design - fine tune 16:9 aspect ratio elemnts placement in AppBg
   //TODO: responsive design - RESPONSIVE FUCKING DESIGN, collect device data from bug reports and adapt
-  //TODO: responsive design - move subTitle to AppBg?
-  //TODO: BUG - syncrepository duplicates and wrecks havoc on the firestore repository. firestore in offline mode is very buggy.
-  //TODO: skin choice icon in Settings menu - softer hue
-  //TODO: font size bottom in tutorial too small
+  //TODO: if more than one instance of a prize in the won prizes list - display just one instance with a little red circle with the number of duplicates next to it
+  //TODO: for deadline tasks give the options for a notification to remind of it a week before, 24 hours before, and 12 hours before
+  //TODO: write this in the update message to testers so that they don't all bother you about this in every report : //TODO: fix bleed in dragging tasks to change order
   //TODO: confirm bug fixes with testers after deployment
 
   // Test Release 3 //
+  //TODO: fix bleed in dragging tasks to change order
   //TODO: weather API
   //TODO: good morning overlay with tip of day + weather + tasks for the day
   //TODO: cleanup - secure_name / secure_secure_name

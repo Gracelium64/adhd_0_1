@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:adhd_0_1/src/common/domain/prizes.dart';
 import 'package:adhd_0_1/src/common/presentation/app_bg.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
+import 'package:adhd_0_1/src/data/syncrepository.dart';
 import 'package:adhd_0_1/src/data/domain/reset_scheduler.dart';
 import 'package:adhd_0_1/src/features/tasks_dailys/presentation/dailys.dart';
 import 'package:adhd_0_1/src/features/tasks_deadlineys/presentation/deadlineys.dart';
@@ -13,11 +14,15 @@ import 'package:adhd_0_1/src/features/settings/presentation/settings.dart';
 import 'package:adhd_0_1/src/features/tutorial/presentation/tutorial.dart';
 import 'package:adhd_0_1/src/features/tasks_weeklys/presentation/weeklys.dart';
 import 'package:adhd_0_1/src/features/weekly_summery/presentation/widgets/weekly_summery_overlay.dart';
+import 'package:adhd_0_1/src/features/morning_greeting/presentation/widgets/daily_start_overlay.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:adhd_0_1/src/navigation/notification_router.dart';
 import 'package:flutter/services.dart';
+import 'package:adhd_0_1/src/common/domain/refresh_bus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:adhd_0_1/src/common/domain/progress_triggers.dart';
 
 class MainScreen extends StatefulWidget {
   final bool showTutorial;
@@ -31,11 +36,14 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   OverlayPortalController overlayControllerTutorial = OverlayPortalController();
   OverlayPortalController overlayControllerSummery = OverlayPortalController();
+  OverlayPortalController overlayControllerDailyStart =
+      OverlayPortalController();
   int _pageIndex = 1;
   final List<Prizes> weeklyPrizes = [];
   Timer? _dayWatcher;
   DateTime _lastDay = DateTime.now();
   late final VoidCallback _notifListener;
+  bool _isResetting = false;
 
   @override
   void initState() {
@@ -78,16 +86,58 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   }
 
   Future<void> performResetsIfNeeded() async {
-    final repository = context.read<DataBaseRepository>();
-    final resetScheduler = ResetScheduler(
-      repository,
-      controller: overlayControllerSummery,
-      awardedPrizesHolder: weeklyPrizes,
-    );
-    await resetScheduler.performResetsIfNeeded();
-    if (!mounted) return;
-    // Force a rebuild so task lists refetch after reset (updates isDone visuals)
-    setState(() {});
+    if (_isResetting) return;
+    _isResetting = true;
+    try {
+      final repository = context.read<DataBaseRepository>();
+      final refreshBus = context.read<RefreshBus>();
+      final resetScheduler = ResetScheduler(
+        repository,
+        controller: overlayControllerSummery,
+        awardedPrizesHolder: weeklyPrizes,
+      );
+      await resetScheduler.performResetsIfNeeded();
+      if (!mounted) return;
+      // If weekly summary is being shown, immediately hide the daily start overlay
+      if (overlayControllerSummery.isShowing &&
+          overlayControllerDailyStart.isShowing) {
+        overlayControllerDailyStart.hide();
+      }
+      // Force refetch in task lists and rebuild (updates isDone visuals)
+      refreshBus.bump();
+      setState(() {});
+      // After daily reset, show morning overlay once when app opens or day changes
+      // Only show if lastDailyReset is recent and hasn't been shown yet for that reset
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final lastDaily = prefs.getString('lastDailyReset');
+        if (lastDaily != null) {
+          final when = DateTime.tryParse(lastDaily);
+          if (when != null) {
+            final diff = DateTime.now().difference(when).inMinutes;
+            final lastShownMarker = prefs.getString('dailyStartShownAt');
+            final notShownForThisReset = lastShownMarker != lastDaily;
+            if (diff >= 0 && diff <= 10 && notShownForThisReset) {
+              // If weekly summary is visible or prizes were awarded (likely to show), skip DailyStart
+              if (overlayControllerSummery.isShowing ||
+                  weeklyPrizes.isNotEmpty) {
+                await prefs.setString('dailyStartShownAt', lastDaily);
+                return;
+              }
+              // ensure weekly progress notifier is fresh
+              await refreshWeeklyProgress(repository);
+              if (!overlayControllerDailyStart.isShowing &&
+                  !overlayControllerSummery.isShowing) {
+                overlayControllerDailyStart.show();
+              }
+              await prefs.setString('dailyStartShownAt', lastDaily);
+            }
+          }
+        }
+      } catch (_) {}
+    } finally {
+      _isResetting = false;
+    }
   }
 
   @override
@@ -146,6 +196,12 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     return Stack(
       children: [
         AppBg(repository),
+        // Tiny sync status indicator (top-right)
+        Positioned(
+          top: 8,
+          right: 8,
+          child: _SyncStatusPill(),
+        ),
         OverlayPortal(
           controller: overlayControllerTutorial,
           overlayChildBuilder: (context) => Tutorial(overlayControllerTutorial),
@@ -153,10 +209,24 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         ),
         OverlayPortal(
           controller: overlayControllerSummery,
+          overlayChildBuilder: (_) {
+            // Defensive: if weekly summary is opening, ensure daily start is hidden
+            if (overlayControllerDailyStart.isShowing) {
+              overlayControllerDailyStart.hide();
+            }
+            return WeeklySummaryOverlay(
+              key: UniqueKey(),
+              prizes: weeklyPrizes,
+              controller: overlayControllerSummery,
+            );
+          },
+        ),
+        OverlayPortal(
+          controller: overlayControllerDailyStart,
           overlayChildBuilder:
-              (_) => WeeklySummaryOverlay(
-                prizes: weeklyPrizes,
-                controller: overlayControllerSummery,
+              (_) => DailyStartOverlay(
+                controller: overlayControllerDailyStart,
+                repository: repository,
               ),
         ),
         Scaffold(
@@ -274,6 +344,48 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _SyncStatusPill extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final db = context.read<DataBaseRepository>();
+    if (db is! SyncRepository) return const SizedBox.shrink();
+    final sync = db;
+    return ValueListenableBuilder<bool>(
+      valueListenable: sync.isSyncingNotifier,
+      builder: (_, isSyncing, __) {
+        // Show nothing when idle
+        if (!isSyncing) return const SizedBox.shrink();
+        // Minimal unobtrusive pill with a tiny spinner
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.55),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: const [
+              SizedBox(
+                width: 12,
+                height: 12,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
+              SizedBox(width: 6),
+              Text(
+                'Syncing…',
+                style: TextStyle(color: Colors.white, fontSize: 11),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

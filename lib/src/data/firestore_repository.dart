@@ -33,6 +33,14 @@ class FirestoreRepository implements DataBaseRepository {
     await userDoc.set(payload, SetOptions(merge: true));
   }
 
+  // Public: ensure the parent user document exists and is owned by the current auth user.
+  // Throws on permission issues so callers can bail out early.
+  Future<void> ensureUserOwnershipPreflight() async {
+    final String? userId = await storage.read(key: 'userId');
+    if (userId == null || userId.isEmpty) return;
+    await _ensureUserDoc(userId);
+  }
+
   // Future<String?> loadUserId() async {
   //   String? storedValue = await storage.read(key: 'userId');
   //   return storedValue;
@@ -67,6 +75,7 @@ class FirestoreRepository implements DataBaseRepository {
       null,
       null,
       false,
+      orderIndex: taskIdCounter,
     );
     await docRef.set(task.toMap());
 
@@ -113,6 +122,7 @@ class FirestoreRepository implements DataBaseRepository {
       null,
       dayName,
       false,
+      orderIndex: (dayName == 'any') ? taskIdCounter : null,
     );
     await docRef.set(task.toMap());
 
@@ -140,10 +150,8 @@ class FirestoreRepository implements DataBaseRepository {
     int currentCounter = counterSnapshot.get('taskIdCounter') ?? 0;
     int taskIdCounter = currentCounter + 1;
 
-    ///
-    final String taskId = '${taskIdCounter}_$userId';
-
-    ///
+    // Use concatenated taskId + secure userId as the public taskId field
+    final String taskId = taskIdCounter.toString() + userId;
     final docRef = fs
         .collection('users')
         .doc(userId)
@@ -188,6 +196,7 @@ class FirestoreRepository implements DataBaseRepository {
       null,
       null,
       false,
+      orderIndex: taskIdCounter,
     );
     await docRef.set(task.toMap());
 
@@ -203,6 +212,7 @@ class FirestoreRepository implements DataBaseRepository {
   Future<void> addPrize(int prizeId, String prizeUrl) async {
     final String? userId = await loadUserId();
     if (userId == null) throw Exception('User ID not found');
+    await _ensureUserDoc(userId);
     final docRef =
         fs.collection('users').doc(userId).collection('prizesWon').doc();
 
@@ -432,9 +442,19 @@ class FirestoreRepository implements DataBaseRepository {
     final query =
         await fs.collection('users').doc(userId).collection('dailyTasks').get();
 
-    return query.docs.map((e) {
-      return Task.fromMap(e.data());
-    }).toList();
+    final list =
+        query.docs
+            .where((d) => (d.data()['isDuplicate'] != true))
+            .map((e) => Task.fromMap(e.data()))
+            .toList();
+    if (list.any((t) => t.orderIndex != null)) {
+      list.sort((a, b) {
+        final ai = a.orderIndex ?? 1 << 30;
+        final bi = b.orderIndex ?? 1 << 30;
+        return ai.compareTo(bi);
+      });
+    }
+    return list;
   }
 
   @override
@@ -448,9 +468,52 @@ class FirestoreRepository implements DataBaseRepository {
             .collection('weeklyTasks')
             .get();
 
-    return query.docs.map((e) {
-      return Task.fromMap(e.data());
-    }).toList();
+    final list =
+        query.docs
+            .where((d) => (d.data()['isDuplicate'] != true))
+            .map((e) => Task.fromMap(e.data()))
+            .toList();
+    // For weekly, only 'any' should be ordered by orderIndex; others sorted by weekday rank
+    int rank(String? day) {
+      switch ((day ?? 'any').toLowerCase()) {
+        case 'mon':
+          return 1;
+        case 'tue':
+          return 2;
+        case 'wed':
+          return 3;
+        case 'thu':
+          return 4;
+        case 'fri':
+          return 5;
+        case 'sat':
+          return 6;
+        case 'sun':
+          return 7;
+        default:
+          return 8; // any
+      }
+    }
+
+    list.sort((a, b) {
+      final ra = rank(a.dayOfWeek);
+      final rb = rank(b.dayOfWeek);
+      if (ra != rb) return ra.compareTo(rb);
+      // same bucket; if 'any', sort by orderIndex, else stable by taskId
+      if (ra == 8) {
+        if (list.any(
+              (t) => t.dayOfWeek == null || t.dayOfWeek!.toLowerCase() == 'any',
+            ) &&
+            list.any((t) => t.orderIndex != null)) {
+          final ai = a.orderIndex ?? 1 << 30;
+          final bi = b.orderIndex ?? 1 << 30;
+          return ai.compareTo(bi);
+        }
+        return a.taskId.compareTo(b.taskId);
+      }
+      return a.taskId.compareTo(b.taskId);
+    });
+    return list;
   }
 
   @override
@@ -464,9 +527,10 @@ class FirestoreRepository implements DataBaseRepository {
             .collection('deadlineTasks')
             .get();
 
-    return query.docs.map((e) {
-      return Task.fromMap(e.data());
-    }).toList();
+    return query.docs
+        .where((d) => (d.data()['isDuplicate'] != true))
+        .map((e) => Task.fromMap(e.data()))
+        .toList();
   }
 
   @override
@@ -476,9 +540,85 @@ class FirestoreRepository implements DataBaseRepository {
     final query =
         await fs.collection('users').doc(userId).collection('questTasks').get();
 
-    return query.docs.map((e) {
-      return Task.fromMap(e.data());
-    }).toList();
+    final list =
+        query.docs
+            .where((d) => (d.data()['isDuplicate'] != true))
+            .map((e) => Task.fromMap(e.data()))
+            .toList();
+    if (list.any((t) => t.orderIndex != null)) {
+      list.sort((a, b) {
+        final ai = a.orderIndex ?? 1 << 30;
+        final bi = b.orderIndex ?? 1 << 30;
+        return ai.compareTo(bi);
+      });
+    }
+    return list;
+  }
+
+  @override
+  Future<void> saveDailyOrder(List<String> orderedTaskIds) async {
+    final String? userId = await loadUserId();
+    if (userId == null) throw Exception('User ID not found');
+    final batch = fs.batch();
+    for (int i = 0; i < orderedTaskIds.length; i++) {
+      final id = orderedTaskIds[i];
+      final query =
+          await fs
+              .collection('users')
+              .doc(userId)
+              .collection('dailyTasks')
+              .where('taskId', isEqualTo: id)
+              .limit(1)
+              .get();
+      if (query.docs.isNotEmpty) {
+        batch.update(query.docs.first.reference, {'orderIndex': i});
+      }
+    }
+    await batch.commit();
+  }
+
+  @override
+  Future<void> saveQuestOrder(List<String> orderedTaskIds) async {
+    final String? userId = await loadUserId();
+    if (userId == null) throw Exception('User ID not found');
+    final batch = fs.batch();
+    for (int i = 0; i < orderedTaskIds.length; i++) {
+      final id = orderedTaskIds[i];
+      final query =
+          await fs
+              .collection('users')
+              .doc(userId)
+              .collection('questTasks')
+              .where('taskId', isEqualTo: id)
+              .limit(1)
+              .get();
+      if (query.docs.isNotEmpty) {
+        batch.update(query.docs.first.reference, {'orderIndex': i});
+      }
+    }
+    await batch.commit();
+  }
+
+  @override
+  Future<void> saveWeeklyAnyOrder(List<String> orderedTaskIds) async {
+    final String? userId = await loadUserId();
+    if (userId == null) throw Exception('User ID not found');
+    final batch = fs.batch();
+    for (int i = 0; i < orderedTaskIds.length; i++) {
+      final id = orderedTaskIds[i];
+      final query =
+          await fs
+              .collection('users')
+              .doc(userId)
+              .collection('weeklyTasks')
+              .where('taskId', isEqualTo: id)
+              .limit(1)
+              .get();
+      if (query.docs.isNotEmpty) {
+        batch.update(query.docs.first.reference, {'orderIndex': i});
+      }
+    }
+    await batch.commit();
   }
 
   @override
@@ -595,28 +735,20 @@ class FirestoreRepository implements DataBaseRepository {
       throw Exception('Not signed in');
     }
 
+    // Avoid a pre-read which is blocked by rules before ownerUid exists.
+    // Merge-write ensures:
+    // - create with ownerUid when missing (allowed by create rule)
+    // - backfill ownerUid if absent (allowed by update rule special case)
+    // - normal update when ownerUid matches current user (allowed)
     final userDoc = fs.collection('users').doc(userId);
-    final snap = await userDoc.get();
-
     final savedPassword = await storage.read(key: 'password');
-
-    if (snap.exists) {
-      // Preserve existing ownerUid; update other fields; also persist ownerPassword if available
-      final updateMap = {...user.toMap()};
-      if (savedPassword != null && savedPassword.isNotEmpty) {
-        updateMap['ownerPassword'] = savedPassword;
-      }
-      await userDoc.update(updateMap);
-    } else {
-      final createMap = {
-        ...user.toMap(),
-        'ownerUid': uid,
-      };
-      if (savedPassword != null && savedPassword.isNotEmpty) {
-        createMap['ownerPassword'] = savedPassword;
-      }
-      await userDoc.set(createMap);
-    }
+    final payload = <String, dynamic>{
+      ...user.toMap(),
+      'ownerUid': uid,
+      if (savedPassword != null && savedPassword.isNotEmpty)
+        'ownerPassword': savedPassword,
+    };
+    await userDoc.set(payload, SetOptions(merge: true));
   }
 
   @override
@@ -674,6 +806,109 @@ class FirestoreRepository implements DataBaseRepository {
     }
 
     await PrizeManager(this).trackWeeklyCompletion(dataIsDone);
+  }
+}
+
+extension FirestoreUpserts on FirestoreRepository {
+  // Extract leading numeric counter from a taskId formatted as "<counter><userId>"
+  String _extractCounterPrefix(String taskId) {
+    final m = RegExp(r'^\d+').firstMatch(taskId);
+    return m?.group(0) ?? taskId; // fallback: use full taskId
+  }
+
+  Future<void> _bumpTaskCounterIfNeeded(String userId, int counter) async {
+    final counterDocRef = fs
+        .collection('users')
+        .doc(userId)
+        .collection('taskIdCounter')
+        .doc('taskIdCounter');
+    await fs.runTransaction((tx) async {
+      final snap = await tx.get(counterDocRef);
+      int current = 0;
+      if (snap.exists) {
+        final data = snap.data();
+        current = (data?['taskIdCounter'] as int?) ?? 0;
+      }
+      if (!snap.exists) {
+        tx.set(counterDocRef, {'taskIdCounter': counter});
+      } else if (counter > current) {
+        tx.update(counterDocRef, {'taskIdCounter': counter});
+      }
+    });
+  }
+
+  Future<void> upsertDailyTask(Task t) async {
+    final String? userId = await loadUserId();
+    if (userId == null) throw Exception('User ID not found');
+    // Ensure parent user doc exists & is owned
+    await _ensureUserDoc(userId);
+    final col = fs.collection('users').doc(userId).collection('dailyTasks');
+    final docId = _extractCounterPrefix(t.taskId);
+    final doc = col.doc(docId);
+    await doc.set(t.toMap(), SetOptions(merge: true));
+    // Keep Firestore counter >= this task's counter
+    final parsed = int.tryParse(docId);
+    if (parsed != null) await _bumpTaskCounterIfNeeded(userId, parsed);
+  }
+
+  Future<void> upsertWeeklyTask(Task t) async {
+    final String? userId = await loadUserId();
+    if (userId == null) throw Exception('User ID not found');
+    await _ensureUserDoc(userId);
+    final col = fs.collection('users').doc(userId).collection('weeklyTasks');
+    final docId = _extractCounterPrefix(t.taskId);
+    final doc = col.doc(docId);
+    await doc.set(t.toMap(), SetOptions(merge: true));
+    final parsed = int.tryParse(docId);
+    if (parsed != null) await _bumpTaskCounterIfNeeded(userId, parsed);
+  }
+
+  Future<void> upsertDeadlineTask(Task t) async {
+    final String? userId = await loadUserId();
+    if (userId == null) throw Exception('User ID not found');
+    await _ensureUserDoc(userId);
+    final col = fs.collection('users').doc(userId).collection('deadlineTasks');
+    final docId = _extractCounterPrefix(t.taskId);
+    final doc = col.doc(docId);
+    await doc.set(t.toMap(), SetOptions(merge: true));
+    final parsed = int.tryParse(docId);
+    if (parsed != null) await _bumpTaskCounterIfNeeded(userId, parsed);
+  }
+
+  Future<void> upsertQuestTask(Task t) async {
+    final String? userId = await loadUserId();
+    if (userId == null) throw Exception('User ID not found');
+    await _ensureUserDoc(userId);
+    final col = fs.collection('users').doc(userId).collection('questTasks');
+    final docId = _extractCounterPrefix(t.taskId);
+    final doc = col.doc(docId);
+    await doc.set(t.toMap(), SetOptions(merge: true));
+    final parsed = int.tryParse(docId);
+    if (parsed != null) await _bumpTaskCounterIfNeeded(userId, parsed);
+  }
+
+  // Mark all but one document per taskId as duplicates in a collection
+  Future<void> markDuplicatesInCollection(String collectionName) async {
+    final String? userId = await loadUserId();
+    if (userId == null) throw Exception('User ID not found');
+    final col = fs.collection('users').doc(userId).collection(collectionName);
+    final snap = await col.get();
+    final byTask =
+        <String, List<QueryDocumentSnapshot<Map<String, dynamic>>>>{};
+    for (final d in snap.docs) {
+      final tid = d.data()['taskId'];
+      if (tid == null) continue;
+      byTask.putIfAbsent(tid, () => []).add(d);
+    }
+    final batch = fs.batch();
+    byTask.forEach((tid, docs) {
+      if (docs.length <= 1) return;
+      // Keep the first, mark the rest
+      for (int i = 1; i < docs.length; i++) {
+        batch.update(docs[i].reference, {'isDuplicate': true});
+      }
+    });
+    await batch.commit();
   }
 }
 

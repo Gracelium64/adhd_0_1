@@ -2,6 +2,7 @@ import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/domain/prize_manager.dart';
 import 'package:adhd_0_1/src/common/domain/prizes.dart';
 import 'package:adhd_0_1/src/common/domain/progress_triggers.dart';
+import 'package:adhd_0_1/src/common/domain/app_clock.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -10,16 +11,21 @@ class ResetScheduler {
   final PrizeManager prizeManager;
   final OverlayPortalController? controller;
   final List<Prizes> awardedPrizesHolder;
+  final DateTime Function() _now;
 
   ResetScheduler(
     this.repository, {
     required this.controller,
     required this.awardedPrizesHolder,
-  }) : prizeManager = PrizeManager(repository);
+    DateTime Function()? now,
+  }) : prizeManager = PrizeManager(repository),
+       _now = now ?? AppClock.instance.now;
+
+  DateTime getNow() => _now();
 
   Future<void> performResetsIfNeeded() async {
     final prefs = await SharedPreferences.getInstance();
-    final now = DateTime.now();
+    final now = getNow();
 
     // === DAILY RESET ===
     final lastDailyReset = DateTime.tryParse(
@@ -27,6 +33,12 @@ class ResetScheduler {
     );
     if (lastDailyReset == null || !_isSameDay(lastDailyReset, now)) {
       debugPrint('🔄 Performing daily reset...');
+      // Before clearing daily counters, record today's daily completion sample
+      try {
+        await prizeManager.recordTodayDailyRatioFromTasks();
+      } catch (e) {
+        debugPrint('Failed to record daily ratio sample: $e');
+      }
       await _resetDailyTasks();
       // Refresh progress after reset
       await refreshDailyProgress(repository);
@@ -59,6 +71,30 @@ class ResetScheduler {
         awardedPrizesHolder.clear();
         awardedPrizesHolder.addAll(prizes);
 
+        // Snapshot current week aggregates for the overlay before clearing
+        try {
+          final snapPrefs = await SharedPreferences.getInstance();
+          final lastDailyWeekSum = snapPrefs.getDouble('dailyWeekSum') ?? 0.0;
+          final lastDailyWeekCount = snapPrefs.getInt('dailyWeekCount') ?? 0;
+          final lastWeeklyCompleted = snapPrefs.getInt('weeklyCompleted') ?? 0;
+          final lastWeeklyTotal = snapPrefs.getInt('weeklyTotal') ?? 0;
+          final lastQuestCompleted = snapPrefs.getInt('questCompleted') ?? 0;
+          final lastDeadlineCompleted =
+              snapPrefs.getInt('deadlineCompleted') ?? 0;
+
+          await snapPrefs.setDouble('lastDailyWeekSum', lastDailyWeekSum);
+          await snapPrefs.setInt('lastDailyWeekCount', lastDailyWeekCount);
+          await snapPrefs.setInt('lastWeeklyCompleted', lastWeeklyCompleted);
+          await snapPrefs.setInt('lastWeeklyTotal', lastWeeklyTotal);
+          await snapPrefs.setInt('lastQuestCompleted', lastQuestCompleted);
+          await snapPrefs.setInt(
+            'lastDeadlineCompleted',
+            lastDeadlineCompleted,
+          );
+        } catch (e) {
+          debugPrint('Failed to snapshot weekly aggregates: $e');
+        }
+
         await _resetWeeklyTasks();
         // Refresh progress after reset
         await refreshWeeklyProgress(repository);
@@ -74,6 +110,12 @@ class ResetScheduler {
         }
       }
     }
+  }
+
+  /// Debug-only: run the reset logic immediately using the injected clock
+  /// and current preferences/settings.
+  Future<void> performDebugResetsNow() async {
+    await performResetsIfNeeded();
   }
 
   Future<void> _resetDailyTasks() async {

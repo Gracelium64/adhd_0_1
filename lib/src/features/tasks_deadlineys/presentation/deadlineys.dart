@@ -15,6 +15,9 @@ class Deadlineys extends StatefulWidget {
 }
 
 class _DeadlineysState extends State<Deadlineys> {
+  late DataBaseRepository _repository;
+  bool _loading = true;
+  List<Task> _items = [];
   void _showAddTaskOverlay() {
     showDialog(
       context: context,
@@ -28,9 +31,7 @@ class _DeadlineysState extends State<Deadlineys> {
             taskType: TaskType.deadline,
             onClose: () {
               Navigator.of(context, rootNavigator: true).pop();
-              setState(() {
-                myList = context.read<DataBaseRepository>().getDeadlineTasks();
-              });
+              _refresh();
               debugPrint(
                 'Navigator stack closing from ${Navigator.of(context)}',
               );
@@ -41,7 +42,42 @@ class _DeadlineysState extends State<Deadlineys> {
     );
   }
 
-  late Future<List<Task>> myList;
+  DateTime? _parseDeadline(Task t) {
+    final date = t.deadlineDate;
+    final time = t.deadlineTime ?? '00:00';
+    if (date == null) return null;
+    try {
+      final parts = date.split('-'); // expect YYYY-MM-DD
+      final tparts = time.split(':');
+      final y = int.parse(parts[0]);
+      final m = int.parse(parts[1]);
+      final d = int.parse(parts[2]);
+      final hh = int.parse(tparts[0]);
+      final mm = int.parse(tparts[1]);
+      return DateTime(y, m, d, hh, mm);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _refresh() async {
+    final items = await _repository.getDeadlineTasks();
+    final now = DateTime.now();
+    items.sort((a, b) {
+      final da = _parseDeadline(a);
+      final db = _parseDeadline(b);
+      if (da == null && db == null) return 0;
+      if (da == null) return 1;
+      if (db == null) return -1;
+      final diffA = da.difference(now).inMilliseconds;
+      final diffB = db.difference(now).inMilliseconds;
+      return diffA.compareTo(diffB);
+    });
+    setState(() {
+      _items = List<Task>.from(items);
+      _loading = false;
+    });
+  }
 
   // @override
   // void initState() {
@@ -50,64 +86,50 @@ class _DeadlineysState extends State<Deadlineys> {
 
   @override
   Widget build(BuildContext context) {
-    final repository = context.read<DataBaseRepository>();
-
-    myList = repository.getDeadlineTasks();
+    _repository = context.read<DataBaseRepository>();
+    if (_loading && _items.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _refresh());
+    }
 
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Center(
-        child: FutureBuilder<List<Task>>(
-          future: myList,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
-            } else if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
-            }
-
-            final data = snapshot.data!;
-
-            return Column(
-              children: [
-                SubTitle(sub: 'Deadlineys'),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 48, 0, 0),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: SizedBox(
-                        height: 492,
-                        width: 304,
-                        child: ListView.builder(
-                          itemCount: data.length,
-                          itemBuilder: (context, index) {
-                            final task = data[index];
-                            return DeadlineTaskWidget(
-                              task: task,
-                              repository: repository,
-                              onClose: () {
-                                debugPrint('deadline onClose triggered');
-                                setState(() {
-                                  myList = repository.getDeadlineTasks();
-                                });
-                              },
-                            );
-                          },
+        child:
+            _loading
+                ? const CircularProgressIndicator()
+                : Column(
+                  children: [
+                    SubTitle(sub: 'Deadlineys'),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 48, 0, 0),
+                        child: SizedBox(
+                          height: 492,
+                          width: 304,
+                          child: ListView.builder(
+                            itemCount: _items.length,
+                            itemBuilder: (context, index) {
+                              final task = _items[index];
+                              return DeadlineTaskWidget(
+                                task: task,
+                                repository: _repository,
+                                onClose: () async {
+                                  debugPrint('deadline onClose triggered');
+                                  await _refresh();
+                                },
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                    GestureDetector(
+                      onTap: _showAddTaskOverlay,
+                      child: AddTaskButton(),
+                    ),
+                    SizedBox(height: 40),
+                  ],
                 ),
-                GestureDetector(
-                  onTap: _showAddTaskOverlay,
-                  child: AddTaskButton(),
-                ),
-                SizedBox(height: 40),
-              ],
-            );
-          },
-        ),
       ),
     );
   }

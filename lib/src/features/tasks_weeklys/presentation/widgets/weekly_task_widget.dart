@@ -1,5 +1,4 @@
 import 'package:adhd_0_1/src/common/domain/progress_triggers.dart';
-import 'package:adhd_0_1/src/common/presentation/blocking_loader.dart';
 import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/edit_task_widget.dart';
@@ -47,14 +46,15 @@ class _WeeklyTaskWidgetState extends State<WeeklyTaskWidget> {
 
   void _toggleTask() async {
     final newStatus = !widget.task.isDone;
-    await showBlockingLoaderDuring(context, () async {
-      await widget.repository.toggleWeekly(widget.task.taskId, newStatus);
-      await refreshWeeklyProgress(widget.repository);
-    });
+
+    await widget.repository.toggleWeekly(widget.task.taskId, newStatus);
+
     setState(() {
       isDone = newStatus;
       widget.task.isDone = newStatus;
     });
+
+    await refreshWeeklyProgress(widget.repository);
   }
 
   @override

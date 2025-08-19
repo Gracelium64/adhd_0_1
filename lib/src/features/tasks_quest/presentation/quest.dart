@@ -15,6 +15,9 @@ class Quest extends StatefulWidget {
 }
 
 class _QuestState extends State<Quest> {
+  late DataBaseRepository _repository;
+  bool _loading = true;
+  List<Task> _items = [];
   void _showAddTaskOverlay() {
     showDialog(
       context: context,
@@ -28,9 +31,7 @@ class _QuestState extends State<Quest> {
             taskType: TaskType.quest,
             onClose: () {
               Navigator.of(context, rootNavigator: true).pop();
-              setState(() {
-                myList = context.read<DataBaseRepository>().getQuestTasks();
-              });
+              _refresh();
               debugPrint(
                 'Navigator stack closing from ${Navigator.of(context)}',
               );
@@ -41,7 +42,13 @@ class _QuestState extends State<Quest> {
     );
   }
 
-  late Future<List<Task>> myList;
+  Future<void> _refresh() async {
+    final items = await _repository.getQuestTasks();
+    setState(() {
+      _items = List<Task>.from(items);
+      _loading = false;
+    });
+  }
 
   // @override
   // void initState() {
@@ -50,64 +57,63 @@ class _QuestState extends State<Quest> {
 
   @override
   Widget build(BuildContext context) {
-    final repository = context.read<DataBaseRepository>();
-
-    myList = repository.getQuestTasks();
+    _repository = context.read<DataBaseRepository>();
+    if (_loading && _items.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _refresh());
+    }
 
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Center(
-        child: FutureBuilder<List<Task>>(
-          future: myList,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
-            } else if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
-            }
-
-            final data = snapshot.data!;
-
-            return Column(
-              children: [
-                SubTitle(sub: 'Quest'),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 48, 0, 0),
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.vertical,
-                      child: SizedBox(
-                        height: 492,
-                        width: 304,
-                        child: ListView.builder(
-                          itemCount: data.length,
-                          itemBuilder: (context, index) {
-                            final task = data[index];
-                            return QuestTaskWidget(
-                              task: task,
-                              repository: repository,
-                              onClose: () {
-                                debugPrint('quest onClose triggered');
-                                setState(() {
-                                  myList = repository.getQuestTasks();
-                                });
-                              },
-                            );
-                          },
+        child:
+            _loading
+                ? const CircularProgressIndicator()
+                : Column(
+                  children: [
+                    SubTitle(sub: 'Quest'),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 48, 0, 0),
+                        child: SizedBox(
+                          height: 492,
+                          width: 304,
+                          child: ReorderableListView.builder(
+                            itemCount: _items.length,
+                            onReorder: (oldIndex, newIndex) async {
+                              setState(() {
+                                if (newIndex > oldIndex) newIndex -= 1;
+                                final item = _items.removeAt(oldIndex);
+                                _items.insert(newIndex, item);
+                              });
+                              final ids = _items.map((e) => e.taskId).toList();
+                              await _repository.saveQuestOrder(ids);
+                            },
+                            buildDefaultDragHandles: true,
+                            itemBuilder: (context, index) {
+                              final task = _items[index];
+                              return Container(
+                                key: ValueKey(task.taskId),
+                                child: QuestTaskWidget(
+                                  task: task,
+                                  repository: _repository,
+                                  onClose: () async {
+                                    debugPrint('quest onClose triggered');
+                                    await _refresh();
+                                  },
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ),
-                  ),
+                    GestureDetector(
+                      onTap: _showAddTaskOverlay,
+                      child: AddTaskButton(),
+                    ),
+                    SizedBox(height: 40),
+                  ],
                 ),
-                GestureDetector(
-                  onTap: _showAddTaskOverlay,
-                  child: AddTaskButton(),
-                ),
-                SizedBox(height: 40),
-              ],
-            );
-          },
-        ),
       ),
     );
   }

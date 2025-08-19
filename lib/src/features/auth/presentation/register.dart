@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
 import 'package:adhd_0_1/src/data/firebase_auth_repository.dart';
+import 'package:adhd_0_1/src/data/domain/pending_registration.dart';
 import 'package:adhd_0_1/src/features/auth/domain/validators.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/register_confirmation.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
@@ -174,10 +175,18 @@ class _RegisterState extends State<Register> {
                             final name =
                                 await storage.read(key: 'name') ?? 'No User';
 
-                            await onSubmit(
-                              '$userId@adventurer.adhd',
-                              'password',
-                            );
+                            try {
+                              await onSubmit(
+                                '$userId@adventurer.adhd',
+                                userPassword,
+                              );
+                            } catch (e) {
+                              // Likely offline: queue pending registration and continue UX
+                              await PendingRegistration.save(
+                                '$userId@adventurer.adhd',
+                                userPassword,
+                              );
+                            }
 
                             if (!context.mounted) return;
 

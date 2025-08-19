@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:adhd_0_1/src/main_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:adhd_0_1/src/data/databaserepository.dart';
+import 'package:adhd_0_1/src/data/syncrepository.dart';
 
 class AccountSwitchingScreen extends StatefulWidget {
   final String userName;
@@ -98,8 +101,18 @@ class _AccountSwitchingScreenState extends State<AccountSwitchingScreen> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('onboardingComplete', true);
 
+      // 6) Proactively hydrate local cache from server for the new user
+      try {
+        // Lazy import to avoid cyclic references
+        // ignore: avoid_dynamic_calls
+        final repo = context.read<DataBaseRepository?>();
+        if (repo is SyncRepository) {
+          await repo.hydrateLocalFromRemote();
+        }
+      } catch (_) {}
+
       if (!mounted) return;
-      // 6) Navigate to main screen, clearing stack
+      // 7) Navigate to main screen, clearing stack
       Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
         PageRouteBuilder(
           pageBuilder: (_, __, ___) => const MainScreen(),

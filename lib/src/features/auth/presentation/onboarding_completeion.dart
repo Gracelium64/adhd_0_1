@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'dart:async';
 import 'package:adhd_0_1/src/data/domain/firestore_initializer.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/app_bg_coldstart.dart';
 import 'package:adhd_0_1/src/main_screen.dart';
@@ -75,21 +76,42 @@ class _OnboardingCompletionState extends State<OnboardingCompletion> {
                         GestureDetector(
                           behavior: HitTestBehavior.opaque,
                           onTap: () async {
+                            debugPrint(
+                              '🎬 OnboardingCompletion: confirm tapped (no tutorial)',
+                            );
                             await showBlockingLoaderDuring(context, () async {
                               final prefs =
                                   await SharedPreferences.getInstance();
+                              debugPrint('🧭 Setting onboardingComplete=true');
                               await prefs.setBool('onboardingComplete', true);
 
                               final storage = FlutterSecureStorage();
                               String? userId = await storage.read(
                                 key: 'userId',
                               );
-                              await FirestoreInitializer.initializeDefaults(
-                                userId,
+                              debugPrint(
+                                '🧭 Initializing Firestore defaults for userId=$userId',
                               );
+                              try {
+                                await FirestoreInitializer.initializeDefaults(
+                                  userId,
+                                ).timeout(const Duration(seconds: 5));
+                                debugPrint('✅ Firestore defaults initialized');
+                              } on TimeoutException {
+                                debugPrint(
+                                  '⏱️ Firestore defaults init timed out; continuing',
+                                );
+                              } catch (e) {
+                                debugPrint(
+                                  '⚠️ Firestore defaults init error: $e',
+                                );
+                              }
                             });
 
                             if (context.mounted) {
+                              debugPrint(
+                                '🧭 Navigating to MainScreen (no tutorial)',
+                              );
                               Navigator.of(
                                 context,
                                 rootNavigator: true,
@@ -110,21 +132,42 @@ class _OnboardingCompletionState extends State<OnboardingCompletion> {
                         GestureDetector(
                           behavior: HitTestBehavior.opaque,
                           onTap: () async {
+                            debugPrint(
+                              '🎬 OnboardingCompletion: confirm tapped (with tutorial)',
+                            );
                             await showBlockingLoaderDuring(context, () async {
                               final prefs =
                                   await SharedPreferences.getInstance();
+                              debugPrint('🧭 Setting onboardingComplete=true');
                               await prefs.setBool('onboardingComplete', true);
 
                               final storage = FlutterSecureStorage();
                               String? userId = await storage.read(
                                 key: 'userId',
                               );
-                              await FirestoreInitializer.initializeDefaults(
-                                userId,
+                              debugPrint(
+                                '🧭 Initializing Firestore defaults for userId=$userId',
                               );
+                              try {
+                                await FirestoreInitializer.initializeDefaults(
+                                  userId,
+                                ).timeout(const Duration(seconds: 5));
+                                debugPrint('✅ Firestore defaults initialized');
+                              } on TimeoutException {
+                                debugPrint(
+                                  '⏱️ Firestore defaults init timed out; continuing',
+                                );
+                              } catch (e) {
+                                debugPrint(
+                                  '⚠️ Firestore defaults init error: $e',
+                                );
+                              }
                             });
 
                             if (context.mounted) {
+                              debugPrint(
+                                '🧭 Navigating to MainScreen (with tutorial)',
+                              );
                               Navigator.of(
                                 context,
                                 rootNavigator: true,

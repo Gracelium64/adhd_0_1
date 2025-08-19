@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:adhd_0_1/src/common/domain/skin.dart';
 import 'package:adhd_0_1/src/features/morning_greeting/domain/daily_quote_notifier.dart';
+import 'package:adhd_0_1/src/features/settings/presentation/debug_settings.dart';
 
 class _SkinOpt {
   final bool? value;
@@ -64,9 +65,9 @@ class _SettingsState extends State<Settings> {
 
   // Map skin setting to asset path
   String _skinAsset(bool? skin) {
-    if (skin == true) return 'assets/img/buttons/skin_true.png';
-    if (skin == false) return 'assets/img/buttons/skin_false.png';
-    return 'assets/img/buttons/skin_null.png';
+    if (skin == true) return 'assets/img/buttons/skin_true_2.png';
+    if (skin == false) return 'assets/img/buttons/skin_false_2.png';
+    return 'assets/img/buttons/skin_null_2.png';
   }
 
   Future<void> _pickSkin() async {
@@ -348,7 +349,6 @@ class _SettingsState extends State<Settings> {
                     child: Padding(
                       padding: const EdgeInsets.only(left: 8, right: 8),
                       child: Column(
-                        spacing: 24,
                         children: [
                           OverlayPortal(
                             controller: overlayControllerSummery,
@@ -358,7 +358,7 @@ class _SettingsState extends State<Settings> {
                                   controller: overlayControllerSummery,
                                 ),
                           ),
-                          SizedBox(height: 4),
+                          SizedBox(height: 16),
                           Row(
                             children: [
                               Text(
@@ -375,6 +375,7 @@ class _SettingsState extends State<Settings> {
                               ),
                             ],
                           ),
+                          SizedBox(height: 16),
                           Row(
                             children: [
                               Text(
@@ -405,6 +406,7 @@ class _SettingsState extends State<Settings> {
                               ),
                             ],
                           ),
+                          SizedBox(height: 16),
                           Row(
                             children: [
                               GestureDetector(
@@ -446,6 +448,7 @@ class _SettingsState extends State<Settings> {
                               ),
                             ],
                           ),
+                          SizedBox(height: 16),
                           Row(
                             children: [
                               Text(
@@ -476,6 +479,7 @@ class _SettingsState extends State<Settings> {
                               ),
                             ],
                           ),
+                          SizedBox(height: 16),
                           // Row(
                           //   children: [
                           //     Text(
@@ -516,6 +520,25 @@ class _SettingsState extends State<Settings> {
                               );
                             },
                           ),
+                          // Link to Debug Settings to avoid overflow in main Settings
+                          Row(
+                            children: [
+                              // GestureDetector(
+                              //   onTap: () {
+                              //     Navigator.of(context).push(
+                              //       MaterialPageRoute(
+                              //         builder: (_) => const DebugSettings(),
+                              //       ),
+                              //     );
+                              //   },
+                              //   child: Text(
+                              //     'Open Debug Settings',
+                              //  y   style: Theme.of(context).textTheme.bodyMedium
+                              //         ?.copyWith(color: Palette.lightTeal),
+                              //   ),
+                              // ),
+                            ],
+                          ),
                           Row(
                             children: [
                               GestureDetector(
@@ -552,6 +575,7 @@ class _SettingsState extends State<Settings> {
                               );
                             },
                           ),
+                          SizedBox(height: 16),
                           Row(
                             children: [
                               GestureDetector(
