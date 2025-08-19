@@ -9,6 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:io';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+import 'package:flutter/rendering.dart';
 
 class PrizesScreen extends StatefulWidget {
   const PrizesScreen({super.key});
@@ -18,8 +21,42 @@ class PrizesScreen extends StatefulWidget {
 }
 
 class _PrizesScreenState extends State<PrizesScreen> {
+  final GlobalKey _captureKey = GlobalKey();
+
   Future<void> _sharePrizeImageAndClose(String imagePath) async {
     if (!mounted) return;
+    // Try capturing the composited image (with duplicate badge)
+    try {
+      final boundary =
+          _captureKey.currentContext?.findRenderObject()
+              as RenderRepaintBoundary?;
+      if (boundary != null) {
+        final ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+        final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+        if (byteData != null) {
+          final Uint8List pngBytes = byteData.buffer.asUint8List();
+          final tempDir = Directory.systemTemp;
+          final file = File('${tempDir.path}/shared_prize.png');
+          await file.writeAsBytes(pngBytes);
+          await Future.delayed(const Duration(milliseconds: 150));
+          if (!mounted) return;
+          await SharePlus.instance.share(
+            ShareParams(
+              files: [XFile(file.path)],
+              text: 'Look! A.. Not sure what this is actually...',
+            ),
+          );
+          if (overlayControllerPrize.isShowing) {
+            overlayControllerPrize.hide();
+          }
+          return;
+        }
+      }
+    } catch (_) {
+      // fall through to asset fallback
+    }
+
+    // Fallback: share the raw asset
     final byteData = await DefaultAssetBundle.of(context).load(imagePath);
     final buffer = byteData.buffer;
     final tempDir = Directory.systemTemp;
@@ -27,7 +64,6 @@ class _PrizesScreenState extends State<PrizesScreen> {
     await file.writeAsBytes(
       buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes),
     );
-
     await Future.delayed(const Duration(milliseconds: 300));
     if (!mounted) return;
     await SharePlus.instance.share(
@@ -129,6 +165,7 @@ class _PrizesScreenState extends State<PrizesScreen> {
           overlayChildBuilder:
               (_) => PrizeOverlay(
                 prizeImageUrl: selectedPrizeUrl,
+                captureKey: _captureKey,
                 onShare: () async {
                   debugPrint('SHARE TAP ✅: $selectedPrizeUrl');
                   await _sharePrizeImageAndClose(selectedPrizeUrl);

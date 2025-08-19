@@ -69,9 +69,21 @@ class _PrizesWidgetState extends State<PrizesWidget> {
   }
 
   List<Widget> buildImages(BuildContext context, List<Prizes> listData) {
-    List<Widget> displayPrizes = [];
+    // Aggregate by prizeUrl (assumption: same URL => same prize type)
+    final Map<String, int> counts = {};
+    final Map<String, Prizes> sample = {};
+    for (final p in listData) {
+      final key = p.prizeUrl;
+      counts[key] = (counts[key] ?? 0) + 1;
+      sample.putIfAbsent(key, () => p);
+    }
 
-    for (Prizes gridItem in listData) {
+    final List<Widget> displayPrizes = [];
+    for (final entry in sample.entries) {
+      final prizeUrl = entry.key;
+      final gridItem = entry.value;
+      final dupCount = counts[prizeUrl] ?? 1;
+
       displayPrizes.add(
         GestureDetector(
           onTap: () {
@@ -82,19 +94,54 @@ class _PrizesWidgetState extends State<PrizesWidget> {
           child: Card(
             color: Colors.transparent,
             shadowColor: Colors.transparent,
-            child: Column(
+            child: Stack(
+              clipBehavior: Clip.none,
               children: [
-                Expanded(
-                  child: Hero(
-                    tag: gridItem.prizeUrl,
-                    child: Image.asset(
-                      gridItem.prizeUrl,
-                      width: 72,
-                      height: 72,
-                      fit: BoxFit.fill,
+                Column(
+                  children: [
+                    Expanded(
+                      child: Hero(
+                        tag: gridItem.prizeUrl,
+                        child: Image.asset(
+                          gridItem.prizeUrl,
+                          width: 72,
+                          height: 72,
+                          fit: BoxFit.fill,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (dupCount > 1)
+                  Positioned(
+                    top: 2,
+                    right: 2,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.redAccent,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 2,
+                            offset: Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                      child: Text(
+                        'x$dupCount',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
-                ),
               ],
             ),
           ),

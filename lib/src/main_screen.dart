@@ -196,10 +196,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     return Stack(
       children: [
         AppBg(repository),
-        // Tiny sync status indicator (top-right)
+        // Tiny sync status indicator (bottom-left)
         Positioned(
-          top: 8,
-          right: 8,
+          bottom: 8,
+          left: 8,
           child: _SyncStatusPill(),
         ),
         OverlayPortal(

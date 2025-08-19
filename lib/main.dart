@@ -263,9 +263,8 @@ Future<void> main() async {
   //TODO: responsive design - fine tune 16:9 aspect ratio elemnts placement in AppBg    // GRACE //
   //TODO: responsive design - RESPONSIVE FUCKING DESIGN, collect device data from bug reports and adapt    // GRACE //
 
-  //TODO: if more than one instance of a prize in the won prizes list - display just one instance with a little red circle with the number of duplicates next to it // AI //
   //TODO: for deadline tasks give the options for a notification to remind of it a week before, 24 hours before, and 12 hours before  // AI //
-
+  //TODO: temporarily remove the morning overlay with progress bar to see how the app respond times for resets are with local repo are
   //TODO: write this in the update message to testers so that they don't all bother you about this in every report : //TODO: fix bleed in dragging tasks to change order  // GRACE //
   //TODO: confirm bug fixes with testers after deployment   // GRACE //
 
