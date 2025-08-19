@@ -110,7 +110,7 @@ class _FridgeLockState extends State<FridgeLock> {
                             await showBlockingLoaderDuring(context, () async {
                               await repository.addPrize(
                                 001,
-                                'assets/img/prizes/Sticker1.png',
+                                'assets/img/prizes/Sticker12.png',
                               );
                             });
                           },
