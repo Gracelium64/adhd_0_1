@@ -1,8 +1,8 @@
 class AppUser {
   final String userId;
   final String userName;
-  final String email;
-  final String password;
+  final String email; // kept locally only; not stored in Firestore
+  final String password; // kept locally only; not stored in Firestore
   final bool isPowerUser;
 
   AppUser({
@@ -13,7 +13,7 @@ class AppUser {
     required this.isPowerUser,
   });
 
-Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJson() {
     return {
       'userId': userId,
       'userName': userName,
@@ -33,13 +33,11 @@ Map<String, dynamic> toJson() {
     );
   }
 
-
   Map<String, dynamic> toMap() {
     return {
       'userId': userId,
       'userName': userName,
-      'email': email,
-      'password': password,
+      // email/password intentionally excluded from Firestore persistence
       'isPowerUser': isPowerUser,
     };
   }
@@ -48,8 +46,8 @@ Map<String, dynamic> toJson() {
     return AppUser(
       userId: map['userId'],
       userName: map['userName'],
-      email: map['email'],
-      password: map['password'],
+      email: map['email'] ?? '',
+      password: map['password'] ?? '',
       isPowerUser: map['isPowerUser'] ?? false,
     );
   }

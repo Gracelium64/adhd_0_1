@@ -23,13 +23,13 @@ class FirestoreRepository implements DataBaseRepository {
     // - If doc exists with same ownerUid: merge is a no-op and allowed.
     // - If doc exists with different ownerUid: rules will block, which is desired.
     final userDoc = fs.collection('users').doc(userId);
-    final password = await storage.read(key: 'password');
-
-    final Map<String, dynamic> payload = {'ownerUid': uid};
-    if (password != null && password.isNotEmpty) {
-      payload['ownerPassword'] = password;
-    }
-
+    // Set ownerUid and keep ownerPassword for migration, but never save raw password
+    final savedPassword = await storage.read(key: 'password');
+    final Map<String, dynamic> payload = {
+      'ownerUid': uid,
+      if (savedPassword != null && savedPassword.isNotEmpty)
+        'ownerPassword': savedPassword,
+    };
     await userDoc.set(payload, SetOptions(merge: true));
   }
 
@@ -741,9 +741,13 @@ class FirestoreRepository implements DataBaseRepository {
     // - backfill ownerUid if absent (allowed by update rule special case)
     // - normal update when ownerUid matches current user (allowed)
     final userDoc = fs.collection('users').doc(userId);
+    // Build Firestore-safe payload (exclude raw password, keep ownerPassword, include email)
     final savedPassword = await storage.read(key: 'password');
     final payload = <String, dynamic>{
-      ...user.toMap(),
+      'userId': user.userId,
+      'userName': user.userName,
+      'email': user.email,
+      'isPowerUser': user.isPowerUser,
       'ownerUid': uid,
       if (savedPassword != null && savedPassword.isNotEmpty)
         'ownerPassword': savedPassword,
@@ -759,7 +763,33 @@ class FirestoreRepository implements DataBaseRepository {
     final snapshot = await fs.collection('users').doc(userId).get();
     if (!snapshot.exists) return null;
 
-    return AppUser.fromMap(snapshot.data()!);
+    final data = snapshot.data() ?? {};
+    // Combine Firestore profile with local secret fields (prefer Firestore email if present)
+    final email =
+        (data['email'] as String?) ?? (await storage.read(key: 'email') ?? '');
+    final password = await storage.read(key: 'password') ?? '';
+    final userName =
+        (data['userName'] as String?) ??
+        (await storage.read(key: 'name') ?? userId);
+    final isPowerUser = (data['isPowerUser'] as bool?) ?? false;
+    return AppUser(
+      userId: userId,
+      userName: userName,
+      email: email,
+      password: password,
+      isPowerUser: isPowerUser,
+    );
+  }
+
+  // One-time cleanup: remove any legacy 'password' field from the user doc, keeping ownerPassword.
+  Future<void> cleanupUserDocLegacyFields() async {
+    final String? userId = await storage.read(key: 'userId');
+    if (userId == null) return;
+    await _ensureUserDoc(userId);
+    final userDoc = fs.collection('users').doc(userId);
+    await userDoc.set({
+      'password': FieldValue.delete(),
+    }, SetOptions(merge: true));
   }
 
   @override

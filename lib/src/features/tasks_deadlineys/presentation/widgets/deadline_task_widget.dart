@@ -83,7 +83,7 @@ class _DeadlineTaskWidgetState extends State<DeadlineTaskWidget> {
                   ),
                   if (goodGirl)
                     BoxShadow(
-                      color: Palette.lightTeal.withOpacity(0.8),
+                      color: Palette.lightTeal.withAlpha(204),
                       blurRadius: 18,
                       spreadRadius: 2,
                     ),
@@ -133,7 +133,7 @@ class _DeadlineTaskWidgetState extends State<DeadlineTaskWidget> {
                   ),
                   if (goodGirl)
                     BoxShadow(
-                      color: Palette.lightTeal.withOpacity(0.6),
+                      color: Palette.lightTeal.withAlpha(153),
                       blurRadius: 18,
                       spreadRadius: 2,
                     ),

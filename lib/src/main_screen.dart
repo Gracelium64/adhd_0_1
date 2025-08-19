@@ -363,7 +363,7 @@ class _SyncStatusPill extends StatelessWidget {
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.55),
+            color: Colors.black.withAlpha(140),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(

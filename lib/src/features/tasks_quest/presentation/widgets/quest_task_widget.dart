@@ -85,7 +85,7 @@ class _QuestTaskWidgetState extends State<QuestTaskWidget> {
                   ),
                   if (goodGirl)
                     BoxShadow(
-                      color: Palette.lightTeal.withOpacity(0.8),
+                      color: Palette.lightTeal.withAlpha(204),
                       blurRadius: 18,
                       spreadRadius: 2,
                     ),
@@ -135,7 +135,7 @@ class _QuestTaskWidgetState extends State<QuestTaskWidget> {
                   ),
                   if (goodGirl)
                     BoxShadow(
-                      color: Palette.lightTeal.withOpacity(0.6),
+                      color: Palette.lightTeal.withAlpha(153),
                       blurRadius: 18,
                       spreadRadius: 2,
                     ),

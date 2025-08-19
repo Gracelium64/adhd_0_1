@@ -113,7 +113,7 @@ class DailyStartOverlay extends StatelessWidget {
                                 width: barWidth,
                                 height: 16,
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.25),
+                                  color: Colors.white.withAlpha(64),
                                   borderRadius: BorderRadius.circular(34),
                                 ),
                               ),

@@ -13,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:adhd_0_1/src/common/domain/skin.dart';
 import 'package:adhd_0_1/src/features/morning_greeting/domain/daily_quote_notifier.dart';
-import 'package:adhd_0_1/src/features/settings/presentation/debug_settings.dart';
 
 class _SkinOpt {
   final bool? value;
@@ -295,6 +294,7 @@ class _SettingsState extends State<Settings> {
   }
 
   void _showAddTaskOverlay() {
+    if (!mounted) return;
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -305,8 +305,10 @@ class _SettingsState extends State<Settings> {
           insetPadding: EdgeInsets.all(16),
           child: AddTaskWidget(
             taskType: TaskType.daily,
-            onClose: () {
+            onClose: () async {
+              if (!mounted) return;
               Navigator.of(context, rootNavigator: true).pop();
+              if (!mounted) return;
               setState(() {
                 myList = context.read<DataBaseRepository>().getDailyTasks();
               });
@@ -507,7 +509,6 @@ class _SettingsState extends State<Settings> {
                           //         ),
                           //       ),
                           //     ),
-                          //     ////// TODO: replace textbutton with DropdownMenu
                           //   ],
                           // ),
                           OverlayPortal(

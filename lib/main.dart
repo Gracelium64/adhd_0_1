@@ -75,6 +75,7 @@ void initSyncListeners(SyncRepository repository) {
                   password,
                   false,
                 );
+                await fsRepo.cleanupUserDocLegacyFields();
                 // Do NOT hydrate here. After registration we keep local as source of truth
                 // and push to server. Hydration is reserved for user migration/load saved game.
               }
@@ -117,6 +118,8 @@ void initSyncListeners(SyncRepository repository) {
                   password,
                   false,
                 );
+                // Remove legacy 'password' field from Firestore user doc if present
+                await fsRepo.cleanupUserDocLegacyFields();
               } catch (e) {
                 // If permission-denied, try a silent re-auth and retry once
                 final err = e.toString();
@@ -131,6 +134,7 @@ void initSyncListeners(SyncRepository repository) {
                       password,
                       false,
                     );
+                    await fsRepo.cleanupUserDocLegacyFields();
                     debugPrint('🔁 OwnerUid stamp succeeded after re-auth');
                   } catch (e2) {
                     debugPrint(
@@ -253,15 +257,17 @@ Future<void> main() async {
   //....0033.
 
   // Test Release 2 //
-  //TODO: NEW app disclaimer after completing onboarding
-  //TODO: font size bottom in tutorial too small
-  //TODO: responsive design - move subTitle to AppBg?
-  //TODO: responsive design - fine tune 16:9 aspect ratio elemnts placement in AppBg
-  //TODO: responsive design - RESPONSIVE FUCKING DESIGN, collect device data from bug reports and adapt
-  //TODO: if more than one instance of a prize in the won prizes list - display just one instance with a little red circle with the number of duplicates next to it
-  //TODO: for deadline tasks give the options for a notification to remind of it a week before, 24 hours before, and 12 hours before
-  //TODO: write this in the update message to testers so that they don't all bother you about this in every report : //TODO: fix bleed in dragging tasks to change order
-  //TODO: confirm bug fixes with testers after deployment
+  //TODO: NEW app disclaimer after completing onboarding    // GRACE //
+  //TODO: font size bottom in tutorial too small            // GRACE //
+  //TODO: responsive design - move subTitle to AppBg?       // GRACE //
+  //TODO: responsive design - fine tune 16:9 aspect ratio elemnts placement in AppBg    // GRACE //
+  //TODO: responsive design - RESPONSIVE FUCKING DESIGN, collect device data from bug reports and adapt    // GRACE //
+
+  //TODO: if more than one instance of a prize in the won prizes list - display just one instance with a little red circle with the number of duplicates next to it // AI //
+  //TODO: for deadline tasks give the options for a notification to remind of it a week before, 24 hours before, and 12 hours before  // AI //
+
+  //TODO: write this in the update message to testers so that they don't all bother you about this in every report : //TODO: fix bleed in dragging tasks to change order  // GRACE //
+  //TODO: confirm bug fixes with testers after deployment   // GRACE //
 
   // Test Release 3 //
   //TODO: fix bleed in dragging tasks to change order

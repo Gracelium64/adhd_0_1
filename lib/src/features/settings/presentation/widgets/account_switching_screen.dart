@@ -105,6 +105,7 @@ class _AccountSwitchingScreenState extends State<AccountSwitchingScreen> {
       try {
         // Lazy import to avoid cyclic references
         // ignore: avoid_dynamic_calls
+        if (!mounted) return;
         final repo = context.read<DataBaseRepository?>();
         if (repo is SyncRepository) {
           await repo.hydrateLocalFromRemote();

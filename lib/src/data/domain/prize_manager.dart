@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:adhd_0_1/src/common/domain/prizes.dart';
 import 'package:adhd_0_1/src/features/prizes/domain/available_prizes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -102,10 +103,8 @@ class PrizeManager {
     prizesToGive += questCount + deadlineCount;
 
     // Debug: log calculation (temporary)
-    // TODO(grace): remove debug logs after weekly overlay bug fix
-    // ignore: avoid_print
-    // Using print to ensure visibility in release-like logs
-    print(
+    
+    debugPrint(
       '[PrizeManager] dailyAvg: ${dailyAvg.toStringAsFixed(2)} (sum=$dailyWeekSum, n=$dailyWeekCount), weekly: '
       '$weeklyCompleted/$weeklyTotal, quest: $questCount, deadline: $deadlineCount, '
       'prizesToGive: $prizesToGive',

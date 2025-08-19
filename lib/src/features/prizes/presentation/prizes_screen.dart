@@ -19,6 +19,7 @@ class PrizesScreen extends StatefulWidget {
 
 class _PrizesScreenState extends State<PrizesScreen> {
   Future<void> _sharePrizeImageAndClose(String imagePath) async {
+    if (!mounted) return;
     final byteData = await DefaultAssetBundle.of(context).load(imagePath);
     final buffer = byteData.buffer;
     final tempDir = Directory.systemTemp;
@@ -28,6 +29,7 @@ class _PrizesScreenState extends State<PrizesScreen> {
     );
 
     await Future.delayed(const Duration(milliseconds: 300));
+    if (!mounted) return;
     await SharePlus.instance.share(
       ShareParams(
         files: [XFile(file.path)],
@@ -40,6 +42,7 @@ class _PrizesScreenState extends State<PrizesScreen> {
   }
 
   void _showAddTaskOverlay() {
+    if (!mounted) return;
     showDialog(
       context: context,
       barrierDismissible: false,

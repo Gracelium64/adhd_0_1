@@ -21,7 +21,7 @@ class WeeklySummaryOverlay extends StatefulWidget {
 }
 
 class _WeeklySummaryOverlayState extends State<WeeklySummaryOverlay> {
-  bool _showDebug = true; // TODO(grace): set default to false after bug fix
+  bool _showDebug = false;
   late final Future<Map<String, dynamic>> _summaryFuture;
   Map<String, dynamic>? _cachedSummary;
 

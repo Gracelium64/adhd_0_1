@@ -17,7 +17,7 @@ class SyncRepository implements DataBaseRepository {
   bool isSyncing = false;
   bool _pending = false;
   DateTime? _lastSync;
-  Duration _debounce = const Duration(milliseconds: 400);
+  final Duration _debounce = const Duration(milliseconds: 400);
   String? _lastSignature; // prevent redundant sync loops
   bool _forceNextSync = false; // allow bypassing signature check when needed
   Timer? _debounceTimer; // throttle frequent sync requests

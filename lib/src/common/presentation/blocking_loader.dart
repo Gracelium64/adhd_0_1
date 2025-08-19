@@ -7,6 +7,10 @@ Future<T> showBlockingLoaderDuring<T>(
   Future<T> Function() task,
 ) async {
   // Show a modal, non-dismissible overlay with a centered spinner
+  if (!context.mounted) {
+    // If the context isn't mounted, just run the task
+    return await task();
+  }
   showDialog<void>(
     context: context,
     useRootNavigator: true,

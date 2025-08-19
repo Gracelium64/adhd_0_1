@@ -22,19 +22,22 @@ class _DailysState extends State<Dailys> {
   int _refreshTick = 0;
 
   void _showAddTaskOverlay() {
+    if (!mounted) return;
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) {
+      builder: (dialogContext) {
         return Dialog(
           elevation: 8,
           backgroundColor: Colors.transparent,
           insetPadding: EdgeInsets.all(16),
           child: AddTaskWidget(
             taskType: TaskType.daily,
-            onClose: () {
-              Navigator.of(context, rootNavigator: true).pop();
-              _refresh();
+            onClose: () async {
+              if (!dialogContext.mounted) return;
+              Navigator.of(dialogContext, rootNavigator: true).pop();
+              await _refresh();
+              if (!mounted) return;
               debugPrint(
                 'Navigator stack closing from ${Navigator.of(context)}',
               );
@@ -47,6 +50,7 @@ class _DailysState extends State<Dailys> {
 
   Future<void> _refresh() async {
     final items = await _repository.getDailyTasks();
+    if (!mounted) return;
     setState(() {
       _items = List<Task>.from(items);
       _loading = false;
