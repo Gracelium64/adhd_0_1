@@ -37,6 +37,12 @@ class DailyStartOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Temporarily disabled: render nothing while keeping implementation intact.
+    return const SizedBox.shrink();
+  }
+
+  // ignore: unused_element
+  Widget _buildOverlay(BuildContext context) {
     final media = MediaQuery.of(context);
     final safeHeight =
         media.size.height - media.padding.top - media.padding.bottom - 32;
@@ -91,7 +97,7 @@ class DailyStartOverlay extends StatelessWidget {
                   ).textTheme.displayMedium?.copyWith(fontSize: 28),
                 ),
                 const SizedBox(height: 4),
-                Text(
+                const Text(
                   "Here's your weekly progress so far:",
                   textAlign: TextAlign.center,
                 ),

@@ -72,9 +72,7 @@ class SyncRepository implements DataBaseRepository {
   @override
   Future<void> completeQuest(String dataTaskId) async {
     await localRepo.completeQuest(dataTaskId);
-    //////////////
     await prizeManager.incrementQuestCounter();
-    //////////////
     triggerSync();
   }
 
