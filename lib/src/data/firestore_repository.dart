@@ -9,6 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart' hide Settings;
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:convert';
 
 class FirestoreRepository implements DataBaseRepository {
   final fs = FirebaseFirestore.instance;
@@ -223,22 +224,15 @@ class FirestoreRepository implements DataBaseRepository {
   @override
   Future<void> completeDeadline(String dataTaskId) async {
     final String? userId = await loadUserId();
-
-    final query =
-        await fs
-            .collection('users')
-            .doc(userId)
-            .collection('deadlineTasks')
-            .where('taskId', isEqualTo: dataTaskId.toString())
-            .limit(1)
-            .get();
-
-    if (query.docs.isNotEmpty) {
-      await query.docs.first.reference.update({'isDone': true});
-      await query.docs.first.reference.delete();
-    } else {
-      throw Exception('Task with ID $dataTaskId not found');
-    }
+    if (userId == null) throw Exception('User ID not found');
+    final docId = _extractCounterPrefix(dataTaskId);
+    final docRef = fs
+        .collection('users')
+        .doc(userId)
+        .collection('deadlineTasks')
+        .doc(docId);
+    await docRef.update({'isDone': true});
+    await docRef.delete();
 
     await PrizeManager(this).incrementDeadlineCounter();
   }
@@ -246,22 +240,15 @@ class FirestoreRepository implements DataBaseRepository {
   @override
   Future<void> completeQuest(String dataTaskId) async {
     final String? userId = await loadUserId();
-
-    final query =
-        await fs
-            .collection('users')
-            .doc(userId)
-            .collection('questTasks')
-            .where('taskId', isEqualTo: dataTaskId.toString())
-            .limit(1)
-            .get();
-
-    if (query.docs.isNotEmpty) {
-      await query.docs.first.reference.update({'isDone': true});
-      await query.docs.first.reference.delete();
-    } else {
-      throw Exception('Task with ID $dataTaskId not found');
-    }
+    if (userId == null) throw Exception('User ID not found');
+    final docId = _extractCounterPrefix(dataTaskId);
+    final docRef = fs
+        .collection('users')
+        .doc(userId)
+        .collection('questTasks')
+        .doc(docId);
+    await docRef.update({'isDone': true});
+    await docRef.delete();
 
     await PrizeManager(this).incrementQuestCounter();
   }
@@ -269,170 +256,110 @@ class FirestoreRepository implements DataBaseRepository {
   @override
   Future<void> deleteDaily(String dataTaskId) async {
     final String? userId = await loadUserId();
-
-    final query =
-        await fs
-            .collection('users')
-            .doc(userId)
-            .collection('dailyTasks')
-            .where('taskId', isEqualTo: dataTaskId.toString())
-            .limit(1)
-            .get();
-
-    if (query.docs.isNotEmpty) {
-      await query.docs.first.reference.delete();
-    } else {
-      throw Exception('Task with ID $dataTaskId not found');
-    }
+    if (userId == null) throw Exception('User ID not found');
+    final docId = _extractCounterPrefix(dataTaskId);
+    await fs
+        .collection('users')
+        .doc(userId)
+        .collection('dailyTasks')
+        .doc(docId)
+        .delete();
   }
 
   @override
   Future<void> deleteWeekly(String dataTaskId) async {
     final String? userId = await loadUserId();
-
-    final query =
-        await fs
-            .collection('users')
-            .doc(userId)
-            .collection('weeklyTasks')
-            .where('taskId', isEqualTo: dataTaskId.toString())
-            .limit(1)
-            .get();
-
-    if (query.docs.isNotEmpty) {
-      await query.docs.first.reference.delete();
-    } else {
-      throw Exception('Task with ID $dataTaskId not found');
-    }
+    if (userId == null) throw Exception('User ID not found');
+    final docId = _extractCounterPrefix(dataTaskId);
+    await fs
+        .collection('users')
+        .doc(userId)
+        .collection('weeklyTasks')
+        .doc(docId)
+        .delete();
   }
 
   @override
   Future<void> deleteDeadline(String dataTaskId) async {
     final String? userId = await loadUserId();
-
-    final query =
-        await fs
-            .collection('users')
-            .doc(userId)
-            .collection('deadlineTasks')
-            .where('taskId', isEqualTo: dataTaskId.toString())
-            .limit(1)
-            .get();
-
-    if (query.docs.isNotEmpty) {
-      await query.docs.first.reference.delete();
-    } else {
-      throw Exception('Task with ID $dataTaskId not found');
-    }
+    if (userId == null) throw Exception('User ID not found');
+    final docId = _extractCounterPrefix(dataTaskId);
+    await fs
+        .collection('users')
+        .doc(userId)
+        .collection('deadlineTasks')
+        .doc(docId)
+        .delete();
   }
 
   @override
   Future<void> deleteQuest(String dataTaskId) async {
     final String? userId = await loadUserId();
-
-    final query =
-        await fs
-            .collection('users')
-            .doc(userId)
-            .collection('questTasks')
-            .where('taskId', isEqualTo: dataTaskId.toString())
-            .limit(1)
-            .get();
-
-    if (query.docs.isNotEmpty) {
-      await query.docs.first.reference.delete();
-    } else {
-      throw Exception('Task with ID $dataTaskId not found');
-    }
+    if (userId == null) throw Exception('User ID not found');
+    final docId = _extractCounterPrefix(dataTaskId);
+    await fs
+        .collection('users')
+        .doc(userId)
+        .collection('questTasks')
+        .doc(docId)
+        .delete();
   }
 
   @override
   Future<void> editDaily(String dataTaskId, String data) async {
     final String? userId = await loadUserId();
-
-    final query =
-        await fs
-            .collection('users')
-            .doc(userId)
-            .collection('dailyTasks')
-            .where('taskId', isEqualTo: dataTaskId)
-            .limit(1)
-            .get();
-
-    if (query.docs.isNotEmpty) {
-      final docRef = query.docs.first.reference;
-      await docRef.update({'taskDesctiption': data});
-    } else {
-      throw Exception('Task with ID $dataTaskId not found');
-    }
+    if (userId == null) throw Exception('User ID not found');
+    final docId = _extractCounterPrefix(dataTaskId);
+    final docRef = fs
+        .collection('users')
+        .doc(userId)
+        .collection('dailyTasks')
+        .doc(docId);
+    await docRef.update({'taskDesctiption': data});
   }
 
   @override
   Future<void> editWeekly(String dataTaskId, String data, day) async {
     final String? userId = await loadUserId();
-
-    final query =
-        await fs
-            .collection('users')
-            .doc(userId)
-            .collection('weeklyTasks')
-            .where('taskId', isEqualTo: dataTaskId)
-            .limit(1)
-            .get();
-
-    if (query.docs.isNotEmpty) {
-      final docRef = query.docs.first.reference;
-      final String dayName = day.name; // Weekday enum
-      await docRef.update({'taskDesctiption': data, 'dayOfWeek': dayName});
-    } else {
-      throw Exception('Task with ID $dataTaskId not found');
-    }
+    if (userId == null) throw Exception('User ID not found');
+    final docId = _extractCounterPrefix(dataTaskId);
+    final String dayName = day.name; // Weekday enum
+    final docRef = fs
+        .collection('users')
+        .doc(userId)
+        .collection('weeklyTasks')
+        .doc(docId);
+    await docRef.update({'taskDesctiption': data, 'dayOfWeek': dayName});
   }
 
   @override
   Future<void> editDeadline(String dataTaskId, String data, date, time) async {
     final String? userId = await loadUserId();
-
-    final query =
-        await fs
-            .collection('users')
-            .doc(userId)
-            .collection('deadlineTasks')
-            .where('taskId', isEqualTo: dataTaskId)
-            .limit(1)
-            .get();
-
-    if (query.docs.isNotEmpty) {
-      final docRef = query.docs.first.reference;
-      await docRef.update({
-        'taskDesctiption': data,
-        'deadlineDate': date,
-        'deadlineTime': time,
-      });
-    } else {
-      throw Exception('Task with ID $dataTaskId not found');
-    }
+    if (userId == null) throw Exception('User ID not found');
+    final docId = _extractCounterPrefix(dataTaskId);
+    final docRef = fs
+        .collection('users')
+        .doc(userId)
+        .collection('deadlineTasks')
+        .doc(docId);
+    await docRef.update({
+      'taskDesctiption': data,
+      'deadlineDate': date,
+      'deadlineTime': time,
+    });
   }
 
   @override
   Future<void> editQuest(String dataTaskId, String data) async {
     final String? userId = await loadUserId();
-
-    final query =
-        await fs
-            .collection('users')
-            .doc(userId)
-            .collection('questTasks')
-            .where('taskId', isEqualTo: dataTaskId)
-            .limit(1)
-            .get();
-
-    if (query.docs.isNotEmpty) {
-      final docRef = query.docs.first.reference;
-      await docRef.update({'taskDesctiption': data});
-    } else {
-      throw Exception('Task with ID $dataTaskId not found');
-    }
+    if (userId == null) throw Exception('User ID not found');
+    final docId = _extractCounterPrefix(dataTaskId);
+    final docRef = fs
+        .collection('users')
+        .doc(userId)
+        .collection('questTasks')
+        .doc(docId);
+    await docRef.update({'taskDesctiption': data});
   }
 
   @override
@@ -562,17 +489,13 @@ class FirestoreRepository implements DataBaseRepository {
     final batch = fs.batch();
     for (int i = 0; i < orderedTaskIds.length; i++) {
       final id = orderedTaskIds[i];
-      final query =
-          await fs
-              .collection('users')
-              .doc(userId)
-              .collection('dailyTasks')
-              .where('taskId', isEqualTo: id)
-              .limit(1)
-              .get();
-      if (query.docs.isNotEmpty) {
-        batch.update(query.docs.first.reference, {'orderIndex': i});
-      }
+      final docId = _extractCounterPrefix(id);
+      final docRef = fs
+          .collection('users')
+          .doc(userId)
+          .collection('dailyTasks')
+          .doc(docId);
+      batch.update(docRef, {'orderIndex': i});
     }
     await batch.commit();
   }
@@ -584,17 +507,13 @@ class FirestoreRepository implements DataBaseRepository {
     final batch = fs.batch();
     for (int i = 0; i < orderedTaskIds.length; i++) {
       final id = orderedTaskIds[i];
-      final query =
-          await fs
-              .collection('users')
-              .doc(userId)
-              .collection('questTasks')
-              .where('taskId', isEqualTo: id)
-              .limit(1)
-              .get();
-      if (query.docs.isNotEmpty) {
-        batch.update(query.docs.first.reference, {'orderIndex': i});
-      }
+      final docId = _extractCounterPrefix(id);
+      final docRef = fs
+          .collection('users')
+          .doc(userId)
+          .collection('questTasks')
+          .doc(docId);
+      batch.update(docRef, {'orderIndex': i});
     }
     await batch.commit();
   }
@@ -606,17 +525,13 @@ class FirestoreRepository implements DataBaseRepository {
     final batch = fs.batch();
     for (int i = 0; i < orderedTaskIds.length; i++) {
       final id = orderedTaskIds[i];
-      final query =
-          await fs
-              .collection('users')
-              .doc(userId)
-              .collection('weeklyTasks')
-              .where('taskId', isEqualTo: id)
-              .limit(1)
-              .get();
-      if (query.docs.isNotEmpty) {
-        batch.update(query.docs.first.reference, {'orderIndex': i});
-      }
+      final docId = _extractCounterPrefix(id);
+      final docRef = fs
+          .collection('users')
+          .doc(userId)
+          .collection('weeklyTasks')
+          .doc(docId);
+      batch.update(docRef, {'orderIndex': i});
     }
     await batch.commit();
   }
@@ -796,21 +711,13 @@ class FirestoreRepository implements DataBaseRepository {
   Future<void> toggleDaily(String dataTaskId, bool dataIsDone) async {
     final String? userId = await loadUserId();
     if (userId == null) throw Exception('User ID not found');
-
-    final query =
-        await fs
-            .collection('users')
-            .doc(userId)
-            .collection('dailyTasks')
-            .where('taskId', isEqualTo: dataTaskId)
-            .limit(1)
-            .get();
-
-    if (query.docs.isNotEmpty) {
-      await query.docs.first.reference.update({'isDone': dataIsDone});
-    } else {
-      throw Exception('Daily task not found');
-    }
+    final docId = _extractCounterPrefix(dataTaskId);
+    final docRef = fs
+        .collection('users')
+        .doc(userId)
+        .collection('dailyTasks')
+        .doc(docId);
+    await docRef.update({'isDone': dataIsDone});
 
     await PrizeManager(this).trackDailyCompletion(dataIsDone);
   }
@@ -819,21 +726,13 @@ class FirestoreRepository implements DataBaseRepository {
   Future<void> toggleWeekly(String dataTaskId, bool dataIsDone) async {
     final String? userId = await loadUserId();
     if (userId == null) throw Exception('User ID not found');
-
-    final query =
-        await fs
-            .collection('users')
-            .doc(userId)
-            .collection('weeklyTasks')
-            .where('taskId', isEqualTo: dataTaskId)
-            .limit(1)
-            .get();
-
-    if (query.docs.isNotEmpty) {
-      await query.docs.first.reference.update({'isDone': dataIsDone});
-    } else {
-      throw Exception('Weekly task not found');
-    }
+    final docId = _extractCounterPrefix(dataTaskId);
+    final docRef = fs
+        .collection('users')
+        .doc(userId)
+        .collection('weeklyTasks')
+        .doc(docId);
+    await docRef.update({'isDone': dataIsDone});
 
     await PrizeManager(this).trackWeeklyCompletion(dataIsDone);
   }
@@ -939,6 +838,108 @@ extension FirestoreUpserts on FirestoreRepository {
       }
     });
     await batch.commit();
+  }
+
+  // Batch upsert multiple tasks across categories using a single writeBatch.
+  Future<void> batchUpsertTasks(List<Task> tasks) async {
+    if (tasks.isEmpty) return;
+    final String? userId = await loadUserId();
+    if (userId == null) throw Exception('User ID not found');
+    await _ensureUserDoc(userId);
+
+    // Get current counter to detect "new" tasks without per-doc reads
+    final counterDocRef = fs
+        .collection('users')
+        .doc(userId)
+        .collection('taskIdCounter')
+        .doc('taskIdCounter');
+    final counterSnap = await counterDocRef.get();
+    int currentCounter = 0;
+    if (counterSnap.exists) {
+      currentCounter = (counterSnap.data()?['taskIdCounter'] as int?) ?? 0;
+    }
+
+    final batch = fs.batch();
+    final Set<int> newPrefixes = <int>{};
+
+    for (final t in tasks) {
+      final docId = _extractCounterPrefix(t.taskId);
+      final parsed = int.tryParse(docId);
+      if (parsed != null && parsed > currentCounter) newPrefixes.add(parsed);
+      late final CollectionReference<Map<String, dynamic>> col;
+      switch (t.taskCatagory) {
+        case 'Daily':
+          col = fs.collection('users').doc(userId).collection('dailyTasks');
+          break;
+        case 'Weekly':
+          col = fs.collection('users').doc(userId).collection('weeklyTasks');
+          break;
+        case 'Deadline':
+          col = fs.collection('users').doc(userId).collection('deadlineTasks');
+          break;
+        case 'Quest':
+          col = fs.collection('users').doc(userId).collection('questTasks');
+          break;
+        default:
+          continue; // skip unknown categories
+      }
+      final doc = col.doc(docId);
+      batch.set(doc, t.toMap(), SetOptions(merge: true));
+    }
+
+    await batch.commit();
+
+    if (newPrefixes.isNotEmpty) {
+      final sorted = newPrefixes.toList()..sort();
+      // Single-transaction bump: advance by the number of contiguous
+      // prefixes immediately following the current value.
+      await fs.runTransaction((tx) async {
+        final snap = await tx.get(counterDocRef);
+        int curr = 0;
+        if (snap.exists) {
+          curr = (snap.data()?['taskIdCounter'] as int?) ?? 0;
+        }
+        int n = 0;
+        int expected = curr + 1;
+        for (final p in sorted) {
+          if (p == expected) {
+            n++;
+            expected++;
+          } else if (p > expected) {
+            // gap encountered; stop contiguous count
+            break;
+          } else {
+            // p < expected: older prefix, ignore and continue
+            continue;
+          }
+        }
+        if (n > 0) {
+          if (!snap.exists) {
+            tx.set(counterDocRef, {'taskIdCounter': curr + n});
+          } else {
+            tx.update(counterDocRef, {'taskIdCounter': curr + n});
+          }
+        }
+      });
+    }
+  }
+
+  // Upsert prize with a deterministic doc ID to avoid duplicates without a read.
+  Future<void> upsertPrizeDeterministic(int prizeId, String prizeUrl) async {
+    final String? userId = await loadUserId();
+    if (userId == null) throw Exception('User ID not found');
+    await _ensureUserDoc(userId);
+    final safeUrl = base64Url.encode(utf8.encode(prizeUrl));
+    final docId = 'p_${prizeId}_$safeUrl';
+    final docRef = fs
+        .collection('users')
+        .doc(userId)
+        .collection('prizesWon')
+        .doc(docId);
+    await docRef.set({
+      'prizeId': prizeId,
+      'prizeUrl': prizeUrl,
+    }, SetOptions(merge: true));
   }
 }
 

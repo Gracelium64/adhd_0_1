@@ -262,14 +262,14 @@ Future<void> main() async {
   //TODO: responsive design - move subTitle to AppBg?       // GRACE //
   //TODO: responsive design - fine tune 16:9 aspect ratio elemnts placement in AppBg    // GRACE //
   //TODO: responsive design - RESPONSIVE FUCKING DESIGN, collect device data from bug reports and adapt    // GRACE //
+  //TODO: deadline task widget doesn't display fully with all details   // GRACE //
 
   //TODO: for deadline tasks give the options for a notification to remind of it a week before, 24 hours before, and 12 hours before  // AI //
-  //TODO: deadline task widget doesn't display fully with all details
   //TODO: write this in the update message to testers so that they don't all bother you about this in every report : //TODO: fix bleed in dragging tasks to change order  // GRACE //
   //TODO: confirm bug fixes with testers after deployment   // GRACE //
 
   // Test Release 3 //
-  //TODO: remove DailyStartOverlay from code if morning refresh issue solved at testers
+  //TODO: responsive design - accesibility big fonts    // GRACE //
   //TODO: fix bleed in dragging tasks to change order
   //TODO: weather API
   //TODO: good morning overlay with tip of day + weather + tasks for the day
@@ -277,6 +277,7 @@ Future<void> main() async {
   // //TODO: UNDO Button in SncakBar when completing a Quest or Deadline Tasks
   //TODO: eastereggs
   //TODO: make more AI abominations for prizes
+  //TODO: remove DailyStartOverlay from code if morning refresh issue solved with testers
   //TODO: confirm bug fixes with testers after deployment
 
   // Test Release 4 //
@@ -292,7 +293,6 @@ Future<void> main() async {
   //TODO: confirm bug fixes with testers after deployment
 
   // Test Release 5 //
-  //TODO: responsive design - accesibility big fonts (wtf)
   //TODO: translations
   //TODO: repurpose FridgeLock (?)
   //TODO: tasks with multiple subtasks

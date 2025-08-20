@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:adhd_0_1/src/common/domain/app_user.dart';
 import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
@@ -17,12 +18,14 @@ class SyncRepository implements DataBaseRepository {
   bool isSyncing = false;
   bool _pending = false;
   DateTime? _lastSync;
-  final Duration _debounce = const Duration(milliseconds: 400);
+  final Duration _debounce = const Duration(milliseconds: 1200);
   String? _lastSignature; // prevent redundant sync loops
   bool _forceNextSync = false; // allow bypassing signature check when needed
   Timer? _debounceTimer; // throttle frequent sync requests
   // Public notifier for UI to show a tiny sync indicator
   final ValueNotifier<bool> isSyncingNotifier = ValueNotifier<bool>(false);
+  // Tombstones: locally record deletions to ensure remote is purged and prevent resurrection
+  static const _tombstonesKey = 'sync_tombstones_v1';
 
   SyncRepository({
     required this.mainRepo,
@@ -79,24 +82,28 @@ class SyncRepository implements DataBaseRepository {
   @override
   Future<void> deleteDaily(String dataTaskId) async {
     await localRepo.deleteDaily(dataTaskId);
+    await _addTombstone(dataTaskId, 'Daily');
     triggerSync();
   }
 
   @override
   Future<void> deleteDeadline(String dataTaskId) async {
     await localRepo.deleteDeadline(dataTaskId);
+    await _addTombstone(dataTaskId, 'Deadline');
     triggerSync();
   }
 
   @override
   Future<void> deleteQuest(String dataTaskId) async {
     await localRepo.deleteQuest(dataTaskId);
+    await _addTombstone(dataTaskId, 'Quest');
     triggerSync();
   }
 
   @override
   Future<void> deleteWeekly(String dataTaskId) async {
     await localRepo.deleteWeekly(dataTaskId);
+    await _addTombstone(dataTaskId, 'Weekly');
     triggerSync();
   }
 
@@ -217,21 +224,21 @@ class SyncRepository implements DataBaseRepository {
   Future<void> saveDailyOrder(List<String> orderedTaskIds) async {
     await localRepo.saveDailyOrder(orderedTaskIds);
     await mainRepo.saveDailyOrder(orderedTaskIds);
-    triggerSync();
+    // Avoid redundant sync: order was written to remote already.
   }
 
   @override
   Future<void> saveQuestOrder(List<String> orderedTaskIds) async {
     await localRepo.saveQuestOrder(orderedTaskIds);
     await mainRepo.saveQuestOrder(orderedTaskIds);
-    triggerSync();
+    // Avoid redundant sync: order was written to remote already.
   }
 
   @override
   Future<void> saveWeeklyAnyOrder(List<String> orderedTaskIds) async {
     await localRepo.saveWeeklyAnyOrder(orderedTaskIds);
     await mainRepo.saveWeeklyAnyOrder(orderedTaskIds);
-    triggerSync();
+    // Avoid redundant sync: order was written to remote already.
   }
 
   Future<void> syncAll() async {
@@ -279,6 +286,9 @@ class SyncRepository implements DataBaseRepository {
         }
       }
 
+      // First, flush any pending tombstones to remote to avoid resurrection
+      await _flushTombstones();
+
       // Calculate local snapshot signature; bail if unchanged since last sync
       final dailies = await localRepo.getDailyTasks();
       final weeklies = await localRepo.getWeeklyTasks();
@@ -310,47 +320,78 @@ class SyncRepository implements DataBaseRepository {
         return;
       }
 
-      // Push-only: upsert all local data to remote by stable taskId
-      debugPrint('⏫ Pushing Dailies (${dailies.length})');
-      await _pushTasks(dailies);
-      debugPrint('⏫ Pushing Weeklies (${weeklies.length})');
-      await _pushTasks(weeklies);
-      debugPrint('⏫ Pushing Deadlines (${deadlines.length})');
-      await _pushTasks(deadlines);
-      debugPrint('⏫ Pushing Quests (${quests.length})');
-      await _pushTasks(quests);
+      // Only push changed tasks using per-task checksums stored locally
+      final prefs = await SharedPreferences.getInstance();
+      final rawChecksums = prefs.getString('sync_checksums_v1');
+      final Map<String, dynamic> storedChecksums =
+          (rawChecksums == null || rawChecksums.isEmpty)
+              ? <String, dynamic>{}
+              : (jsonDecode(rawChecksums) as Map<String, dynamic>);
 
-      // Prizes (append-only)
-      final remotePrizes = await mainRepo.getPrizes();
-      debugPrint(
-        '🎁 Prizes -> local:${prizes.length} remote:${remotePrizes.length}',
-      );
-      final remotePrizeSet =
-          remotePrizes.map((p) => '${p.prizeId}:${p.prizeUrl}').toSet();
-      for (final p in prizes) {
-        final key = '${p.prizeId}:${p.prizeUrl}';
-        if (!remotePrizeSet.contains(key)) {
-          debugPrint('🎁 Adding prize $key to remote');
-          await mainRepo.addPrize(p.prizeId, p.prizeUrl);
-        } else {
-          debugPrint('🎁 Skipping existing prize $key');
-        }
+      String checksumFor(Task t) => sigPartTask(t);
+      bool hasChanged(Task t) => storedChecksums[t.taskId] != checksumFor(t);
+
+      // Exclude tombstoned IDs from any future upserts
+      final tombstoneSet = await _tombstonedIds();
+      bool notTombstoned(Task t) => !tombstoneSet.contains(t.taskId);
+
+      final dChanged = dailies.where(hasChanged).where(notTombstoned);
+      final wChanged = weeklies.where(hasChanged).where(notTombstoned);
+      final dlChanged = deadlines.where(hasChanged).where(notTombstoned);
+      final qChanged = quests.where(hasChanged).where(notTombstoned);
+
+      final changedAll = [
+        ...dChanged,
+        ...wChanged,
+        ...dlChanged,
+        ...qChanged,
+      ];
+      debugPrint('⏫ Will push changed only -> ${changedAll.length} tasks');
+      if (changedAll.isNotEmpty && mainRepo is FirestoreRepository) {
+        await (mainRepo as FirestoreRepository).batchUpsertTasks(changedAll);
+      } else {
+        if (dChanged.isNotEmpty) await _pushTasks(dChanged.toList());
+        if (wChanged.isNotEmpty) await _pushTasks(wChanged.toList());
+        if (dlChanged.isNotEmpty) await _pushTasks(dlChanged.toList());
+        if (qChanged.isNotEmpty) await _pushTasks(qChanged.toList());
       }
+
+      // Prizes: offline-first; weekly summary will add to Firestore via repository.
+      debugPrint(
+        '🎁 Skipping prizes sync (handled during weekly summary only)',
+      );
 
       // Settings
       if (settings != null) {
         debugPrint(
           '⚙️ Pushing settings (skin:${settings.appSkinColor}, lang:${settings.language}, loc:${settings.location}, SOD:${settings.startOfDay.hour}:${settings.startOfDay.minute}, SOW:${settings.startOfWeek.name})',
         );
-        await mainRepo.setSettings(
-          settings.appSkinColor,
-          settings.language,
-          settings.location,
-          settings.startOfDay,
-          settings.startOfWeek,
-        );
+        final settingsSig =
+            'S:${settings.appSkinColor}:${settings.language}:${settings.location}:${settings.startOfDay.hour}:${settings.startOfDay.minute}:${settings.startOfWeek.name}';
+        final lastSettingsSig = prefs.getString('sync_settings_sig_v1');
+        if (lastSettingsSig != settingsSig) {
+          await mainRepo.setSettings(
+            settings.appSkinColor,
+            settings.language,
+            settings.location,
+            settings.startOfDay,
+            settings.startOfWeek,
+          );
+          await prefs.setString('sync_settings_sig_v1', settingsSig);
+        } else {
+          debugPrint('⚙️ Settings unchanged; skipping write');
+        }
       }
 
+      // Persist per-task checksums for next run
+      final Map<String, String> nextChecksums = {
+        for (final t in [...dailies, ...weeklies, ...deadlines, ...quests])
+          t.taskId: checksumFor(t),
+      };
+      await (await SharedPreferences.getInstance()).setString(
+        'sync_checksums_v1',
+        jsonEncode(nextChecksums),
+      );
       _lastSignature = signature;
       debugPrint("✅ Sync finished.");
     } catch (e, stack) {
@@ -364,6 +405,73 @@ class SyncRepository implements DataBaseRepository {
         _pending = false;
         Future.microtask(syncAll);
       }
+    }
+  }
+
+  Future<void> _addTombstone(String taskId, String category) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString(_tombstonesKey);
+      final List<dynamic> list =
+          (raw == null || raw.isEmpty) ? [] : (jsonDecode(raw) as List);
+      list.add({
+        'taskId': taskId,
+        'category': category,
+        'ts': DateTime.now().toIso8601String(),
+      });
+      await prefs.setString(_tombstonesKey, jsonEncode(list));
+    } catch (e) {
+      debugPrint('⚠️ Failed adding tombstone for $taskId: $e');
+    }
+  }
+
+  Future<Set<String>> _tombstonedIds() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString(_tombstonesKey);
+      if (raw == null || raw.isEmpty) return <String>{};
+      final List<dynamic> list = jsonDecode(raw) as List<dynamic>;
+      return list
+          .map((e) => (e as Map<String, dynamic>)['taskId'] as String)
+          .toSet();
+    } catch (_) {
+      return <String>{};
+    }
+  }
+
+  Future<void> _flushTombstones() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString(_tombstonesKey);
+      if (raw == null || raw.isEmpty) return;
+      final List<dynamic> list = jsonDecode(raw) as List<dynamic>;
+      if (list.isEmpty) return;
+      for (final entry in list) {
+        final m = (entry as Map<String, dynamic>);
+        final id = m['taskId'] as String?;
+        final cat = m['category'] as String?;
+        if (id == null || cat == null) continue;
+        switch (cat) {
+          case 'Daily':
+            await mainRepo.deleteDaily(id);
+            break;
+          case 'Weekly':
+            await mainRepo.deleteWeekly(id);
+            break;
+          case 'Deadline':
+            await mainRepo.deleteDeadline(id);
+            break;
+          case 'Quest':
+            await mainRepo.deleteQuest(id);
+            break;
+          default:
+            break;
+        }
+      }
+      // Clear queue after successful flush
+      await prefs.remove(_tombstonesKey);
+    } catch (e) {
+      debugPrint('⚠️ Failed flushing tombstones: $e');
     }
   }
 
