@@ -265,8 +265,6 @@ Future<void> main() async {
   //....0033.
 
   // Test Release 2 //
-  //TODO: NEW app disclaimer after completing onboarding    // GRACE //
-  //TODO: font size bottom in tutorial too small            // GRACE //
   //TODO: responsive design - move subTitle to AppBg?       // GRACE //
   //TODO: responsive design - fine tune 16:9 aspect ratio elemnts placement in AppBg    // GRACE //
   //TODO: responsive design - RESPONSIVE FUCKING DESIGN, collect device data from bug reports and adapt    // GRACE //
