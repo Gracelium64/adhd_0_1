@@ -17,52 +17,73 @@ class Tutorial extends StatefulWidget {
 class _TutorialState extends State<Tutorial> {
   int currentPage = 0;
 
+  ImageProvider? _headerImage;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Precache the header image to avoid first-use decode jank on low-end devices
+    _headerImage ??= const AssetImage(
+      'assets/img/app_bg/png/cold_start_icon.png',
+    );
+    precacheImage(_headerImage!, context);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isLowEndAndroid =
+        Theme.of(context).platform == TargetPlatform.android &&
+        MediaQuery.of(context).devicePixelRatio < 2.25;
+    final double blurSigma = isLowEndAndroid ? 0.0 : 2.5;
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Center(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 2.5, sigmaY: 2.5),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(25)),
-              boxShadow: [
-                BoxShadow(
-                  color: Palette.basicBitchWhite.withAlpha(175),
-                  offset: Offset(-0, -0),
-                  blurRadius: 5,
-                  blurStyle: BlurStyle.inner,
+        child: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
+            child: RepaintBoundary(
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(25)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Palette.basicBitchWhite.withAlpha(175),
+                      offset: Offset(-0, -0),
+                      blurRadius: 5,
+                      blurStyle: BlurStyle.inner,
+                    ),
+                    BoxShadow(
+                      color: Palette.basicBitchBlack.withAlpha(125),
+                      offset: Offset(4, 4),
+                      blurRadius: 5,
+                    ),
+                    BoxShadow(
+                      color: Palette.monarchPurple1Opacity,
+                      offset: Offset(0, 0),
+                      blurRadius: 20,
+                      blurStyle: BlurStyle.solid,
+                    ),
+                  ],
                 ),
-                BoxShadow(
-                  color: Palette.basicBitchBlack.withAlpha(125),
-                  offset: Offset(4, 4),
-                  blurRadius: 5,
-                ),
-                BoxShadow(
-                  color: Palette.monarchPurple1Opacity,
-                  offset: Offset(0, 0),
-                  blurRadius: 20,
-                  blurStyle: BlurStyle.solid,
-                ),
-              ],
-            ),
-            height: 578 * 1.05,
-            width: 300 * 1.05,
-            child:
-                currentPage == 0
-                    ? Column(
-                      children: [
-                        SizedBox(height: 28),
-                        Image.asset(
-                          'assets/img/app_bg/png/cold_start_icon.png',
-                          scale: 1.2,
-                        ),
-                        SizedBox(
-                          height: 400,
-                          child: Expanded(
-                            child: SingleChildScrollView(
-                              child: Padding(
+                height: 578 * 1.05,
+                width: 300 * 1.05,
+                child:
+                    currentPage == 0
+                        ? Column(
+                          children: [
+                            SizedBox(height: 28),
+                            Image(
+                              image:
+                                  _headerImage ??
+                                  const AssetImage(
+                                    'assets/img/app_bg/png/cold_start_icon.png',
+                                  ),
+                              width: 140,
+                              filterQuality: FilterQuality.medium,
+                            ),
+                            SizedBox(
+                              height: 400,
+                              child: SingleChildScrollView(
                                 padding: const EdgeInsets.fromLTRB(
                                   16,
                                   0,
@@ -169,175 +190,196 @@ class _TutorialState extends State<Tutorial> {
                                 ),
                               ),
                             ),
-                          ),
-                        ),
-                      ],
-                    )
-                    : currentPage == 1
-                    ? Column(
-                      children: [
-                        SizedBox(height: 28),
-                        Image.asset(
-                          'assets/img/app_bg/png/cold_start_icon.png',
-                          scale: 1.2,
-                        ),
-                        Column(
+                          ],
+                        )
+                        : currentPage == 1
+                        ? Column(
                           children: [
-                            TutorialItem(
-                              title: 'These are your Daily Tasks',
-                              imgUrl: 'assets/img/sidebar/daily.png',
-                              subTitle: 'They reset each day',
+                            SizedBox(height: 28),
+                            Image(
+                              image:
+                                  _headerImage ??
+                                  const AssetImage(
+                                    'assets/img/app_bg/png/cold_start_icon.png',
+                                  ),
+                              width: 140,
+                              filterQuality: FilterQuality.medium,
                             ),
-                            TutorialItem(
-                              title: 'These are your Weekly Tasks',
-                              imgUrl: 'assets/img/sidebar/week.png',
-                              subTitle: 'They reset in the weekly summery',
+                            Expanded(
+                              child: SingleChildScrollView(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                child: Column(
+                                  children: [
+                                    TutorialItem(
+                                      title: 'These are your Daily Tasks',
+                                      imgUrl: 'assets/img/sidebar/daily.png',
+                                      subTitle: 'They reset each day',
+                                    ),
+                                    TutorialItem(
+                                      title: 'These are your Weekly Tasks',
+                                      imgUrl: 'assets/img/sidebar/week.png',
+                                      subTitle:
+                                          'They reset in the weekly summery',
+                                    ),
+                                    TutorialItem(
+                                      title: 'These are your Deadlines',
+                                      imgUrl: 'assets/img/sidebar/clock.png',
+                                      subTitle: 'They reward you with a point',
+                                    ),
+                                    TutorialItem(
+                                      title: 'This is your Main Quest',
+                                      imgUrl: 'assets/img/sidebar/star.png',
+                                      subTitle:
+                                          'They reward you with a point as well',
+                                    ),
+                                    TutorialItem(
+                                      title: "Comes in future update",
+                                      imgUrl: 'assets/img/sidebar/fridge.png',
+                                      subTitle: "Can't tell you everything",
+                                    ),
+                                    TutorialItem(
+                                      title: 'Fidget screen!',
+                                      imgUrl: 'assets/img/sidebar/fidget.png',
+                                      subTitle: 'Good luck with that...',
+                                    ),
+                                    TutorialItem(
+                                      title: "See what you've won so far",
+                                      imgUrl: 'assets/img/sidebar/prize.png',
+                                      subTitle: 'AI made Abominations',
+                                    ),
+                                    TutorialItem(
+                                      title: 'Burger Menu',
+                                      imgUrl:
+                                          'assets/img/sidebar/hamburger.png',
+                                      subTitle: 'App Settings',
+                                    ),
+                                    Gap(12),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        IconButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              currentPage = 0;
+                                            });
+                                          },
+                                          icon: Icon(
+                                            Icons.chevron_left_rounded,
+                                            size: 36,
+                                          ),
+                                        ),
+                                        IconButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              currentPage = 2;
+                                            });
+                                          },
+                                          icon: Icon(
+                                            Icons.chevron_right_rounded,
+                                            size: 36,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
-                            TutorialItem(
-                              title: 'These are your Deadlines',
-                              imgUrl: 'assets/img/sidebar/clock.png',
-                              subTitle: 'They reward you with a point',
+                          ],
+                        )
+                        : Column(
+                          children: [
+                            SizedBox(height: 28),
+                            Image(
+                              image:
+                                  _headerImage ??
+                                  const AssetImage(
+                                    'assets/img/app_bg/png/cold_start_icon.png',
+                                  ),
+                              width: 140,
+                              filterQuality: FilterQuality.medium,
                             ),
-                            TutorialItem(
-                              title: 'This is your Main Quest',
-                              imgUrl: 'assets/img/sidebar/star.png',
-                              subTitle: 'They reward you with a point as well',
-                            ),
-                            TutorialItem(
-                              title: "Comes in future update",
-                              imgUrl: 'assets/img/sidebar/fridge.png',
-                              subTitle: "Can't tell you everything",
-                            ),
-                            TutorialItem(
-                              title: 'Fidget screen!',
-                              imgUrl: 'assets/img/sidebar/fidget.png',
-                              subTitle: 'Good luck with that...',
-                            ),
-                            TutorialItem(
-                              title: "See what you've won so far",
-                              imgUrl: 'assets/img/sidebar/prize.png',
-                              subTitle: 'AI made Abominations',
-                            ),
-                            TutorialItem(
-                              title: 'Burger Menu',
-                              imgUrl: 'assets/img/sidebar/hamburger.png',
-                              subTitle: 'App Settings',
-                            ),
-                            Gap(12),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      currentPage = 0;
-                                    });
-                                  },
-                                  icon: Icon(
-                                    Icons.chevron_left_rounded,
-                                    size: 36,
+                            Expanded(
+                              child: SingleChildScrollView(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        "Click on the + button in the bottom of the screen to add a task to your adventure.",
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.displayMedium?.copyWith(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      Gap(16),
+                                      Text(
+                                        "You can choose which task type you want to add, the default is to the task type you're currently navigating to.",
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.displayMedium?.copyWith(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      Gap(16),
+                                      Text(
+                                        "Click on an existing task to edit or delete it. Hold a task to move it around in the list, click on the button on it's left side to mark it completed.",
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.displayMedium?.copyWith(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      Gap(16),
+                                      Text(
+                                        "You will be alreated about deadline the week before, the day before, and on the day.",
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.displayMedium?.copyWith(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      Gap(16),
+                                      Text(
+                                        "Don't forget to have some fun out there",
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.displayMedium?.copyWith(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      Gap(32),
+
+                                      ConfirmButton(
+                                        onPressed: () {
+                                          widget.controller.toggle();
+                                        },
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      currentPage = 2;
-                                    });
-                                  },
-                                  icon: Icon(
-                                    Icons.chevron_right_rounded,
-                                    size: 36,
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
                           ],
                         ),
-                      ],
-                    )
-                    : Column(
-                      children: [
-                        SizedBox(height: 28),
-                        Image.asset(
-                          'assets/img/app_bg/png/cold_start_icon.png',
-                          scale: 1.2,
-                        ),
-                        Expanded(
-                          child: SingleChildScrollView(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                              ),
-                              child: Column(
-                                children: [
-                                  Text(
-                                    "Click on the + button in the bottom of the screen to add a task to your adventure.",
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.displayMedium?.copyWith(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  Gap(16),
-                                  Text(
-                                    "You can choose which task type you want to add, the default is to the task type you're currently navigating to.",
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.displayMedium?.copyWith(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  Gap(16),
-                                  Text(
-                                    "Click on an existing task to edit or delete it. Hold a task to move it around in the list, click on the button on it's left side to mark it completed.",
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.displayMedium?.copyWith(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  Gap(16),
-                                  Text(
-                                    "You will be alreated about deadline the week before, the day before, and on the day.",
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.displayMedium?.copyWith(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  Gap(16),
-                                  Text(
-                                    "Don't forget to have some fun out there",
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.displayMedium?.copyWith(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  Gap(32),
-
-                                  ConfirmButton(
-                                    onPressed: () {
-                                      widget.controller.toggle();
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+              ),
+            ),
           ),
         ),
       ),

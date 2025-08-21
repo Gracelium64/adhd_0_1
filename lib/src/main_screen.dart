@@ -21,6 +21,7 @@ import 'package:provider/provider.dart';
 import 'package:adhd_0_1/src/navigation/notification_router.dart';
 import 'package:flutter/services.dart';
 import 'package:adhd_0_1/src/common/domain/refresh_bus.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:adhd_0_1/src/common/domain/progress_triggers.dart';
 
@@ -175,6 +176,38 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     }
   }
 
+  Future<void> _ensureAndroidNotificationHealth() async {
+    try {
+      const String channel = 'shadowapp.grace6424.adhd01/alarm';
+      final platform = const MethodChannel(channel);
+      // Nudge settings if notifications disabled
+      final android =
+          FlutterLocalNotificationsPlugin()
+              .resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin
+              >();
+      final enabled = await android?.areNotificationsEnabled() ?? true;
+      if (!enabled) {
+        await platform.invokeMethod('openAppNotificationSettings');
+        return;
+      }
+      // Suggest ignoring battery optimizations
+      final bool ignoring = await platform.invokeMethod(
+        'isIgnoringBatteryOptimizations',
+      );
+      if (!ignoring) {
+        await platform.invokeMethod('requestIgnoreBatteryOptimizations');
+      }
+      // Request exact alarm if missing
+      final dynamic allowed = await platform.invokeMethod(
+        'hasExactAlarmPermission',
+      );
+      if (allowed is bool && !allowed) {
+        await platform.invokeMethod('requestExactAlarmPermission');
+      }
+    } catch (_) {}
+  }
+
   @override
   Widget build(BuildContext context) {
     final repository = context.read<DataBaseRepository>();
@@ -193,6 +226,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       Settings(),
     ];
 
+    // Android: proactively ensure notification health when app opens to help with OEM restrictions
+    _ensureAndroidNotificationHealth();
     return Stack(
       children: [
         AppBg(repository),

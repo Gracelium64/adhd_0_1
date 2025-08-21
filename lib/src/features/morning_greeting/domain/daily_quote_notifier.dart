@@ -104,6 +104,22 @@ class DailyQuoteNotifier {
       // Ensure permissions are granted (Android 13+/iOS)
       await requestPermissions();
 
+      // Best-effort: check if notifications are enabled on Android; if not, surface settings
+      final android =
+          _plugin
+              .resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin
+              >();
+      final bool notificationsEnabled =
+          await android?.areNotificationsEnabled() ?? true;
+      if (!notificationsEnabled) {
+        debugPrint('[DailyQuoteNotifier] Notifications disabled by user');
+        try {
+          const platform = MethodChannel('shadowapp.grace6424.adhd01/alarm');
+          await platform.invokeMethod('openAppNotificationSettings');
+        } catch (_) {}
+      }
+
       // Cancel previous notifications and native alarm to avoid duplicates
       await _plugin.cancelAll();
       try {
@@ -160,29 +176,47 @@ class DailyQuoteNotifier {
             );
           }
           if (!allowed) {
+            // Try to nudge the user to grant it, then fall back to plugin scheduling
             try {
               await platform.invokeMethod('requestExactAlarmPermission');
             } catch (_) {}
-          }
-          // Persist the next quote and time, then schedule next one-shot natively
-          try {
-            await platform.invokeMethod('saveNextQuote', {
-              'quote': quote,
+            debugPrint('[DailyQuoteNotifier] Falling back to plugin schedule');
+            await _plugin.zonedSchedule(
+              1001,
+              'Good morning',
+              quote,
+              next,
+              const NotificationDetails(
+                android: androidDetails,
+                iOS: iosDetails,
+              ),
+              androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+              uiLocalNotificationDateInterpretation:
+                  UILocalNotificationDateInterpretation.absoluteTime,
+              matchDateTimeComponents: DateTimeComponents.time,
+              payload: 'open_app',
+            );
+          } else {
+            // Persist the next quote and time, then schedule next one-shot natively
+            try {
+              await platform.invokeMethod('saveNextQuote', {
+                'quote': quote,
+              });
+            } catch (e) {
+              debugPrint('[DailyQuoteNotifier] saveNextQuote failed: $e');
+            }
+            await platform.invokeMethod('saveStartOfDay', {
+              'hour': time.hour,
+              'minute': time.minute,
             });
-          } catch (e) {
-            debugPrint('[DailyQuoteNotifier] saveNextQuote failed: $e');
+            await platform.invokeMethod('scheduleNextAlarm', {
+              'hour': time.hour,
+              'minute': time.minute,
+            });
+            debugPrint(
+              '[DailyQuoteNotifier] Scheduled native next alarm for ${next.toLocal()}',
+            );
           }
-          await platform.invokeMethod('saveStartOfDay', {
-            'hour': time.hour,
-            'minute': time.minute,
-          });
-          await platform.invokeMethod('scheduleNextAlarm', {
-            'hour': time.hour,
-            'minute': time.minute,
-          });
-          debugPrint(
-            '[DailyQuoteNotifier] Scheduled native next alarm for ${next.toLocal()}',
-          );
         } else {
           // iOS: use plugin daily repeating schedule
           await _plugin.zonedSchedule(
@@ -251,6 +285,29 @@ class DailyQuoteNotifier {
     debugPrint('[DailyQuoteNotifier] Pending notifications: ${pending.length}');
     for (final p in pending) {
       debugPrint('  • id=${p.id}, title=${p.title}, body=${p.body}');
+    }
+
+    if (Platform.isAndroid) {
+      const platform = MethodChannel('shadowapp.grace6424.adhd01/alarm');
+      try {
+        final bool ignoring = await platform.invokeMethod(
+          'isIgnoringBatteryOptimizations',
+        );
+        debugPrint(
+          '[DailyQuoteNotifier] Ignoring battery optimizations: $ignoring',
+        );
+        if (!ignoring) {
+          debugPrint(
+            '[DailyQuoteNotifier] Suggesting user to disable battery optimization for reliability',
+          );
+        }
+      } catch (_) {}
+      try {
+        final dynamic res = await platform.invokeMethod(
+          'hasExactAlarmPermission',
+        );
+        debugPrint('[DailyQuoteNotifier] hasExactAlarmPermission: $res');
+      } catch (_) {}
     }
   }
 

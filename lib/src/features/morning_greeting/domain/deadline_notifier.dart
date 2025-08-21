@@ -164,23 +164,57 @@ class DeadlineNotifier {
       try {
         // Branch by platform using runtime Platform class
         if (Platform.isAndroid) {
-          // Android: delegate to native exact alarm chain for daily reliability
+          // Android: prefer native exact alarm chain; fall back to plugin if not allowed
           const platform = MethodChannel('shadowapp.grace6424.adhd01/alarm');
-          // Cancel any prior one-shot plugin schedule to avoid duplicates
-          await _plugin.cancel(_notificationId);
-          // Save the composed body so native can display it
-          final body = await _composeBodyAsync(repo, fireDay, nextDay);
-          await platform.invokeMethod('saveNextDeadlineMessage', {
-            'message': body,
-          });
-          await platform.invokeMethod('scheduleNextDeadlineAlarm', {
-            'hour': dailyStart.hour,
-            'minute': dailyStart.minute,
-            'offsetSec': offsetSec,
-          });
-          debugPrint(
-            '[DeadlineNotifier] Scheduled native deadline alarm with offset=$offsetSec',
-          );
+          bool allowed = true;
+          try {
+            final dynamic res = await platform.invokeMethod(
+              'hasExactAlarmPermission',
+            );
+            if (res is bool) allowed = res;
+          } catch (e) {
+            debugPrint('[DeadlineNotifier] hasExactAlarmPermission failed: $e');
+          }
+
+          if (!allowed) {
+            try {
+              await platform.invokeMethod('requestExactAlarmPermission');
+            } catch (_) {}
+            debugPrint('[DeadlineNotifier] Falling back to plugin schedule');
+            await _plugin.cancel(_notificationId);
+            final body = await _composeBodyAsync(repo, fireDay, nextDay);
+            await _plugin.zonedSchedule(
+              _notificationId,
+              "Today's focus",
+              body,
+              fireAt,
+              const NotificationDetails(
+                android: androidDetails,
+                iOS: iosDetails,
+              ),
+              androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+              uiLocalNotificationDateInterpretation:
+                  UILocalNotificationDateInterpretation.absoluteTime,
+              matchDateTimeComponents: DateTimeComponents.time,
+              payload: 'open_app',
+            );
+          } else {
+            // Cancel any prior plugin schedule to avoid duplicates
+            await _plugin.cancel(_notificationId);
+            // Save the composed body so native can display it
+            final body = await _composeBodyAsync(repo, fireDay, nextDay);
+            await platform.invokeMethod('saveNextDeadlineMessage', {
+              'message': body,
+            });
+            await platform.invokeMethod('scheduleNextDeadlineAlarm', {
+              'hour': dailyStart.hour,
+              'minute': dailyStart.minute,
+              'offsetSec': offsetSec,
+            });
+            debugPrint(
+              '[DeadlineNotifier] Scheduled native deadline alarm with offset=$offsetSec',
+            );
+          }
         } else {
           // iOS: schedule a fixed-offset daily repeating notification for reliability
           await _plugin.cancel(_notificationId);

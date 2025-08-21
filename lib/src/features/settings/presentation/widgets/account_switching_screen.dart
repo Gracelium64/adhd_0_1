@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -48,12 +49,84 @@ class _AccountSwitchingScreenState extends State<AccountSwitchingScreen> {
         await _auth.signOut();
       }
 
-      // 2) Login to Firebase using reconstructed email and fixed password
-      final email = '${widget.userName}@adventurer.adhd';
-      await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: 'password',
-      );
+      // 2) Attempt sign-in against candidate emails (reconstructed and profile email)
+      final uname = widget.userName.trim();
+      final primaryEmail = '$uname@adventurer.adhd';
+      final candidates = <String>{primaryEmail};
+      try {
+        final proj = Firebase.app().options.projectId;
+        debugPrint(
+          '🔎 Account switch in project=$proj, candidates=$candidates',
+        );
+      } catch (_) {}
+
+      // Try to include the profile email if it exists (in same project)
+      String? profileEmail;
+      try {
+        final profileDoc =
+            await FirebaseFirestore.instance
+                .collection('users')
+                .doc(uname)
+                .get();
+        if (profileDoc.exists) {
+          final data = profileDoc.data() ?? {};
+          profileEmail = data['email'] as String?;
+          if (profileEmail != null && profileEmail.isNotEmpty) {
+            candidates.add(profileEmail);
+          }
+        }
+      } catch (_) {}
+
+      String? signedInEmail;
+      FirebaseAuthException? wrongPasswordErr;
+      for (final candidate in candidates) {
+        try {
+          await _auth.signInWithEmailAndPassword(
+            email: candidate,
+            password: widget.ownerPassword,
+          );
+          signedInEmail = candidate;
+          break;
+        } on FirebaseAuthException catch (ex) {
+          if (ex.code == 'wrong-password') {
+            wrongPasswordErr = ex;
+            break; // no need to try others; email exists but password is wrong
+          } else if (ex.code == 'user-not-found') {
+            // try next candidate
+            continue;
+          } else if (ex.code == 'invalid-credential') {
+            // try next; could be non-password provider
+            continue;
+          } else {
+            // other errors: keep last and break
+            break;
+          }
+        }
+      }
+
+      if (signedInEmail == null) {
+        if (wrongPasswordErr != null) {
+          throw wrongPasswordErr;
+        }
+        // Distinguish profile present vs missing to give better guidance
+        if (profileEmail != null && profileEmail.isNotEmpty) {
+          final hint =
+              (profileEmail != primaryEmail)
+                  ? ' (profile email: $profileEmail)'
+                  : '';
+          throw FirebaseAuthException(
+            code: 'wrong-provider',
+            message:
+                'No email/password sign-in found for $primaryEmail$hint. Use the original provider or complete registration, then try again.',
+          );
+        }
+        throw FirebaseAuthException(
+          code: 'account-not-found',
+          message:
+              'No account found for $primaryEmail. Check the username, or create/link this account.',
+        );
+      }
+      final email = signedInEmail;
 
       final currentUid = _auth.currentUser?.uid;
       if (currentUid == null || currentUid != widget.identifier) {
@@ -62,10 +135,7 @@ class _AccountSwitchingScreenState extends State<AccountSwitchingScreen> {
 
       // 3) Validate Firestore user doc matches ownerUid and ownerPassword.
       final doc =
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(widget.userName)
-              .get();
+          await FirebaseFirestore.instance.collection('users').doc(uname).get();
       if (!doc.exists) {
         throw Exception('User document not found');
       }
@@ -81,7 +151,7 @@ class _AccountSwitchingScreenState extends State<AccountSwitchingScreen> {
 
       // 4) Update local secure storage
       const storage = FlutterSecureStorage();
-      await storage.write(key: 'userId', value: widget.userName);
+      await storage.write(key: 'userId', value: uname);
       await storage.write(key: 'password', value: widget.ownerPassword);
       await storage.write(key: 'email', value: email);
       // Migrate legacy key to 'secure_name' and delete legacy so only 'secure_name' remains
@@ -126,13 +196,37 @@ class _AccountSwitchingScreenState extends State<AccountSwitchingScreen> {
     } catch (e) {
       if (!mounted) return;
       // Show error in a dialog, then return to the Load Saved Game form
+      final reconstructedEmail = '${widget.userName.trim()}@adventurer.adhd';
+      String dialogTitle = 'Couldn\'t switch user';
+      String dialogMessage;
+      if (e is FirebaseAuthException) {
+        switch (e.code) {
+          case 'account-not-found':
+            dialogTitle = 'Account not found';
+            dialogMessage =
+                e.message ??
+                'No account found for $reconstructedEmail. Check the username, or create/link this account.';
+            break;
+          case 'wrong-provider':
+            dialogTitle = 'Use the right sign-in method';
+            dialogMessage =
+                e.message ??
+                'This account does not use email/password. Sign in using the original provider or link a password to switch.';
+            break;
+          default:
+            dialogMessage =
+                '[${e.code}] ${e.message ?? 'Authentication failed'}';
+        }
+      } else {
+        dialogMessage = e.toString();
+      }
       await showDialog<void>(
         context: context,
         barrierDismissible: true,
         builder: (ctx) {
           return AlertDialog(
-            title: const Text('Couldn\'t switch user'),
-            content: Text(e.toString()),
+            title: Text(dialogTitle),
+            content: Text(dialogMessage),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(ctx).pop(),

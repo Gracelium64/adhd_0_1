@@ -8,6 +8,7 @@ import android.app.AlarmManager
 import android.content.Intent
 import android.provider.Settings
 import android.net.Uri
+import android.os.PowerManager
 import io.flutter.plugin.common.MethodChannel.Result
 
 class MainActivity : FlutterActivity() {
@@ -92,6 +93,45 @@ class MainActivity : FlutterActivity() {
 					"cancelDeadlineAlarm" -> {
 						AlarmScheduler.cancelDeadline(applicationContext)
 						result.success(null)
+					}
+					"openAppNotificationSettings" -> {
+						try {
+							val intent = Intent().apply {
+								action = Settings.ACTION_APP_NOTIFICATION_SETTINGS
+								putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+								addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+							}
+							startActivity(intent)
+							result.success(null)
+						} catch (_: Exception) {
+							try {
+								val fallback = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+									data = Uri.fromParts("package", packageName, null)
+									addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+								}
+								startActivity(fallback)
+								result.success(null)
+							} catch (_: Exception) {
+								result.error("ERR_SETTINGS", "Unable to open settings", null)
+							}
+						}
+					}
+					"isIgnoringBatteryOptimizations" -> {
+						val pm = getSystemService(POWER_SERVICE) as PowerManager
+						val ignoring = pm.isIgnoringBatteryOptimizations(packageName)
+						result.success(ignoring)
+					}
+					"requestIgnoreBatteryOptimizations" -> {
+						try {
+							val intent = Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+								data = Uri.parse("package:" + packageName)
+								addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+							}
+							startActivity(intent)
+							result.success(null)
+						} catch (_: Exception) {
+							result.error("ERR_BATTERY", "Unable to open battery optimization screen", null)
+						}
 					}
 						"getInitialRouteFromIntent" -> {
 							val r = intent?.getStringExtra("route") ?: pendingRoute
