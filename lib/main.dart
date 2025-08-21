@@ -265,9 +265,7 @@ Future<void> main() async {
   //....0033.
 
   // Test Release 2 // v.0.1.2.1.2 //
-
-  //TODO: write this in the update message to testers so that they don't all bother you about this in every report : //TODO: fix bleed in dragging tasks to change order  // GRACE //
-  //TODO: confirm bug fixes with testers after deployment   // GRACE //
+    //TODO: confirm bug fixes with testers after deployment   // GRACE //
 
   // Test Release 3 //
   //TODO: responsive design - accesibility big fonts    // GRACE //
