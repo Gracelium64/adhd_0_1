@@ -4,6 +4,7 @@ import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/edit_task_widget.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 
 class DeadlineTaskWidget extends StatefulWidget {
   final Task task;
@@ -162,9 +163,19 @@ class _DeadlineTaskWidgetState extends State<DeadlineTaskWidget> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(right: 8),
-                      child: Text(
-                        '${widget.task.deadlineTime}',
-                        style: Theme.of(context).textTheme.labelSmall,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(
+                            '${widget.task.deadlineTime}',
+                            style: Theme.of(context).textTheme.labelSmall,
+                          ),
+                          Text(
+                            '${widget.task.deadlineDate}',
+                            style: Theme.of(context).textTheme.labelSmall,
+                          ),
+                          Gap(8),
+                        ],
                       ),
                     ),
                   ],

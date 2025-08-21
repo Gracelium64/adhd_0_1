@@ -14,8 +14,12 @@ object NotificationHelper {
     private const val CHANNEL_ID = "daily_quote_channel_v2"
     private const val CHANNEL_NAME = "Daily Quotes"
     private const val CHANNEL_DESC = "Daily tip of the day notification at startOfDay"
+    private const val DL_CHANNEL_ID = "deadline_alerts_channel_v1"
+    private const val DL_CHANNEL_NAME = "Task Deadlines"
+    private const val DL_CHANNEL_DESC = "Alerts for deadlines due today/tomorrow and weekly tasks for today"
     private const val PREFS = "adhd_prefs"
     private const val KEY_NEXT_QUOTE = "nextQuote"
+    private const val KEY_NEXT_DEADLINE_MSG = "nextDeadlineMsg"
 
     fun ensureChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -31,6 +35,13 @@ object NotificationHelper {
                 enableVibration(true)
             }
             nm.createNotificationChannel(channel)
+
+            val dlChannel = NotificationChannel(DL_CHANNEL_ID, DL_CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH).apply {
+                description = DL_CHANNEL_DESC
+                setSound(soundUri, attrs)
+                enableVibration(true)
+            }
+            nm.createNotificationChannel(dlChannel)
         }
     }
 
@@ -67,5 +78,37 @@ object NotificationHelper {
             .setAutoCancel(true)
             .build()
     nm.notify(1001, notification)
+    }
+
+    fun showDeadlineAlert(context: Context) {
+        ensureChannel(context)
+        val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val launchIntent = Intent(context, MainActivity::class.java).apply {
+            action = "shadowapp.grace6424.adhd01.ACTION_OPEN_DAILYS"
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            putExtra("route", "dailys")
+        }
+        val contentIntent = PendingIntent.getActivity(
+            context,
+            11001,
+            launchIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val saved = prefs.getString(KEY_NEXT_DEADLINE_MSG, null)
+        if (saved != null) {
+            prefs.edit().remove(KEY_NEXT_DEADLINE_MSG).apply()
+        }
+        val text = saved ?: "Deadlines due today or tomorrow, or weekly tasks today."
+        val notification = NotificationCompat.Builder(context, DL_CHANNEL_ID)
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentTitle("Today's focus")
+            .setContentText(text)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(contentIntent)
+            .setAutoCancel(true)
+            .build()
+        nm.notify(11001, notification)
     }
 }

@@ -73,8 +73,24 @@ class MainActivity : FlutterActivity() {
 						AlarmScheduler.schedule(applicationContext, hour, minute, nextOnly = true)
 						result.success(null)
 					}
+					"scheduleNextDeadlineAlarm" -> {
+						val hour = call.argument<Int>("hour") ?: 7
+						val minute = call.argument<Int>("minute") ?: 15
+						val offsetSec = call.argument<Int>("offsetSec") ?: 10
+						AlarmScheduler.scheduleDeadline(applicationContext, hour, minute, offsetSec, nextOnly = true)
+						result.success(null)
+					}
+					"saveNextDeadlineMessage" -> {
+						val msg = call.argument<String>("message")
+						AlarmScheduler.saveNextDeadlineMessage(applicationContext, msg)
+						result.success(null)
+					}
 					"cancelAlarm" -> {
 						AlarmScheduler.cancel(applicationContext)
+						result.success(null)
+					}
+					"cancelDeadlineAlarm" -> {
+						AlarmScheduler.cancelDeadline(applicationContext)
 						result.success(null)
 					}
 						"getInitialRouteFromIntent" -> {

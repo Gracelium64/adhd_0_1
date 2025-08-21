@@ -16,6 +16,7 @@ import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:adhd_0_1/src/features/morning_greeting/domain/daily_quote_notifier.dart';
+import 'package:adhd_0_1/src/features/morning_greeting/domain/deadline_notifier.dart';
 import 'package:adhd_0_1/src/common/domain/refresh_bus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:adhd_0_1/src/data/domain/pending_registration.dart';
@@ -238,6 +239,13 @@ Future<void> main() async {
     await DailyQuoteNotifier.instance.init();
     await DailyQuoteNotifier.instance.requestPermissions();
     await DailyQuoteNotifier.instance.rescheduleFromRepository(mainRepo);
+    // Schedule the deadline notifier shortly after the daily quote time
+    // using the same startOfDay from settings.
+    final settings = await mainRepo.getSettings();
+    final start = settings?.startOfDay ?? const TimeOfDay(hour: 7, minute: 15);
+    await DeadlineNotifier.instance.init();
+    await DeadlineNotifier.instance.requestPermissions();
+    await DeadlineNotifier.instance.scheduleRelativeToDaily(start, mainRepo);
   } catch (e) {
     debugPrint('⚠️ Notification init/schedule failed: $e');
   }
@@ -262,9 +270,7 @@ Future<void> main() async {
   //TODO: responsive design - move subTitle to AppBg?       // GRACE //
   //TODO: responsive design - fine tune 16:9 aspect ratio elemnts placement in AppBg    // GRACE //
   //TODO: responsive design - RESPONSIVE FUCKING DESIGN, collect device data from bug reports and adapt    // GRACE //
-  //TODO: deadline task widget doesn't display fully with all details   // GRACE //
 
-  //TODO: for deadline tasks give the options for a notification to remind of it a week before, 24 hours before, and 12 hours before  // AI //
   //TODO: write this in the update message to testers so that they don't all bother you about this in every report : //TODO: fix bleed in dragging tasks to change order  // GRACE //
   //TODO: confirm bug fixes with testers after deployment   // GRACE //
 

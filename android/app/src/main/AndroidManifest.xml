@@ -52,6 +52,12 @@
             android:name=".AlarmReceiver"
             android:enabled="true"
             android:exported="false" />
+
+        <!-- Receives the deadline alarm and shows the alert, then re-schedules for tomorrow -->
+        <receiver
+            android:name=".DeadlineReceiver"
+            android:enabled="true"
+            android:exported="false" />
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

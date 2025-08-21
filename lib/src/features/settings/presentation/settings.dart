@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:adhd_0_1/src/common/domain/skin.dart';
 import 'package:adhd_0_1/src/features/morning_greeting/domain/daily_quote_notifier.dart';
+import 'package:adhd_0_1/src/features/morning_greeting/domain/deadline_notifier.dart';
 
 class _SkinOpt {
   final bool? value;
@@ -243,6 +244,11 @@ class _SettingsState extends State<Settings> {
       await _confirmAndApplyResets();
       // reschedule daily notification at new startOfDay
       await DailyQuoteNotifier.instance.scheduleDailyQuote(updated.startOfDay);
+      // reschedule deadline notifier relative to the new startOfDay
+      await DeadlineNotifier.instance.scheduleRelativeToDaily(
+        updated.startOfDay,
+        repo,
+      );
     }
   }
 
