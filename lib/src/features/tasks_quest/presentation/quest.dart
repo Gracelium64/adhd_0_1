@@ -2,6 +2,8 @@ import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/add_task_widget.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
+import 'package:adhd_0_1/src/common/presentation/title_gaps.dart';
+import 'package:gap/gap.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/tasks_quest/presentation/widgets/quest_task_widget.dart';
 import 'package:flutter/material.dart';
@@ -74,13 +76,15 @@ class _QuestState extends State<Quest> {
                 ? const CircularProgressIndicator()
                 : Column(
                   children: [
+                    Gap(subtitleTopGap(context)),
                     SubTitle(sub: 'Quest'),
+                    Gap(subtitleBottomGap(context)),
                     Expanded(
                       child: Padding(
-                        padding: const EdgeInsets.fromLTRB(24, 48, 0, 0),
+                        padding: const EdgeInsets.fromLTRB(16, 48, 0, 0),
                         child: SizedBox(
                           height: 492,
-                          width: 304,
+                          width: MediaQuery.of(context).size.width - 85,
                           child: ReorderableListView.builder(
                             itemCount: _items.length,
                             onReorder: (oldIndex, newIndex) async {

@@ -4,6 +4,8 @@ import 'package:adhd_0_1/src/features/settings/presentation/widgets/about.dart';
 import 'package:adhd_0_1/src/features/settings/presentation/widgets/view_user_data.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/add_task_widget.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
+import 'package:adhd_0_1/src/common/presentation/title_gaps.dart';
+import 'package:gap/gap.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/common/domain/prizes.dart';
 import 'package:adhd_0_1/src/data/domain/reset_scheduler.dart';
@@ -344,16 +346,18 @@ class _SettingsState extends State<Settings> {
       body: Center(
         child: Column(
           children: [
+            Gap(subtitleTopGap(context)),
             SubTitle(sub: 'Settings'),
+            Gap(subtitleBottomGap(context)),
 
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 48, 0, 0),
+                padding: const EdgeInsets.fromLTRB(16, 48, 0, 0),
                 child: SingleChildScrollView(
                   scrollDirection: Axis.vertical,
                   child: SizedBox(
                     height: 550,
-                    width: 304,
+                    width: MediaQuery.of(context).size.width - 85,
                     child: Padding(
                       padding: const EdgeInsets.only(left: 8, right: 8),
                       child: Column(

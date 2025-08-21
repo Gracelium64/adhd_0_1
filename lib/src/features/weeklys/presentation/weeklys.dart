@@ -2,6 +2,8 @@ import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/add_task_widget.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
+import 'package:adhd_0_1/src/common/presentation/title_gaps.dart';
+import 'package:gap/gap.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/tasks_weeklys/presentation/widgets/weekly_task_widget.dart';
 import 'package:flutter/material.dart';
@@ -91,16 +93,18 @@ class _WeeklysState extends State<Weeklys> {
 
             return Column(
               children: [
+                Gap(subtitleTopGap(context)),
                 SubTitle(sub: 'Weeklys'),
+                Gap(subtitleBottomGap(context)),
 
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 48, 0, 0),
+                    padding: const EdgeInsets.fromLTRB(16, 48, 0, 0),
                     child: SingleChildScrollView(
                       scrollDirection: Axis.vertical,
                       child: SizedBox(
                         height: 492,
-                        width: 304,
+                        width: MediaQuery.of(context).size.width - 85,
                         child: ListView.builder(
                           itemCount: data.length,
                           itemBuilder: (context, index) {

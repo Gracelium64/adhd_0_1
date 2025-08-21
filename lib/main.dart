@@ -264,10 +264,7 @@ Future<void> main() async {
   // v.0.1.2.1 //
   //....0033.
 
-  // Test Release 2 //
-  //TODO: responsive design - move subTitle to AppBg?       // GRACE //
-  //TODO: responsive design - fine tune 16:9 aspect ratio elemnts placement in AppBg    // GRACE //
-  //TODO: responsive design - RESPONSIVE FUCKING DESIGN, collect device data from bug reports and adapt    // GRACE //
+  // Test Release 2 // v.0.1.2.1.2 //
 
   //TODO: write this in the update message to testers so that they don't all bother you about this in every report : //TODO: fix bleed in dragging tasks to change order  // GRACE //
   //TODO: confirm bug fixes with testers after deployment   // GRACE //

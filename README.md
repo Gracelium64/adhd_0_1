@@ -9,8 +9,11 @@ Good luck.
 
 # Attention Deficit oH Dear
 
-// V.0.1.2.2 // Test Release 2 //       19/8/25
-This codebase is now around 90% human written and 10% AI written for the purpose of streamlining getting the app to minimum release standard.
+// V.0.1.2.2 // Test Release 2 //       21/8/25
+This codebase is now around 80-90% human written and 10-20% AI written for the purpose of streamlining getting the app to minimum release standard.
+
+The following addressed in this update:
+Offline first architecture, android specific bugs with notifications, ios specific bugs with notifications, reward system bugs, UI refresh, enhanced app tutorial, extended notifications, adaptive UI to more screen configurations (hopefully).
 
 
 // V.0.1.2.1 // Test Release 1 //         10/8/25

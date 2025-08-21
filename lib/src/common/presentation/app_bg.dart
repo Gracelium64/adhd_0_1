@@ -88,7 +88,7 @@ class _AppBgState extends State<AppBg> {
                     backgroundColor: Colors.transparent,
                     body: Padding(
                       padding: EdgeInsets.fromLTRB(
-                        constraints.maxWidth * 0.1,
+                        constraints.maxWidth * 0.15,
                         MediaQuery.of(context).padding.top +
                             constraints.maxHeight * 0.01,
                         0,
@@ -128,7 +128,7 @@ class _AppBgState extends State<AppBg> {
                     padding: EdgeInsets.fromLTRB(
                       constraints.maxWidth * 0.2,
                       MediaQuery.of(context).padding.top +
-                          constraints.maxHeight * 0.14,
+                          constraints.maxHeight * 0.145,
                       0,
                       0,
                     ),

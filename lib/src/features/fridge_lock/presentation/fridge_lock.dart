@@ -5,6 +5,8 @@ import 'package:adhd_0_1/src/features/fridge_lock/presentation/widgets/debug_pre
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/add_task_widget.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
+import 'package:adhd_0_1/src/common/presentation/title_gaps.dart';
+import 'package:gap/gap.dart';
 import 'package:adhd_0_1/src/common/presentation/blocking_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -61,15 +63,17 @@ class _FridgeLockState extends State<FridgeLock> {
       body: Center(
         child: Column(
           children: [
+            Gap(subtitleTopGap(context)),
             SubTitle(sub: 'Fridge Lock'),
+            Gap(subtitleBottomGap(context)),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 48, 0, 0),
+                padding: const EdgeInsets.fromLTRB(16, 48, 0, 0),
                 child: SingleChildScrollView(
                   scrollDirection: Axis.vertical,
                   child: SizedBox(
                     height: 492,
-                    width: 304,
+                    width: MediaQuery.of(context).size.width - 85,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

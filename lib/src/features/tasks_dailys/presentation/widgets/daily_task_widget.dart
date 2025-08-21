@@ -115,7 +115,9 @@ class _DailyTaskWidgetState extends State<DailyTaskWidget> {
               );
             },
             child: Container(
-              constraints: const BoxConstraints(minHeight: 60),
+              constraints: const BoxConstraints(
+                minHeight: 60,
+              ),
               height: 60,
               decoration: ShapeDecoration(
                 shadows: [
