@@ -105,7 +105,7 @@ class _TutorialState extends State<Tutorial> {
                                     ),
                                     Gap(32),
                                     Text(
-                                      "I am is not here to replace your calendar, I'm also not here to send you constant reminders and notification.",
+                                      "I am not here to replace your calendar, I'm also not here to send you constant reminders and notification.",
                                       style: Theme.of(
                                         context,
                                       ).textTheme.displayMedium?.copyWith(
