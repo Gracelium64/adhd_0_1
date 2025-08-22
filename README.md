@@ -9,7 +9,7 @@ Good luck.
 
 # Attention Deficit oH Dear
 
-// V.0.1.2.2 // Test Release 2 //       21/8/25
+// V.0.1.2.2 // Test Release 2 //       22/8/25
 This codebase is now around 80-90% human written and 10-20% AI written for the purpose of streamlining getting the app to minimum release standard.
 
 The following addressed in this update:
