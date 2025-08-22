@@ -14,7 +14,7 @@ object NotificationHelper {
     private const val CHANNEL_ID = "daily_quote_channel_v2"
     private const val CHANNEL_NAME = "Daily Quotes"
     private const val CHANNEL_DESC = "Daily tip of the day notification at startOfDay"
-    private const val DL_CHANNEL_ID = "deadline_alerts_channel_v1"
+    private const val DL_CHANNEL_ID = "deadline_alerts_channel_v3"
     private const val DL_CHANNEL_NAME = "Task Deadlines"
     private const val DL_CHANNEL_DESC = "Alerts for deadlines due today/tomorrow and weekly tasks for today"
     private const val PREFS = "adhd_prefs"
@@ -100,6 +100,7 @@ object NotificationHelper {
             prefs.edit().remove(KEY_NEXT_DEADLINE_MSG).apply()
         }
         val text = saved ?: "Deadlines due today or tomorrow, or weekly tasks today."
+        val soundUri = Uri.parse("android.resource://${context.packageName}/raw/my_sound")
         val notification = NotificationCompat.Builder(context, DL_CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle("Today's focus")
@@ -107,6 +108,35 @@ object NotificationHelper {
             .setStyle(NotificationCompat.BigTextStyle().bigText(text))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(contentIntent)
+            .setSound(soundUri)
+            .setAutoCancel(true)
+            .build()
+        nm.notify(11001, notification)
+    }
+
+    fun showDeadlineAlertWithBody(context: Context, text: String) {
+        ensureChannel(context)
+        val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val launchIntent = Intent(context, MainActivity::class.java).apply {
+            action = "shadowapp.grace6424.adhd01.ACTION_OPEN_DAILYS"
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            putExtra("route", "dailys")
+        }
+        val contentIntent = PendingIntent.getActivity(
+            context,
+            11001,
+            launchIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val soundUri = Uri.parse("android.resource://${context.packageName}/raw/my_sound")
+        val notification = NotificationCompat.Builder(context, DL_CHANNEL_ID)
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setContentTitle("Today's focus")
+            .setContentText(text)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(contentIntent)
+            .setSound(soundUri)
             .setAutoCancel(true)
             .build()
         nm.notify(11001, notification)

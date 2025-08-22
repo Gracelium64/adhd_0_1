@@ -13,15 +13,8 @@ import 'package:adhd_0_1/src/features/weekly_summery/presentation/widgets/weekly
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:adhd_0_1/src/common/domain/skin.dart';
 import 'package:adhd_0_1/src/features/morning_greeting/domain/daily_quote_notifier.dart';
 import 'package:adhd_0_1/src/features/morning_greeting/domain/deadline_notifier.dart';
-
-class _SkinOpt {
-  final bool? value;
-  final String label;
-  const _SkinOpt(this.value, this.label);
-}
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
@@ -35,11 +28,9 @@ class _SettingsState extends State<Settings> {
   String? _location;
   Weekday? _startOfWeek;
   TimeOfDay? _startOfDay;
-  bool? _appSkinColor;
   final GlobalKey _locationBtnKey = GlobalKey();
   final GlobalKey _weekBtnKey = GlobalKey();
   final GlobalKey _dayBtnKey = GlobalKey();
-  final GlobalKey _skinBtnKey = GlobalKey();
   final OverlayPortalController overlayControllerSummery =
       OverlayPortalController();
   final List<Prizes> weeklyPrizes = [];
@@ -53,7 +44,6 @@ class _SettingsState extends State<Settings> {
       final s = await repo.getSettings();
       if (!mounted) return;
       setState(() {
-        _appSkinColor = s?.appSkinColor;
         _location = s?.location ?? 'Berlin';
         _startOfWeek = s?.startOfWeek ?? Weekday.mon;
         _startOfDay = s?.startOfDay ?? const TimeOfDay(hour: 7, minute: 15);
@@ -63,68 +53,6 @@ class _SettingsState extends State<Settings> {
         await DailyQuoteNotifier.instance.requestPermissions();
       } catch (_) {}
     });
-  }
-
-  // Map skin setting to asset path
-  String _skinAsset(bool? skin) {
-    if (skin == true) return 'assets/img/buttons/skin_true_2.png';
-    if (skin == false) return 'assets/img/buttons/skin_false_2.png';
-    return 'assets/img/buttons/skin_null_2.png';
-  }
-
-  Future<void> _pickSkin() async {
-    final repo = context.read<DataBaseRepository>();
-    final current = await repo.getSettings();
-    if (!mounted) return;
-
-    // Anchor to the image container
-    final RenderBox button =
-        _skinBtnKey.currentContext!.findRenderObject() as RenderBox;
-    final RenderBox overlay =
-        Overlay.of(context).context.findRenderObject() as RenderBox;
-    final position = RelativeRect.fromRect(
-      button.localToGlobal(Offset.zero, ancestor: overlay) & button.size,
-      Offset.zero & overlay.size,
-    );
-
-    final options = const [
-      _SkinOpt(true, 'Pink'),
-      _SkinOpt(null, 'White'),
-      _SkinOpt(false, 'Blue'),
-    ];
-
-    final selected = await showMenu<_SkinOpt>(
-      context: context,
-      position: position,
-      items:
-          options
-              .map(
-                (o) => PopupMenuItem<_SkinOpt>(
-                  value: o,
-                  child: Text(
-                    o.label,
-                    style: TextStyle(color: Palette.basicBitchWhite),
-                  ),
-                ),
-              )
-              .toList(),
-      color: Palette.monarchPurple2,
-    );
-
-    if (selected != null) {
-      if (!mounted) return;
-      final updated = await repo.setSettings(
-        selected.value, // appSkinColor
-        current?.language ?? 'English',
-        current?.location ?? 'Berlin',
-        current?.startOfDay ?? const TimeOfDay(hour: 7, minute: 15),
-        current?.startOfWeek ?? Weekday.mon,
-      );
-      if (!mounted) return;
-      // Update local UI and notify background to refresh instantly
-      setState(() => _appSkinColor = updated.appSkinColor);
-      updateAppBgAsset(updated.appSkinColor);
-    }
   }
 
   Future<void> _pickLocation() async {
@@ -332,6 +260,8 @@ class _SettingsState extends State<Settings> {
 
   late Future<List<Task>> myList;
 
+  // Debug/diagnostic helpers removed
+
   @override
   Widget build(BuildContext context) {
     // final repository = context.read<DataBaseRepository>();
@@ -371,22 +301,7 @@ class _SettingsState extends State<Settings> {
                                 ),
                           ),
                           SizedBox(height: 16),
-                          Row(
-                            children: [
-                              Text(
-                                'Choose your Flesh Prison',
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                              Spacer(),
-                              GestureDetector(
-                                onTap: _pickSkin,
-                                child: Container(
-                                  key: _skinBtnKey,
-                                  child: Image.asset(_skinAsset(_appSkinColor)),
-                                ),
-                              ),
-                            ],
-                          ),
+                          // Debug/diagnostics panel removed
                           SizedBox(height: 16),
                           Row(
                             children: [

@@ -1,7 +1,7 @@
 name: adhd_0_1
 description: "A new Flutter project."
 publish_to: 'none'
-version: 0.1.0
+version: 0.1.2+101202
 
 environment:
   sdk: ^3.7.2
@@ -28,6 +28,7 @@ dependencies:
   timezone: ^0.9.4
   flutter_timezone: ^4.1.0
   gap: ^3.0.1
+  awesome_notifications: ^0.10.1
 
 flutter_native_splash:
   android_12: 

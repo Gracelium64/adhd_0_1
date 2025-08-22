@@ -10,6 +10,8 @@ import android.provider.Settings
 import android.net.Uri
 import android.os.PowerManager
 import io.flutter.plugin.common.MethodChannel.Result
+import android.app.NotificationManager
+import android.content.pm.ApplicationInfo
 
 class MainActivity : FlutterActivity() {
 	private val channel = "shadowapp.grace6424.adhd01/alarm"
@@ -85,6 +87,91 @@ class MainActivity : FlutterActivity() {
 						val msg = call.argument<String>("message")
 						AlarmScheduler.saveNextDeadlineMessage(applicationContext, msg)
 						result.success(null)
+					}
+					"showDeadlineNow" -> {
+						NotificationHelper.showDeadlineAlert(applicationContext)
+						result.success(null)
+					}
+					"showDeadlineNowWithBody" -> {
+						val body = call.argument<String>("body") ?: "Deadlines due today or tomorrow, or weekly tasks today."
+						NotificationHelper.showDeadlineAlertWithBody(applicationContext, body)
+						result.success(null)
+					}
+					"scheduleDeadlineIn" -> {
+						val sec = call.argument<Int>("seconds") ?: 10
+						AlarmScheduler.scheduleDeadlineIn(applicationContext, sec)
+						result.success(null)
+					}
+					"debugPrefsSnapshot" -> {
+						val snapshot = AlarmScheduler.getPrefsSnapshot(applicationContext)
+						result.success(snapshot)
+					}
+					"diagnosticSnapshot" -> {
+						val map = HashMap<String, Any?>()
+						val pkg = packageName
+						map["packageName"] = pkg
+						map["sdkInt"] = Build.VERSION.SDK_INT
+						try {
+							val info: ApplicationInfo = applicationInfo
+							map["targetSdk"] = info.targetSdkVersion
+						} catch (_: Exception) {}
+
+						// Notifications enabled
+						try {
+							val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+							val areEnabled = if (Build.VERSION.SDK_INT >= 24) nm.areNotificationsEnabled() else true
+							map["areNotificationsEnabled"] = areEnabled
+
+							if (Build.VERSION.SDK_INT >= 26) {
+								val ch = nm.getNotificationChannel("deadline_alerts_channel_v3")
+								map["channelExists"] = (ch != null)
+								if (ch != null) {
+									map["channelId"] = ch.id
+									map["channelName"] = ch.name?.toString()
+									map["channelImportance"] = ch.importance
+									map["channelDesc"] = ch.description
+									map["channelSoundUri"] = ch.sound?.toString()
+									map["channelCanBypassDnd"] = ch.canBypassDnd()
+									map["channelVibrationEnabled"] = (ch.vibrationPattern != null)
+									map["channelAudioUsage"] = ch.audioAttributes?.usage
+									map["channelAudioContentType"] = ch.audioAttributes?.contentType
+								}
+							}
+						} catch (_: Exception) {}
+
+						// Exact alarm permission (Android 12+)
+						try {
+							val am = getSystemService(ALARM_SERVICE) as AlarmManager
+							val exactAllowed = if (Build.VERSION.SDK_INT >= 31) am.canScheduleExactAlarms() else true
+							map["canScheduleExactAlarms"] = exactAllowed
+						} catch (_: Exception) {}
+
+						// Battery optimizations
+						try {
+							val pm = getSystemService(POWER_SERVICE) as PowerManager
+							map["isIgnoringBatteryOptimizations"] = pm.isIgnoringBatteryOptimizations(pkg)
+						} catch (_: Exception) {}
+
+						// Verify custom sound resource exists
+						try {
+							val resId = resources.getIdentifier("my_sound", "raw", pkg)
+							map["rawMySoundExists"] = (resId != 0)
+						} catch (_: Exception) {}
+
+						result.success(map)
+					}
+					"openDeadlineChannelSettings" -> {
+						try {
+							val intent = Intent(android.provider.Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS).apply {
+								putExtra(android.provider.Settings.EXTRA_APP_PACKAGE, packageName)
+								putExtra(android.provider.Settings.EXTRA_CHANNEL_ID, "deadline_alerts_channel_v3")
+								addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+							}
+							startActivity(intent)
+							result.success(null)
+						} catch (_: Exception) {
+							result.error("ERR_CHANNEL_SETTINGS", "Unable to open channel settings", null)
+						}
 					}
 					"cancelAlarm" -> {
 						AlarmScheduler.cancel(applicationContext)

@@ -11,6 +11,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:adhd_0_1/src/common/diagnostics/diag_log.dart';
+import 'package:adhd_0_1/src/common/notifications/awesome_notif_service.dart';
 
 /// Schedules a small "heads up" notification shortly after the Daily Quote
 /// when there's something due today/tomorrow.
@@ -18,11 +20,9 @@ class DeadlineNotifier {
   DeadlineNotifier._();
   static final DeadlineNotifier instance = DeadlineNotifier._();
 
-  // Channel metadata
-  static const String _channelId = 'deadline_alerts_channel_v1';
-  static const String _channelName = 'Task Deadlines';
-  static const String _channelDescription =
-      'Alerts for deadlines due today/tomorrow and weekly tasks for today';
+  // Channel metadata (must match AwesomeNotifService)
+  static const String _channelId = AwesomeNotifService.deadlineChannelKey;
+  // Name/description are defined where channel is created (AwesomeNotifService)
 
   // Unique ID for this notification
   static const int _notificationId = 11001;
@@ -42,8 +42,10 @@ class DeadlineNotifier {
       final String localTz = await FlutterTimezone.getLocalTimezone();
       tz.setLocalLocation(tz.getLocation(localTz));
       debugPrint('[DeadlineNotifier] Timezone set to $localTz');
+      DiagnosticsLog.instance.log('Timezone set to $localTz');
     } catch (e) {
       debugPrint('[DeadlineNotifier] Timezone init failed ($e). Using UTC');
+      DiagnosticsLog.instance.log('Timezone init failed: $e. Using UTC');
       try {
         tz.setLocalLocation(tz.getLocation('UTC'));
       } catch (_) {}
@@ -65,22 +67,10 @@ class DeadlineNotifier {
       },
     );
 
-    // Android channel with custom sound
-    const AndroidNotificationChannel channel = AndroidNotificationChannel(
-      _channelId,
-      _channelName,
-      description: _channelDescription,
-      importance: Importance.high,
-      playSound: true,
-      sound: RawResourceAndroidNotificationSound('my_sound'),
-    );
-    await _plugin
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >()
-        ?.createNotificationChannel(channel);
+    // Channel/sound handled by AwesomeNotifService during app init
 
     _initialized = true;
+    DiagnosticsLog.instance.log('Plugin initialized and channel ensured');
   }
 
   Future<void> requestPermissions() async {
@@ -104,6 +94,9 @@ class DeadlineNotifier {
   ) async {
     if (_scheduling) {
       debugPrint('[DeadlineNotifier] schedule in progress; skipping');
+      DiagnosticsLog.instance.log(
+        'scheduleRelativeToDaily skipped (in progress)',
+      );
       return;
     }
     _scheduling = true;
@@ -139,6 +132,9 @@ class DeadlineNotifier {
         fireDay,
         nextDay,
       );
+      DiagnosticsLog.instance.log(
+        'shouldNotify=$shouldNotify for $fireDay / $nextDay',
+      );
 
       if (!shouldNotify) {
         await _plugin.cancel(_notificationId);
@@ -146,100 +142,25 @@ class DeadlineNotifier {
         return;
       }
 
-      // Build notification details once
-      const AndroidNotificationDetails androidDetails =
-          AndroidNotificationDetails(
-            _channelId,
-            _channelName,
-            channelDescription: _channelDescription,
-            importance: Importance.high,
-            priority: Priority.high,
-            sound: RawResourceAndroidNotificationSound('my_sound'),
-          );
-      const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
-        sound: 'my_sound.wav',
-        interruptionLevel: InterruptionLevel.timeSensitive,
+      // Using Awesome Notifications for a persistent notification at fireAt
+      final body = await _composeBodyAsync(repo, fireDay, nextDay);
+      await AwesomeNotifService.instance.schedulePersistentAt(
+        channelKey: _channelId,
+        id: _notificationId,
+        when: fireAt.toLocal(),
+        title: "Today's focus",
+        body: body,
+        payload: {'route': 'dailys'},
+        groupKey: AwesomeNotifService.deadlineGroupKey,
+        locked: true,
+        autoDismissible: false,
       );
-
-      try {
-        // Branch by platform using runtime Platform class
-        if (Platform.isAndroid) {
-          // Android: prefer native exact alarm chain; fall back to plugin if not allowed
-          const platform = MethodChannel('shadowapp.grace6424.adhd01/alarm');
-          bool allowed = true;
-          try {
-            final dynamic res = await platform.invokeMethod(
-              'hasExactAlarmPermission',
-            );
-            if (res is bool) allowed = res;
-          } catch (e) {
-            debugPrint('[DeadlineNotifier] hasExactAlarmPermission failed: $e');
-          }
-
-          if (!allowed) {
-            try {
-              await platform.invokeMethod('requestExactAlarmPermission');
-            } catch (_) {}
-            debugPrint('[DeadlineNotifier] Falling back to plugin schedule');
-            await _plugin.cancel(_notificationId);
-            final body = await _composeBodyAsync(repo, fireDay, nextDay);
-            await _plugin.zonedSchedule(
-              _notificationId,
-              "Today's focus",
-              body,
-              fireAt,
-              const NotificationDetails(
-                android: androidDetails,
-                iOS: iosDetails,
-              ),
-              androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-              uiLocalNotificationDateInterpretation:
-                  UILocalNotificationDateInterpretation.absoluteTime,
-              matchDateTimeComponents: DateTimeComponents.time,
-              payload: 'open_app',
-            );
-          } else {
-            // Cancel any prior plugin schedule to avoid duplicates
-            await _plugin.cancel(_notificationId);
-            // Save the composed body so native can display it
-            final body = await _composeBodyAsync(repo, fireDay, nextDay);
-            await platform.invokeMethod('saveNextDeadlineMessage', {
-              'message': body,
-            });
-            await platform.invokeMethod('scheduleNextDeadlineAlarm', {
-              'hour': dailyStart.hour,
-              'minute': dailyStart.minute,
-              'offsetSec': offsetSec,
-            });
-            debugPrint(
-              '[DeadlineNotifier] Scheduled native deadline alarm with offset=$offsetSec',
-            );
-          }
-        } else {
-          // iOS: schedule a fixed-offset daily repeating notification for reliability
-          await _plugin.cancel(_notificationId);
-          final body = await _composeBodyAsync(repo, fireDay, nextDay);
-          await _plugin.zonedSchedule(
-            _notificationId,
-            "Today's focus",
-            body,
-            fireAt,
-            const NotificationDetails(android: androidDetails, iOS: iosDetails),
-            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-            uiLocalNotificationDateInterpretation:
-                UILocalNotificationDateInterpretation.absoluteTime,
-            matchDateTimeComponents: DateTimeComponents.time,
-            payload: 'open_app',
-          );
-          debugPrint(
-            '[DeadlineNotifier] Scheduled iOS daily at ${fireAt.toLocal()}',
-          );
-        }
-      } on PlatformException catch (e) {
-        debugPrint('[DeadlineNotifier] Schedule failed ($e)');
-      }
+      DiagnosticsLog.instance.log(
+        'Awesome scheduled at $fireAt with body len=${body.length}',
+      );
     } finally {
       _scheduling = false;
+      DiagnosticsLog.instance.log('scheduleRelativeToDaily finished');
     }
   }
 
@@ -247,30 +168,23 @@ class DeadlineNotifier {
   Future<void> showTestNow() async {
     await init();
     await requestPermissions();
-    const AndroidNotificationDetails androidDetails =
-        AndroidNotificationDetails(
-          _channelId,
-          _channelName,
-          channelDescription: _channelDescription,
-          importance: Importance.high,
-          priority: Priority.high,
-          sound: RawResourceAndroidNotificationSound('my_sound'),
-        );
-    const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
-      sound: 'my_sound.wav',
+    await AwesomeNotifService.instance.showPersistent(
+      channelKey: _channelId,
+      id: _notificationId,
+      title: "Today's focus",
+      body: 'Tasks may be due today/tomorrow. Tap to review.',
+      payload: {'route': 'dailys'},
+      groupKey: AwesomeNotifService.deadlineGroupKey,
+      locked: true,
+      autoDismissible: false,
     );
-    await _plugin.show(
-      _notificationId,
-      "Today's focus",
-      'Tasks may be due today/tomorrow. Tap to review.',
-      const NotificationDetails(android: androidDetails, iOS: iosDetails),
-      payload: 'open_app',
-    );
+    DiagnosticsLog.instance.log('Awesome showTestNow');
   }
 
   Future<void> cancelScheduled() async {
     await init();
-    await _plugin.cancel(_notificationId);
+    await AwesomeNotifService.instance.cancel(_notificationId);
+    DiagnosticsLog.instance.log('Awesome canceled id=$_notificationId');
   }
 
   Future<void> debugStatus() async {
@@ -284,8 +198,153 @@ class DeadlineNotifier {
     final pending = await _plugin.pendingNotificationRequests();
     debugPrint('[DeadlineNotifier] Notifications enabled: $enabled');
     debugPrint('[DeadlineNotifier] Pending notifications: ${pending.length}');
+    DiagnosticsLog.instance.log(
+      'areNotificationsEnabled=$enabled, pending=${pending.length}',
+    );
+    // Enrich: list pending IDs/titles (truncated)
+    for (final p in pending.take(5)) {
+      final title = (p.title ?? '').replaceAll('\n', ' ');
+      final body = (p.body ?? '').replaceAll('\n', ' ');
+      await DiagnosticsLog.instance.log(
+        'pending: id=${p.id} t="$title" b.len=${body.length}',
+      );
+    }
+    if (Platform.isAndroid) {
+      const platform = MethodChannel('shadowapp.grace6424.adhd01/alarm');
+      try {
+        final diag = await platform.invokeMethod('diagnosticSnapshot');
+        await DiagnosticsLog.instance.log('nativeDiag=${diag.toString()}');
+      } catch (e) {
+        await DiagnosticsLog.instance.log('nativeDiag failed: $e');
+      }
+    }
     for (final p in pending) {
       debugPrint('  • id=${p.id}, title=${p.title}, body=${p.body}');
+    }
+  }
+
+  /// Collects a detailed debug snapshot across plugin and native sides
+  Future<String> collectDebugSnapshot(DataBaseRepository repo) async {
+    await init();
+    final b = StringBuffer();
+    b.writeln('== Deadline Debug Snapshot ==');
+    // Permissions
+    final android =
+        _plugin
+            .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin
+            >();
+    final enabled = await android?.areNotificationsEnabled() ?? true;
+    b.writeln('Notifications enabled (Android): $enabled');
+
+    // Pending notifications (plugin)
+    final pending = await _plugin.pendingNotificationRequests();
+    b.writeln('Pending (plugin): ${pending.length}');
+    for (final p in pending) {
+      b.writeln('  - id=${p.id} title=${p.title} body=${p.body}');
+    }
+
+    // Native prefs snapshot
+    if (Platform.isAndroid) {
+      const platform = MethodChannel('shadowapp.grace6424.adhd01/alarm');
+      try {
+        final snap = await platform.invokeMethod('debugPrefsSnapshot');
+        b.writeln('Native prefs: $snap');
+      } catch (e) {
+        b.writeln('Native prefs read failed: $e');
+      }
+      try {
+        final diag = await platform.invokeMethod('diagnosticSnapshot');
+        b.writeln('Native diagnostic: $diag');
+      } catch (e) {
+        b.writeln('Native diagnostic failed: $e');
+      }
+    }
+
+    // Next composed message preview (recomputed)
+    try {
+      final now = DateTime.now();
+      final fireDay = DateTime(now.year, now.month, now.day);
+      final nextDay = fireDay.add(const Duration(days: 1));
+      final body = await _composeBodyAsync(repo, fireDay, nextDay);
+      b.writeln('Composed body (now): ${body.replaceAll('\n', ' | ')}');
+    } catch (e) {
+      b.writeln('Compose failed: $e');
+    }
+
+    return b.toString();
+  }
+
+  /// Android-only: show a native deadline notification immediately using a composed message
+  Future<void> androidShowNativeNow(DataBaseRepository repo) async {
+    if (!Platform.isAndroid) return;
+    await init();
+    // Compose body similar to scheduled path using today and tomorrow
+    final now = DateTime.now();
+    final fireDay = DateTime(now.year, now.month, now.day);
+    final nextDay = fireDay.add(const Duration(days: 1));
+    final body = await _composeBodyAsync(repo, fireDay, nextDay);
+
+    const platform = MethodChannel('shadowapp.grace6424.adhd01/alarm');
+    try {
+      await platform.invokeMethod('showDeadlineNowWithBody', {'body': body});
+      debugPrint('[DeadlineNotifier] Requested native showDeadlineNow');
+      DiagnosticsLog.instance.log(
+        'Native show now with body len=${body.length}',
+      );
+    } catch (e) {
+      debugPrint('[DeadlineNotifier] showDeadlineNow failed: $e');
+      DiagnosticsLog.instance.log('showDeadlineNow failed: $e');
+    }
+  }
+
+  /// Plugin-only: schedule a test notification in [seconds] seconds (bypasses native)
+  Future<void> pluginScheduleInSeconds(int seconds) async {
+    await init();
+    await requestPermissions();
+    final now = tz.TZDateTime.now(tz.local);
+    final when = now.add(Duration(seconds: seconds));
+    // For testing we now use Awesome to mirror production behavior
+    await AwesomeNotifService.instance.schedulePersistentAt(
+      channelKey: _channelId,
+      id: _notificationId,
+      when: when.toLocal(),
+      title: "Today's focus",
+      body: 'Test in $seconds seconds',
+      payload: {'route': 'dailys'},
+      groupKey: AwesomeNotifService.deadlineGroupKey,
+      locked: true,
+      autoDismissible: false,
+    );
+  }
+
+  /// Android-only: schedule a native deadline in [seconds] seconds
+  Future<void> androidScheduleInSeconds(int seconds) async {
+    if (!Platform.isAndroid) return;
+    const platform = MethodChannel('shadowapp.grace6424.adhd01/alarm');
+    try {
+      await platform.invokeMethod('scheduleDeadlineIn', {'seconds': seconds});
+    } catch (e) {
+      debugPrint('[DeadlineNotifier] scheduleDeadlineIn failed: $e');
+    }
+  }
+
+  /// Android-only: compose and persist the next message body for native alert
+  Future<void> primeAndroidNextMessageFromRepo(DataBaseRepository repo) async {
+    if (!Platform.isAndroid) return;
+    await init();
+    final now = DateTime.now();
+    final fireDay = DateTime(now.year, now.month, now.day);
+    final nextDay = fireDay.add(const Duration(days: 1));
+    final body = await _composeBodyAsync(repo, fireDay, nextDay);
+    const platform = MethodChannel('shadowapp.grace6424.adhd01/alarm');
+    try {
+      await platform.invokeMethod('saveNextDeadlineMessage', {
+        'message': body,
+      });
+      debugPrint('[DeadlineNotifier] Primed next native message');
+    } catch (e) {
+      debugPrint('[DeadlineNotifier] saveNextDeadlineMessage failed: $e');
     }
   }
 
@@ -320,7 +379,11 @@ class DeadlineNotifier {
     DateTime fireDay,
     DateTime nextDay,
   ) async {
-    final List<String> lines = [];
+    // Collect items into categories to control order and ensure one-per-line output
+    final List<String> todayLines = [];
+    final List<String> tomorrowLines = [];
+    final List<String> nextWeekLines = [];
+    final List<String> weeklyTodayLines = [];
 
     try {
       final deadlines = await repo.getDeadlineTasks();
@@ -332,22 +395,26 @@ class DeadlineNotifier {
         if (d.year == fireDay.year &&
             d.month == fireDay.month &&
             d.day == fireDay.day) {
-          lines.add('$desc is today!');
-        } else if (d.year == nextDay.year &&
+          todayLines.add('$desc is today!');
+          continue;
+        }
+        if (d.year == nextDay.year &&
             d.month == nextDay.month &&
             d.day == nextDay.day) {
-          lines.add('$desc is tomorrow!');
-        } else {
-          final nextWeek = DateTime(
-            fireDay.year,
-            fireDay.month,
-            fireDay.day,
-          ).add(const Duration(days: 7));
-          if (d.year == nextWeek.year &&
-              d.month == nextWeek.month &&
-              d.day == nextWeek.day) {
-            lines.add('$desc is next week');
-          }
+          tomorrowLines.add('$desc is tomorrow!');
+          continue;
+        }
+
+        // Check the same weekday next week (fireDay + 7 days)
+        final nextWeek = DateTime(
+          fireDay.year,
+          fireDay.month,
+          fireDay.day,
+        ).add(const Duration(days: 7));
+        if (d.year == nextWeek.year &&
+            d.month == nextWeek.month &&
+            d.day == nextWeek.day) {
+          nextWeekLines.add('$desc is next week');
         }
       }
     } catch (_) {}
@@ -361,10 +428,18 @@ class DeadlineNotifier {
         if (raw == null) continue;
         if (raw.toLowerCase() == today) {
           final desc = t.taskDesctiption.trim();
-          lines.add("don't forget $desc today");
+          weeklyTodayLines.add("Don't forget today: $desc");
         }
       }
     } catch (_) {}
+
+    // Combine in priority order: today, tomorrow, next week, today from weekly
+    final lines = <String>[
+      ...todayLines,
+      ...tomorrowLines,
+      ...nextWeekLines,
+      ...weeklyTodayLines,
+    ];
 
     if (lines.isEmpty) {
       return 'Check your tasks for today and tomorrow.';

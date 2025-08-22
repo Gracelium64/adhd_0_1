@@ -148,8 +148,37 @@ object AlarmScheduler {
     }
 
     fun saveNextDeadlineMessage(context: Context, msg: String?) {
-        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit {
+        // Commit synchronously so immediate reads (e.g., show now) see the value
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit(commit = true) {
             if (msg == null) remove(KEY_NEXT_DEADLINE_MSG) else putString(KEY_NEXT_DEADLINE_MSG, msg)
+        }
+    }
+
+    fun getPrefsSnapshot(context: Context): HashMap<String, Any?> {
+        val pref = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val map = HashMap<String, Any?>()
+        map["startOfDay"] = pref.getString(KEY_START_OF_DAY, null)
+        map["deadlineOffsetSec"] = if (pref.contains(KEY_DEADLINE_OFFSET_SEC)) pref.getInt(KEY_DEADLINE_OFFSET_SEC, 0) else null
+        val msg = pref.getString(KEY_NEXT_DEADLINE_MSG, null)
+        map["nextDeadlineMsgPreview"] = msg?.let { it.substring(0, kotlin.math.min(120, it.length)) }
+        return map
+    }
+
+    // Debug: schedule deadline notification in N seconds from now (native path)
+    fun scheduleDeadlineIn(context: Context, seconds: Int) {
+        val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(context, DeadlineReceiver::class.java)
+        val pi = PendingIntent.getBroadcast(
+            context,
+            2102,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val trigger = System.currentTimeMillis() + seconds * 1000L
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pi)
+        } else {
+            am.setExact(AlarmManager.RTC_WAKEUP, trigger, pi)
         }
     }
 }

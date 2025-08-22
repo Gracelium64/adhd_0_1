@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:adhd_0_1/src/navigation/notification_router.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:adhd_0_1/src/common/notifications/awesome_notif_service.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -120,14 +121,10 @@ class DailyQuoteNotifier {
         } catch (_) {}
       }
 
-      // Cancel previous notifications and native alarm to avoid duplicates
-      await _plugin.cancelAll();
+      // Cancel only our daily ID to avoid interfering with other flows
       try {
-        const platform = MethodChannel('shadowapp.grace6424.adhd01/alarm');
-        await platform.invokeMethod('cancelAlarm');
-      } catch (e) {
-        debugPrint('[DailyQuoteNotifier] cancelAlarm failed: $e');
-      }
+        await AwesomeNotifService.instance.cancel(1001);
+      } catch (_) {}
 
       final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
       // Candidate next occurrence today at chosen hh:mm; if it already passed, move to tomorrow
@@ -146,92 +143,23 @@ class DailyQuoteNotifier {
       // Pick a random quote without quotes
       final quote = _randomQuote();
 
-      const AndroidNotificationDetails androidDetails =
-          AndroidNotificationDetails(
-            _channelId,
-            _channelName,
-            channelDescription: _channelDescription,
-            importance: Importance.high,
-            priority: Priority.high,
-            sound: RawResourceAndroidNotificationSound('my_sound'),
-          );
-      const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
-        sound: 'my_sound.wav',
-        interruptionLevel: InterruptionLevel.timeSensitive,
-      );
+      // iOS time sensitive intention is implied by category/reminder; channel sound is set in AwesomeNotifService
 
       try {
-        // Android: prefer native one-shot exact alarm chain for reliability (Samsung/OEM)
-        if (Platform.isAndroid) {
-          const platform = MethodChannel('shadowapp.grace6424.adhd01/alarm');
-          bool allowed = true;
-          try {
-            final dynamic res = await platform.invokeMethod(
-              'hasExactAlarmPermission',
-            );
-            if (res is bool) allowed = res;
-          } catch (e) {
-            debugPrint(
-              '[DailyQuoteNotifier] hasExactAlarmPermission check failed: $e',
-            );
-          }
-          if (!allowed) {
-            // Try to nudge the user to grant it, then fall back to plugin scheduling
-            try {
-              await platform.invokeMethod('requestExactAlarmPermission');
-            } catch (_) {}
-            debugPrint('[DailyQuoteNotifier] Falling back to plugin schedule');
-            await _plugin.zonedSchedule(
-              1001,
-              'Good morning',
-              quote,
-              next,
-              const NotificationDetails(
-                android: androidDetails,
-                iOS: iosDetails,
-              ),
-              androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-              uiLocalNotificationDateInterpretation:
-                  UILocalNotificationDateInterpretation.absoluteTime,
-              matchDateTimeComponents: DateTimeComponents.time,
-              payload: 'open_app',
-            );
-          } else {
-            // Persist the next quote and time, then schedule next one-shot natively
-            try {
-              await platform.invokeMethod('saveNextQuote', {
-                'quote': quote,
-              });
-            } catch (e) {
-              debugPrint('[DailyQuoteNotifier] saveNextQuote failed: $e');
-            }
-            await platform.invokeMethod('saveStartOfDay', {
-              'hour': time.hour,
-              'minute': time.minute,
-            });
-            await platform.invokeMethod('scheduleNextAlarm', {
-              'hour': time.hour,
-              'minute': time.minute,
-            });
-            debugPrint(
-              '[DailyQuoteNotifier] Scheduled native next alarm for ${next.toLocal()}',
-            );
-          }
-        } else {
-          // iOS: use plugin daily repeating schedule
-          await _plugin.zonedSchedule(
-            1001,
-            'Good morning',
-            quote,
-            next,
-            const NotificationDetails(android: androidDetails, iOS: iosDetails),
-            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-            uiLocalNotificationDateInterpretation:
-                UILocalNotificationDateInterpretation.absoluteTime,
-            matchDateTimeComponents: DateTimeComponents.time,
-            payload: 'open_app',
-          );
-        }
+        // Use Awesome Notifications daily repeating schedule (reboot persistent)
+        await AwesomeNotifService.instance.scheduleDailyRepeating(
+          id: 1001,
+          hour: time.hour,
+          minute: time.minute,
+          title: 'Good morning',
+          body: quote,
+          payload: {'route': 'dailys'},
+          channelKey: AwesomeNotifService.dailyChannelKey,
+          groupKey: AwesomeNotifService.dailyGroupKey,
+          // Daily quote likely dismissible and not locked
+          locked: false,
+          autoDismissible: true,
+        );
       } on PlatformException catch (e) {
         debugPrint('Schedule failed (${e.code}): ${e.message}.');
       }
@@ -251,24 +179,15 @@ class DailyQuoteNotifier {
     await init();
     await requestPermissions();
     final quote = _randomQuote();
-    const AndroidNotificationDetails androidDetails =
-        AndroidNotificationDetails(
-          _channelId,
-          _channelName,
-          channelDescription: _channelDescription,
-          importance: Importance.high,
-          priority: Priority.high,
-          sound: RawResourceAndroidNotificationSound('my_sound'),
-        );
-    const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
-      sound: 'my_sound.wav',
-    );
-    await _plugin.show(
-      2002,
-      'Good morning',
-      quote,
-      const NotificationDetails(android: androidDetails, iOS: iosDetails),
-      payload: 'open_app',
+    await AwesomeNotifService.instance.showPersistent(
+      channelKey: AwesomeNotifService.dailyChannelKey,
+      id: 2002,
+      title: 'Good morning',
+      body: quote,
+      payload: {'route': 'dailys'},
+      groupKey: AwesomeNotifService.dailyGroupKey,
+      locked: false,
+      autoDismissible: true,
     );
   }
 

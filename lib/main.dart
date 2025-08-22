@@ -20,6 +20,7 @@ import 'package:adhd_0_1/src/features/morning_greeting/domain/deadline_notifier.
 import 'package:adhd_0_1/src/common/domain/refresh_bus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:adhd_0_1/src/data/domain/pending_registration.dart';
+import 'package:adhd_0_1/src/common/notifications/awesome_notif_service.dart';
 
 // import 'package/flutter/foundation.dart';
 // import 'package:device_preview/device_preview.dart';
@@ -189,6 +190,14 @@ Future<void> main() async {
     debugPrint('⚠️ SharedPreferences prewarm failed: $e');
   }
 
+  // Initialize Awesome Notifications channels/permissions (Android/iOS)
+  try {
+    await AwesomeNotifService.instance.init();
+    debugPrint('🔔 Awesome Notifications initialized');
+  } catch (e) {
+    debugPrint('⚠️ Awesome Notifications init failed: $e');
+  }
+
   // One-time migration: consolidate legacy 'secure_secure_name' into 'secure_name'
   try {
     const storage = FlutterSecureStorage();
@@ -265,7 +274,7 @@ Future<void> main() async {
   //....0033.
 
   // Test Release 2 // v.0.1.2.1.2 //
-    //TODO: confirm bug fixes with testers after deployment   // GRACE //
+  //TODO: confirm bug fixes with testers after deployment   // GRACE //
 
   // Test Release 3 //
   //TODO: responsive design - accesibility big fonts    // GRACE //
