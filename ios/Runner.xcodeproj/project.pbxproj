@@ -17,8 +17,8 @@
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
-		D407318D2E47F993008D7E2C /* my_sound.wav in Resources */ = {isa = PBXBuildFile; fileRef = D407318C2E47F993008D7E2C /* my_sound.wav */; };
 		D44404B42E5D9D0400CB66A2 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = D44404B32E5D9D0300CB66A2 /* PrivacyInfo.xcprivacy */; };
+		D482D3F22E5DAED7003E3B59 /* my_sound.aiff in Resources */ = {isa = PBXBuildFile; fileRef = D482D3F12E5DAED7003E3B59 /* my_sound.aiff */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -71,6 +71,8 @@
 		CD4DAE1C595B9332244B475F /* Pods-RunnerTests.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile.xcconfig"; sourceTree = "<group>"; };
 		D407318C2E47F993008D7E2C /* my_sound.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = my_sound.wav; sourceTree = "<group>"; };
 		D44404B32E5D9D0300CB66A2 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text; name = PrivacyInfo.xcprivacy; path = Runner/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		D482D3EF2E5DAEC3003E3B59 /* my_sound 2.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; path = "my_sound 2.aiff"; sourceTree = "<group>"; };
+		D482D3F12E5DAED7003E3B59 /* my_sound.aiff */ = {isa = PBXFileReference; lastKnownFileType = audio.aiff; name = my_sound.aiff; path = Runner/my_sound.aiff; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -137,7 +139,9 @@
 		97C146E51CF9000F007C117D = {
 			isa = PBXGroup;
 			children = (
+				D482D3F12E5DAED7003E3B59 /* my_sound.aiff */,
 				D44404B32E5D9D0300CB66A2 /* PrivacyInfo.xcprivacy */,
+				D482D3EF2E5DAEC3003E3B59 /* my_sound 2.aiff */,
 				D407318C2E47F993008D7E2C /* my_sound.wav */,
 				9740EEB11CF90186004384FC /* Flutter */,
 				97C146F01CF9000F007C117D /* Runner */,
@@ -271,9 +275,9 @@
 				D44404B42E5D9D0400CB66A2 /* PrivacyInfo.xcprivacy in Resources */,
 				97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */,
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
+				D482D3F22E5DAED7003E3B59 /* my_sound.aiff in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
-				D407318D2E47F993008D7E2C /* my_sound.wav in Resources */,
 				0E5B8C78748AEE968FBAB0F0 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -488,7 +492,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 101203;
+				CURRENT_PROJECT_VERSION = 101207;
 				DEVELOPMENT_TEAM = 6852L788XV;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -678,7 +682,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 101203;
+				CURRENT_PROJECT_VERSION = 101207;
 				DEVELOPMENT_TEAM = 6852L788XV;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
@@ -708,7 +712,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 101203;
+				CURRENT_PROJECT_VERSION = 101207;
 				DEVELOPMENT_TEAM = 6852L788XV;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;

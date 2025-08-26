@@ -24,8 +24,9 @@ class AwesomeNotifService {
           ledColor: null,
           playSound: true,
           enableVibration: true,
-          // Ensure iOS/Android use our bundled sound (include extension for iOS)
-          soundSource: 'resource://raw/my_sound.wav',
+          // Awesome iOS resolves resource sounds as AIFF by name (no extension)
+          // Ensure a my_sound.aiff exists in the app bundle
+          soundSource: 'resource://raw/my_sound',
         ),
         NotificationChannel(
           channelKey: deadlineChannelKey,
@@ -37,8 +38,9 @@ class AwesomeNotifService {
           ledColor: null,
           playSound: true,
           enableVibration: true,
-          // Ensure iOS/Android use our bundled sound (include extension for iOS)
-          soundSource: 'resource://raw/my_sound.wav',
+          // Awesome iOS resolves resource sounds as AIFF by name (no extension)
+          // Ensure a my_sound.aiff exists in the app bundle
+          soundSource: 'resource://raw/my_sound',
         ),
       ],
       debug: false,
@@ -96,6 +98,7 @@ class AwesomeNotifService {
         autoDismissible: autoDismissible,
         locked: locked,
         groupKey: groupKey,
+        // iOS sound is taken from the channel's soundSource
       ),
     );
   }
@@ -132,6 +135,7 @@ class AwesomeNotifService {
         autoDismissible: autoDismissible,
         locked: locked,
         groupKey: groupKey,
+        // iOS sound is taken from the channel's soundSource
       ),
       schedule: NotificationCalendar.fromDate(
         date: when,
@@ -167,6 +171,7 @@ class AwesomeNotifService {
         autoDismissible: autoDismissible,
         locked: locked,
         groupKey: groupKey,
+        // iOS sound is taken from the channel's soundSource
       ),
       schedule: NotificationCalendar(
         hour: hour,
