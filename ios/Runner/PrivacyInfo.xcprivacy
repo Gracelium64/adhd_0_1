@@ -1,0 +1,14 @@
+{
+  "NSPrivacyTracking": false,
+  "NSPrivacyTrackingDomains": [],
+  "NSPrivacyCollectedDataTypes": [],
+  "NSPrivacyAccessedAPITypes": [
+    {
+      "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryNetwork",
+      "NSPrivacyAccessedAPITypeReasons": [
+        "C617.1"
+      ]
+    }
+  ],
+  "NSPrivacyTrackingDomainsConfig": {}
+}

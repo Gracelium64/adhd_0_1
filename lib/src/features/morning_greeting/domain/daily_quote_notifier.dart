@@ -18,7 +18,7 @@ class DailyQuoteNotifier {
   static final DailyQuoteNotifier instance = DailyQuoteNotifier._();
 
   // Centralized channel metadata (easy to change before release)
-  static const String _channelId = 'daily_quote_channel_v2';
+  static const String _channelId = 'daily_quote_channel_v3';
   static const String _channelName = 'Daily Quotes';
   static const String _channelDescription =
       'Daily tip of the day notification at startOfDay';
@@ -188,6 +188,27 @@ class DailyQuoteNotifier {
       groupKey: AwesomeNotifService.dailyGroupKey,
       locked: false,
       autoDismissible: true,
+    );
+  }
+
+  /// iOS-only: show a one-off local notification that explicitly uses
+  /// the bundled my_sound.wav to verify custom sound playback.
+  Future<void> showIosSoundTestNow() async {
+    await init();
+    await requestPermissions();
+    const int id = 99001;
+    const DarwinNotificationDetails ios = DarwinNotificationDetails(
+      presentAlert: true,
+      presentSound: true,
+      sound: 'my_sound.wav',
+    );
+    const NotificationDetails details = NotificationDetails(iOS: ios);
+    await _plugin.show(
+      id,
+      'iOS Sound Test',
+      'This should play my_sound.wav',
+      details,
+      payload: 'dailys',
     );
   }
 

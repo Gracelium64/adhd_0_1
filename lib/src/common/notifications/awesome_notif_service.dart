@@ -5,8 +5,8 @@ class AwesomeNotifService {
   AwesomeNotifService._();
   static final AwesomeNotifService instance = AwesomeNotifService._();
 
-  static const String dailyChannelKey = 'daily_quote_channel_v2';
-  static const String deadlineChannelKey = 'deadline_alerts_channel_v3';
+  static const String dailyChannelKey = 'daily_quote_channel_v3';
+  static const String deadlineChannelKey = 'deadline_alerts_channel_v4';
   static const String dailyGroupKey = 'group_daily_quote';
   static const String deadlineGroupKey = 'group_deadline_alerts';
 
@@ -24,8 +24,8 @@ class AwesomeNotifService {
           ledColor: null,
           playSound: true,
           enableVibration: true,
-          // Ensure iOS/Android use our bundled sound
-          soundSource: 'resource://raw/my_sound',
+          // Ensure iOS/Android use our bundled sound (include extension for iOS)
+          soundSource: 'resource://raw/my_sound.wav',
         ),
         NotificationChannel(
           channelKey: deadlineChannelKey,
@@ -37,8 +37,8 @@ class AwesomeNotifService {
           ledColor: null,
           playSound: true,
           enableVibration: true,
-          // Ensure iOS/Android use our bundled sound
-          soundSource: 'resource://raw/my_sound',
+          // Ensure iOS/Android use our bundled sound (include extension for iOS)
+          soundSource: 'resource://raw/my_sound.wav',
         ),
       ],
       debug: false,

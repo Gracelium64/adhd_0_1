@@ -520,6 +520,22 @@ class _SettingsState extends State<Settings> {
                               ),
                             ],
                           ),
+                          // Debug: iOS sound test trigger
+                          // // // // // Row(
+                          // // // // //   children: [
+                          // // // // //     GestureDetector(
+                          // // // // //       onTap: () async {
+                          // // // // //         await DailyQuoteNotifier.instance
+                          // // // // //             .showIosSoundTestNow();
+                          // // // // //       },
+                          // // // // //       child: Text(
+                          // // // // //         'Test iOS notification sound',
+                          // // // // //         style: Theme.of(context).textTheme.bodyMedium
+                          // // // // //             ?.copyWith(color: Palette.lightTeal),
+                          // // // // //       ),
+                          // // // // //     ),
+                          // // // // //   ],
+                          // // // // // ),
                           // Row(
                           //   children: [
                           //     GestureDetector(
