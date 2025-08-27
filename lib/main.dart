@@ -280,7 +280,6 @@ Future<void> main() async {
   //TODO: responsive design - accesibility big fonts    // GRACE //
   //TODO: fix bleed in dragging tasks to change order
   //TODO: weather API
-  //TODO: good morning overlay with tip of day + weather + tasks for the day
   //TODO: cleanup - secure_name / secure_secure_name
   // //TODO: UNDO Button in SncakBar when completing a Quest or Deadline Tasks
   //TODO: eastereggs

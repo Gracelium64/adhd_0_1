@@ -52,11 +52,14 @@ class _DeadlineysState extends State<Deadlineys> {
     final time = t.deadlineTime ?? '00:00';
     if (date == null) return null;
     try {
-      final parts = date.split('-'); // expect YYYY-MM-DD
-      final tparts = time.split(':');
-      final y = int.parse(parts[0]);
+      // Stored as DD/MM/YY and HH:MM
+      final parts = date.split('/');
+      if (parts.length != 3) return null;
+      final d = int.parse(parts[0]);
       final m = int.parse(parts[1]);
-      final d = int.parse(parts[2]);
+      final yy = int.parse(parts[2]);
+      final y = 2000 + yy; // normalize 2-digit year
+      final tparts = time.split(':');
       final hh = int.parse(tparts[0]);
       final mm = int.parse(tparts[1]);
       return DateTime(y, m, d, hh, mm);
@@ -72,11 +75,20 @@ class _DeadlineysState extends State<Deadlineys> {
       final da = _parseDeadline(a);
       final db = _parseDeadline(b);
       if (da == null && db == null) return 0;
-      if (da == null) return 1;
+      if (da == null) return 1; // push unknowns to the end
       if (db == null) return -1;
       final diffA = da.difference(now).inMilliseconds;
       final diffB = db.difference(now).inMilliseconds;
-      return diffA.compareTo(diffB);
+      final absA = diffA.abs();
+      final absB = diffB.abs();
+      final cmp = absA.compareTo(absB);
+      if (cmp != 0) return cmp; // absolute closest first
+      // Tie-breakers: prefer upcoming over past, then earlier datetime
+      final aUpcoming = diffA >= 0;
+      final bUpcoming = diffB >= 0;
+      if (aUpcoming && !bUpcoming) return -1;
+      if (!aUpcoming && bUpcoming) return 1;
+      return da.compareTo(db);
     });
     if (!mounted) return;
     setState(() {
