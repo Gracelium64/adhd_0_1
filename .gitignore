@@ -14,6 +14,7 @@ migrate_working_dir/
 .env
 black_speech.env
 GoogleService-Info.plist
+firestore.rules
 
 # IntelliJ related
 *.iml
