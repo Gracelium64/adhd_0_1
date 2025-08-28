@@ -234,11 +234,11 @@ class _TutorialState extends State<Tutorial> {
                                       subTitle:
                                           'They reward you with a point as well',
                                     ),
-                                    TutorialItem(
-                                      title: "Comes in future update",
-                                      imgUrl: 'assets/img/sidebar/fridge.png',
-                                      subTitle: "Can't tell you everything",
-                                    ),
+                                    // // // // // // // // // // // TutorialItem(
+                                    // // // // // // // // // // //   title: "Comes in future update",
+                                    // // // // // // // // // // //   imgUrl: 'assets/img/sidebar/fridge.png',
+                                    // // // // // // // // // // //   subTitle: "Can't tell you everything",
+                                    // // // // // // // // // // // ),
                                     TutorialItem(
                                       title: 'Fidget screen!',
                                       imgUrl: 'assets/img/sidebar/fidget.png',

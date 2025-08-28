@@ -220,7 +220,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       Weeklys(),
       Deadlineys(),
       Quest(),
-      FridgeLock(),
+      // // // // // // // // // FridgeLock(),
       FidgetScreen(),
       PrizesScreen(),
       Settings(),
@@ -329,11 +329,11 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                           ),
                           label: Text(''),
                         ),
-                        NavigationRailDestination(
-                          padding: EdgeInsets.only(bottom: 8),
-                          icon: Image.asset('assets/img/sidebar/fridge.png'),
-                          label: Text(''),
-                        ),
+                        // // // // // // // NavigationRailDestination(
+                        // // // // // // //   padding: EdgeInsets.only(bottom: 8),
+                        // // // // // // //   icon: Image.asset('assets/img/sidebar/fridge.png'),
+                        // // // // // // //   label: Text(''),
+                        // // // // // // // ),
                         NavigationRailDestination(
                           padding: EdgeInsets.only(bottom: 8),
                           icon: Padding(
