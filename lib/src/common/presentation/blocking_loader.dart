@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:adhd_0_1/src/common/presentation/syncing_indicator.dart';
 
 /// Shows a centered, blocking loader while [task] is running.
 /// Dismisses automatically when the task completes or throws.
@@ -16,10 +17,7 @@ Future<T> showBlockingLoaderDuring<T>(
     useRootNavigator: true,
     barrierDismissible: false,
     barrierColor: Colors.black45,
-    builder:
-        (_) => const Center(
-          child: CircularProgressIndicator.adaptive(),
-        ),
+    builder: (_) => const Center(child: SyncingIndicator(centered: true)),
   );
 
   try {

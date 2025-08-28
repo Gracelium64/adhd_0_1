@@ -2,6 +2,7 @@ import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/common/domain/prizes.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:adhd_0_1/src/common/presentation/syncing_indicator.dart';
 
 class PrizesWidget extends StatefulWidget {
   final void Function(Prizes prize)? onPrizeTap;
@@ -38,7 +39,7 @@ class _PrizesWidgetState extends State<PrizesWidget> {
                   SizedBox(
                     height: 35,
                     width: 35,
-                    child: CircularProgressIndicator(),
+                    child: const SyncingIndicator(),
                   ),
                   SizedBox(width: 18),
                 ],

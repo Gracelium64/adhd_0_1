@@ -9,6 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:adhd_0_1/src/features/settings/presentation/widgets/load_saved_game.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:adhd_0_1/src/common/presentation/syncing_indicator.dart';
 
 class ViewUserData extends StatelessWidget {
   final void Function() onClose;
@@ -62,7 +63,7 @@ class ViewUserData extends StatelessWidget {
                   ]),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
+                      return Center(child: SyncingIndicator(centered: true));
                     } else if (snapshot.hasError) {
                       return Center(child: Text('Error: ${snapshot.error}'));
                     } else if (snapshot.hasData) {

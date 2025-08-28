@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
 import 'package:adhd_0_1/src/common/domain/refresh_bus.dart';
+import 'package:adhd_0_1/src/common/presentation/syncing_indicator.dart';
 
 class Dailys extends StatefulWidget {
   const Dailys({super.key});
@@ -80,7 +81,7 @@ class _DailysState extends State<Dailys> {
       body: Center(
         child:
             _loading
-                ? const CircularProgressIndicator()
+                ? const SyncingIndicator()
                 : Column(
                   children: [
                     Gap(subtitleTopGap(context)),

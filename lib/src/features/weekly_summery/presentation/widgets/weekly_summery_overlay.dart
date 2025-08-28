@@ -3,6 +3,7 @@ import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:adhd_0_1/src/common/presentation/syncing_indicator.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:adhd_0_1/src/common/domain/prizes.dart';
 
@@ -291,11 +292,15 @@ class _WeeklySummaryOverlayState extends State<WeeklySummaryOverlay> {
                   backgroundColor: Colors.transparent,
                   body: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      SizedBox(height: 24),
-                      CircularProgressIndicator(),
-                      SizedBox(height: 12),
-                      Text('Preparing your weekly summary...'),
+                    children: [
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        height: 36,
+                        width: 36,
+                        child: SyncingIndicator(),
+                      ),
+                      const SizedBox(height: 12),
+                      const Text('Preparing your weekly summary...'),
                     ],
                   ),
                 );
@@ -307,7 +312,7 @@ class _WeeklySummaryOverlayState extends State<WeeklySummaryOverlay> {
                 body: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Gap(24),
+                    const Gap(24),
                     SizedBox(
                       height: 115,
                       width: 115,

@@ -8,6 +8,7 @@ import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/tasks_deadlineys/presentation/widgets/deadline_task_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:adhd_0_1/src/common/presentation/syncing_indicator.dart';
 
 class Deadlineys extends StatefulWidget {
   const Deadlineys({super.key});
@@ -114,7 +115,7 @@ class _DeadlineysState extends State<Deadlineys> {
       body: Center(
         child:
             _loading
-                ? const CircularProgressIndicator()
+                ? const SyncingIndicator()
                 : Column(
                   children: [
                     Gap(subtitleTopGap(context)),

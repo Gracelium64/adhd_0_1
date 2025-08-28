@@ -8,6 +8,7 @@ import 'package:device_preview/device_preview.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:adhd_0_1/src/common/presentation/syncing_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class App extends StatefulWidget {
@@ -44,7 +45,9 @@ class _AppState extends State<App> {
         if (onboardingComplete == null ||
             snapshot.connectionState == ConnectionState.waiting) {
           return const MaterialApp(
-            home: Scaffold(body: Center(child: CircularProgressIndicator())),
+            home: Scaffold(
+              body: Center(child: SyncingIndicator(centered: true)),
+            ),
           );
         }
 

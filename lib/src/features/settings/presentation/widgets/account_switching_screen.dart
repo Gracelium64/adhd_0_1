@@ -8,6 +8,7 @@ import 'package:adhd_0_1/src/main_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/syncrepository.dart';
+import 'package:adhd_0_1/src/common/presentation/syncing_indicator.dart';
 
 class AccountSwitchingScreen extends StatefulWidget {
   final String userName;
@@ -248,7 +249,7 @@ class _AccountSwitchingScreenState extends State<AccountSwitchingScreen> {
     return const Scaffold(
       backgroundColor: Colors.black,
       body: Center(
-        child: CircularProgressIndicator.adaptive(),
+        child: SyncingIndicator(centered: true),
       ),
     );
   }

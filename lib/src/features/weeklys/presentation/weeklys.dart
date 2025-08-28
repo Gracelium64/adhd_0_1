@@ -8,6 +8,7 @@ import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/tasks_weeklys/presentation/widgets/weekly_task_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:adhd_0_1/src/common/presentation/syncing_indicator.dart';
 
 class Weeklys extends StatefulWidget {
   final DataBaseRepository repository;
@@ -82,7 +83,7 @@ class _WeeklysState extends State<Weeklys> {
           future: myList,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
+              return const SyncingIndicator();
             } else if (snapshot.hasError) {
               return Text(('Error: ${snapshot.error}'));
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
