@@ -66,6 +66,8 @@ class SyncRepository implements DataBaseRepository {
   @override
   Future<void> completeDeadline(String dataTaskId) async {
     await localRepo.completeDeadline(dataTaskId);
+    // Record tombstone so remote will be deleted on next sync
+    await _addTombstone(dataTaskId, 'Deadline');
     //////////////
     await prizeManager.incrementDeadlineCounter();
     //////////////
@@ -75,6 +77,8 @@ class SyncRepository implements DataBaseRepository {
   @override
   Future<void> completeQuest(String dataTaskId) async {
     await localRepo.completeQuest(dataTaskId);
+    // Record tombstone so remote will be deleted on next sync
+    await _addTombstone(dataTaskId, 'Quest');
     await prizeManager.incrementQuestCounter();
     triggerSync();
   }
@@ -587,6 +591,57 @@ class SyncRepository implements DataBaseRepository {
       '📣 triggerSync(force=$force) isSyncing=$isSyncing pending=$_pending',
     );
     Future.microtask(syncAll);
+  }
+
+  /// Sync locally-won prizes to remote once per day. Uses an idempotent
+  /// deterministic upsert when available on FirestoreRepository.
+  Future<void> syncPrizesToRemoteIfNeeded() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final last = prefs.getString('prizes_last_sync');
+      final now = DateTime.now();
+      if (last != null) {
+        final when = DateTime.tryParse(last);
+        if (when != null) {
+          final diff = now.difference(when);
+          if (diff.inHours < 24) {
+            debugPrint('🎁 Prizes recently synced ${diff.inHours}h ago; skip');
+            return;
+          }
+        }
+      }
+
+      final prizes = await localRepo.getPrizes();
+      if (prizes.isEmpty) {
+        await prefs.setString('prizes_last_sync', now.toIso8601String());
+        return;
+      }
+
+      if (mainRepo is FirestoreRepository) {
+        final fsRepo = mainRepo as FirestoreRepository;
+        for (final p in prizes) {
+          try {
+            await fsRepo.upsertPrizeDeterministic(p.prizeId, p.prizeUrl);
+          } catch (e) {
+            debugPrint('⚠️ Failed to upsert prize ${p.prizeId}: $e');
+          }
+        }
+      } else {
+        // best-effort: call generic addPrize which will create new docs
+        for (final p in prizes) {
+          try {
+            await mainRepo.addPrize(p.prizeId, p.prizeUrl);
+          } catch (e) {
+            debugPrint('⚠️ Failed to push prize ${p.prizeId} to mainRepo: $e');
+          }
+        }
+      }
+
+      await prefs.setString('prizes_last_sync', now.toIso8601String());
+      debugPrint('🎁 Prizes sync completed; pushed ${prizes.length} items');
+    } catch (e) {
+      debugPrint('⚠️ Prizes sync failed: $e');
+    }
   }
 
   // Reverse sync: explicit flows only (settings swap, load saved game)

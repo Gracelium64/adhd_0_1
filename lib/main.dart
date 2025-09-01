@@ -232,6 +232,13 @@ Future<void> main() async {
   // Kick a one-time dedup pass at cold start as well (safe: mark-only)
   Future.microtask(() => repository.runOneTimeDedupMarking());
 
+  // Sync locally won prizes to Firestore once per day at cold start.
+  try {
+    await repository.syncPrizesToRemoteIfNeeded();
+  } catch (e) {
+    debugPrint('⚠️ Prize sync on startup failed: $e');
+  }
+
   runApp(
     MultiProvider(
       providers: [
