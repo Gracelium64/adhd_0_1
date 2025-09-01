@@ -9,6 +9,7 @@ import 'package:adhd_0_1/src/data/domain/prize_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:adhd_0_1/src/data/firestore_repository.dart';
 import 'package:adhd_0_1/src/data/sharedpreferencesrepository.dart';
+import 'package:adhd_0_1/src/features/prizes/domain/available_prizes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SyncRepository implements DataBaseRepository {
@@ -641,6 +642,55 @@ class SyncRepository implements DataBaseRepository {
       debugPrint('🎁 Prizes sync completed; pushed ${prizes.length} items');
     } catch (e) {
       debugPrint('⚠️ Prizes sync failed: $e');
+    }
+  }
+
+  /// Ensure every user receives prize #22 after 3 days from their first run.
+  /// Records first-run timestamp under 'first_run_ts_v1'. If 3 days have
+  /// passed and the user doesn't already have prize 22, award it locally
+  /// (which will trigger the usual sync).
+  Future<void> ensurePrize22AfterThreeDays() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      const firstKey = 'first_run_ts_v1';
+      final firstRaw = prefs.getString(firstKey);
+      final now = DateTime.now();
+      if (firstRaw == null) {
+        // Record first run and return; waiting for 3 days window
+        await prefs.setString(firstKey, now.toIso8601String());
+        debugPrint('ℹ️ Recorded first run timestamp');
+        return;
+      }
+
+      final first = DateTime.tryParse(firstRaw) ?? now;
+      final diff = now.difference(first);
+      if (diff.inDays < 3) {
+        debugPrint('ℹ️ Not yet 3 days since first run (${diff.inDays} days)');
+        return;
+      }
+
+      // Already awarded?
+      final prizes = await localRepo.getPrizes();
+      final has22 = prizes.any((p) => p.prizeId == 22 || p.prizeId == 022);
+      if (has22) {
+        debugPrint('ℹ️ Prize 22 already present; skipping award');
+        return;
+      }
+
+      // Find prize details from availablePrizes, fall back to known asset
+      final prize = availablePrizes.firstWhere(
+        (p) => p.prizeId == 22 || p.prizeId == 022,
+        orElse:
+            () => Prizes(
+              prizeId: 22,
+              prizeUrl: 'assets/img/prizes/Sticker22.png',
+            ),
+      );
+
+      debugPrint('🎁 Awarding prize 22 to user');
+      await addPrize(prize.prizeId, prize.prizeUrl);
+    } catch (e) {
+      debugPrint('⚠️ Failed to ensure prize22: $e');
     }
   }
 

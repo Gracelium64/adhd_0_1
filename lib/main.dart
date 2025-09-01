@@ -239,6 +239,13 @@ Future<void> main() async {
     debugPrint('⚠️ Prize sync on startup failed: $e');
   }
 
+  // Ensure prize #22 is awarded after 3 days from first run.
+  try {
+    await repository.ensurePrize22AfterThreeDays();
+  } catch (e) {
+    debugPrint('⚠️ ensurePrize22AfterThreeDays failed: $e');
+  }
+
   runApp(
     MultiProvider(
       providers: [
