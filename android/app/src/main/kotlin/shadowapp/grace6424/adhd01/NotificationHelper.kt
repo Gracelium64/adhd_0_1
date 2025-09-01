@@ -1,4 +1,4 @@
-package shadowapp.grace6424.adhd01
+package shadowapp.grace6424.adhd
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -56,7 +56,7 @@ object NotificationHelper {
         }
         // Create an intent that opens the app when the notification is tapped
         val launchIntent = Intent(context, MainActivity::class.java).apply {
-            action = "shadowapp.grace6424.adhd01.ACTION_OPEN_DAILYS"
+            action = "shadowapp.grace6424.adhd.ACTION_OPEN_DAILYS"
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra("route", "dailys")
         }
@@ -84,7 +84,7 @@ object NotificationHelper {
         ensureChannel(context)
         val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val launchIntent = Intent(context, MainActivity::class.java).apply {
-            action = "shadowapp.grace6424.adhd01.ACTION_OPEN_DAILYS"
+            action = "shadowapp.grace6424.adhd.ACTION_OPEN_DAILYS"
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra("route", "dailys")
         }
@@ -118,7 +118,7 @@ object NotificationHelper {
         ensureChannel(context)
         val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val launchIntent = Intent(context, MainActivity::class.java).apply {
-            action = "shadowapp.grace6424.adhd01.ACTION_OPEN_DAILYS"
+            action = "shadowapp.grace6424.adhd.ACTION_OPEN_DAILYS"
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
             putExtra("route", "dailys")
         }

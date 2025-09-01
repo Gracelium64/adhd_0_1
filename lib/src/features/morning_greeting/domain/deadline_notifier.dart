@@ -210,7 +210,7 @@ class DeadlineNotifier {
       );
     }
     if (Platform.isAndroid) {
-      const platform = MethodChannel('shadowapp.grace6424.adhd01/alarm');
+      const platform = MethodChannel('shadowapp.grace6424.adhd/alarm');
       try {
         final diag = await platform.invokeMethod('diagnosticSnapshot');
         await DiagnosticsLog.instance.log('nativeDiag=${diag.toString()}');
@@ -246,7 +246,7 @@ class DeadlineNotifier {
 
     // Native prefs snapshot
     if (Platform.isAndroid) {
-      const platform = MethodChannel('shadowapp.grace6424.adhd01/alarm');
+      const platform = MethodChannel('shadowapp.grace6424.adhd/alarm');
       try {
         final snap = await platform.invokeMethod('debugPrefsSnapshot');
         b.writeln('Native prefs: $snap');
@@ -285,7 +285,7 @@ class DeadlineNotifier {
     final nextDay = fireDay.add(const Duration(days: 1));
     final body = await _composeBodyAsync(repo, fireDay, nextDay);
 
-    const platform = MethodChannel('shadowapp.grace6424.adhd01/alarm');
+    const platform = MethodChannel('shadowapp.grace6424.adhd/alarm');
     try {
       await platform.invokeMethod('showDeadlineNowWithBody', {'body': body});
       debugPrint('[DeadlineNotifier] Requested native showDeadlineNow');
@@ -321,7 +321,7 @@ class DeadlineNotifier {
   /// Android-only: schedule a native deadline in [seconds] seconds
   Future<void> androidScheduleInSeconds(int seconds) async {
     if (!Platform.isAndroid) return;
-    const platform = MethodChannel('shadowapp.grace6424.adhd01/alarm');
+    const platform = MethodChannel('shadowapp.grace6424.adhd/alarm');
     try {
       await platform.invokeMethod('scheduleDeadlineIn', {'seconds': seconds});
     } catch (e) {
@@ -337,7 +337,7 @@ class DeadlineNotifier {
     final fireDay = DateTime(now.year, now.month, now.day);
     final nextDay = fireDay.add(const Duration(days: 1));
     final body = await _composeBodyAsync(repo, fireDay, nextDay);
-    const platform = MethodChannel('shadowapp.grace6424.adhd01/alarm');
+    const platform = MethodChannel('shadowapp.grace6424.adhd/alarm');
     try {
       await platform.invokeMethod('saveNextDeadlineMessage', {
         'message': body,

@@ -1,4 +1,4 @@
-package shadowapp.grace6424.adhd01
+package shadowapp.grace6424.adhd
 
 import android.content.BroadcastReceiver
 import android.content.Context

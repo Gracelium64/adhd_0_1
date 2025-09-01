@@ -1,4 +1,4 @@
-package shadowapp.grace6424.adhd01
+package shadowapp.grace6424.adhd
 
 import android.app.AlarmManager
 import android.app.PendingIntent

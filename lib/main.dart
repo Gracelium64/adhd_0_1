@@ -271,7 +271,7 @@ Future<void> main() async {
 
   //
   // v.0.1.2.1 //
-  //....0033.
+  //
 
   // Test Release 2 // v.0.1.2.1.2 //
   //TODO: confirm bug fixes with testers after deployment   // GRACE //
@@ -281,10 +281,10 @@ Future<void> main() async {
   //TODO: fix bleed in dragging tasks to change order
   //TODO: weather API
   //TODO: cleanup - secure_name / secure_secure_name
-  // //TODO: UNDO Button in SncakBar when completing a Quest or Deadline Tasks
+  // // //TODO: UNDO Button in SncakBar when completing a Quest or Deadline Tasks
   //TODO: eastereggs
   //TODO: make more AI abominations for prizes
-  //TODO: remove DailyStartOverlay from code if morning refresh issue solved with testers
+  //TODO: prepare DailyStartOverlay as basis for userConsole
   //TODO: confirm bug fixes with testers after deployment
 
   // Test Release 4 //
@@ -307,6 +307,6 @@ Future<void> main() async {
   //TODO: confirm bug fixes with testers after deployment
 
   //
-  // v.0.1.3 // Ready for app release
+  // v.0.1.3 // Ready for release
   //
 }

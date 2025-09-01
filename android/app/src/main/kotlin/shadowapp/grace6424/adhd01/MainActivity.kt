@@ -1,4 +1,4 @@
-package shadowapp.grace6424.adhd01
+package shadowapp.grace6424.adhd
 
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -14,7 +14,7 @@ import android.app.NotificationManager
 import android.content.pm.ApplicationInfo
 
 class MainActivity : FlutterActivity() {
-	private val channel = "shadowapp.grace6424.adhd01/alarm"
+	private val channel = "shadowapp.grace6424.adhd/alarm"
 	private var pendingRoute: String? = null
 
 	override fun configureFlutterEngine(flutterEngine: FlutterEngine) {

@@ -116,7 +116,7 @@ class DailyQuoteNotifier {
       if (!notificationsEnabled) {
         debugPrint('[DailyQuoteNotifier] Notifications disabled by user');
         try {
-          const platform = MethodChannel('shadowapp.grace6424.adhd01/alarm');
+          const platform = MethodChannel('shadowapp.grace6424.adhd/alarm');
           await platform.invokeMethod('openAppNotificationSettings');
         } catch (_) {}
       }
@@ -228,7 +228,7 @@ class DailyQuoteNotifier {
     }
 
     if (Platform.isAndroid) {
-      const platform = MethodChannel('shadowapp.grace6424.adhd01/alarm');
+      const platform = MethodChannel('shadowapp.grace6424.adhd/alarm');
       try {
         final bool ignoring = await platform.invokeMethod(
           'isIgnoringBatteryOptimizations',

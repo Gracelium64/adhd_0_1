@@ -163,7 +163,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   Future<void> _checkAndroidInitialRoute() async {
     // Android-only hook: check if MainActivity provided an initial route from a notification tap
     try {
-      const String channel = 'shadowapp.grace6424.adhd01/alarm';
+      const String channel = 'shadowapp.grace6424.adhd/alarm';
       final platform = const MethodChannel(channel);
       final String? route = await platform.invokeMethod<String>(
         'getInitialRouteFromIntent',
@@ -178,7 +178,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
   Future<void> _ensureAndroidNotificationHealth() async {
     try {
-      const String channel = 'shadowapp.grace6424.adhd01/alarm';
+      const String channel = 'shadowapp.grace6424.adhd/alarm';
       final platform = const MethodChannel(channel);
       // Nudge settings if notifications disabled
       final android =
