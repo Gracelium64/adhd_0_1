@@ -7,7 +7,7 @@ import 'package:adhd_0_1/src/features/auth/presentation/register_confirmation.da
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:adhd_0_1/src/features/settings/presentation/widgets/load_saved_game.dart';
+import 'package:adhd_0_1/src/features/user_data_portal/presentation/view_user_data.dart';
 import 'package:provider/provider.dart';
 
 class Register extends StatefulWidget {
@@ -61,7 +61,15 @@ class _RegisterState extends State<Register> {
         onPressed: () {
           Navigator.of(context, rootNavigator: true).push(
             PageRouteBuilder(
-              pageBuilder: (_, __, ___) => const LoadSaveGame(),
+              pageBuilder:
+                  (routeContext, __, ___) => ViewUserData(
+                    onClose:
+                        () =>
+                            Navigator.of(
+                              routeContext,
+                              rootNavigator: true,
+                            ).pop(),
+                  ),
               transitionsBuilder:
                   (_, animation, __, child) =>
                       FadeTransition(opacity: animation, child: child),
@@ -70,7 +78,7 @@ class _RegisterState extends State<Register> {
         },
         backgroundColor: Palette.basicBitchBlack,
         foregroundColor: Palette.basicBitchWhite,
-        label: const Text('Load Saved Game'),
+        label: const Text('User Data Portal'),
       ),
       body: AnimatedPadding(
         duration: const Duration(milliseconds: 200),

@@ -47,9 +47,12 @@ There will not be many comments in this project, you've just collected your firs
 void initSyncListeners(SyncRepository repository) {
   final Connectivity connectivity = Connectivity();
 
-  connectivity.onConnectivityChanged.listen((status) async {
-    if (status != ConnectivityResult.none) {
-      debugPrint('📶 Connectivity regained: $status');
+  connectivity.onConnectivityChanged.listen((statuses) async {
+    final hasConnection =
+        statuses.any((result) => result != ConnectivityResult.none);
+
+    if (hasConnection) {
+      debugPrint('📶 Connectivity regained: $statuses');
       // First, try to complete any pending registrations before syncing
       bool completed = false;
       try {
@@ -298,19 +301,10 @@ Future<void> main() async {
   // // //TODO: UNDO Button in SncakBar when completing a Quest or Deadline Tasks
   //TODO: eastereggs
   //TODO: make more AI abominations for prizes
-  //TODO: prepare DailyStartOverlay as basis for userConsole
   //TODO: confirm bug fixes with testers after deployment
 
   // Test Release 4 //
   //TODO: how to save files outside of shared memory - save local backup of user data from local repository
-  //TODO: user console area through settings, console looks and user input
-  //TODO:  [
-  //TODO:   delete user information,
-  //TODO:   load user information from file,
-  //TODO:   load user information of existing user
-  //TODO:   (copy in database from one user document with another with entering a valid unique userId),
-  //TODO:   backup user information to file, back to app
-  //TODO:   ]
   //TODO: confirm bug fixes with testers after deployment
 
   // Test Release 5 //

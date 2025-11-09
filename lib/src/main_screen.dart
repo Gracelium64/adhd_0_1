@@ -7,7 +7,6 @@ import 'package:adhd_0_1/src/data/domain/reset_scheduler.dart';
 import 'package:adhd_0_1/src/features/tasks_dailys/presentation/dailys.dart';
 import 'package:adhd_0_1/src/features/tasks_deadlineys/presentation/deadlineys.dart';
 import 'package:adhd_0_1/src/features/fidget_screen/presentation/fidget_screen.dart';
-import 'package:adhd_0_1/src/features/fridge_lock/presentation/fridge_lock.dart';
 import 'package:adhd_0_1/src/features/prizes/presentation/prizes_screen.dart';
 import 'package:adhd_0_1/src/features/tasks_quest/presentation/quest.dart';
 import 'package:adhd_0_1/src/features/settings/presentation/settings.dart';

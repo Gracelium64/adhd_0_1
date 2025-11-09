@@ -13,11 +13,11 @@ class SyncingIndicator extends StatelessWidget {
   final double strokeWidth;
 
   const SyncingIndicator({
-    Key? key,
+    super.key,
     this.centered = false,
     this.size,
     this.strokeWidth = 2.0,
-  }) : super(key: key);
+  });
 
   Widget _buildSpinner() {
     final s = size ?? 24.0;

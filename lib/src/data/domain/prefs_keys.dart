@@ -6,4 +6,5 @@ class PrefsKeys {
   static const String settingsKey = 'userSettings';
   static const String prizesKey = 'prizesWon';
   static const String appUserKey = 'app_user';
+  static const String syncOptOutKey = 'sync_remote_opt_out';
 }

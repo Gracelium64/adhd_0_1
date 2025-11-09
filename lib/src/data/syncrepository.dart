@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:adhd_0_1/src/data/firestore_repository.dart';
 import 'package:adhd_0_1/src/data/sharedpreferencesrepository.dart';
 import 'package:adhd_0_1/src/features/prizes/domain/available_prizes.dart';
+import 'package:adhd_0_1/src/data/domain/prefs_keys.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SyncRepository implements DataBaseRepository {
@@ -23,6 +24,7 @@ class SyncRepository implements DataBaseRepository {
   String? _lastSignature; // prevent redundant sync loops
   bool _forceNextSync = false; // allow bypassing signature check when needed
   Timer? _debounceTimer; // throttle frequent sync requests
+  bool? _remoteWriteOptOutCache;
   // Public notifier for UI to show a tiny sync indicator
   final ValueNotifier<bool> isSyncingNotifier = ValueNotifier<bool>(false);
   // Tombstones: locally record deletions to ensure remote is purged and prevent resurrection
@@ -228,21 +230,27 @@ class SyncRepository implements DataBaseRepository {
   @override
   Future<void> saveDailyOrder(List<String> orderedTaskIds) async {
     await localRepo.saveDailyOrder(orderedTaskIds);
-    await mainRepo.saveDailyOrder(orderedTaskIds);
+    if (await _isRemoteWriteAllowed()) {
+      await mainRepo.saveDailyOrder(orderedTaskIds);
+    }
     // Avoid redundant sync: order was written to remote already.
   }
 
   @override
   Future<void> saveQuestOrder(List<String> orderedTaskIds) async {
     await localRepo.saveQuestOrder(orderedTaskIds);
-    await mainRepo.saveQuestOrder(orderedTaskIds);
+    if (await _isRemoteWriteAllowed()) {
+      await mainRepo.saveQuestOrder(orderedTaskIds);
+    }
     // Avoid redundant sync: order was written to remote already.
   }
 
   @override
   Future<void> saveWeeklyAnyOrder(List<String> orderedTaskIds) async {
     await localRepo.saveWeeklyAnyOrder(orderedTaskIds);
-    await mainRepo.saveWeeklyAnyOrder(orderedTaskIds);
+    if (await _isRemoteWriteAllowed()) {
+      await mainRepo.saveWeeklyAnyOrder(orderedTaskIds);
+    }
     // Avoid redundant sync: order was written to remote already.
   }
 
@@ -279,20 +287,7 @@ class SyncRepository implements DataBaseRepository {
       debugPrint(
         "🔁 Sync started (force=$_forceNextSync, hadPending=$_pending, lastSync=${_lastSync?.toIso8601String()})",
       );
-
-      // Ensure ownership once before any push to avoid cascading permission-denied
-      if (mainRepo is FirestoreRepository) {
-        try {
-          await (mainRepo as FirestoreRepository)
-              .ensureUserOwnershipPreflight();
-        } catch (e) {
-          debugPrint('⛔ Sync preflight failed (ownership not stamped): $e');
-          return; // bail out; will retry on next trigger
-        }
-      }
-
-      // First, flush any pending tombstones to remote to avoid resurrection
-      await _flushTombstones();
+      final remoteAllowed = await _isRemoteWriteAllowed();
 
       // Calculate local snapshot signature; bail if unchanged since last sync
       final dailies = await localRepo.getDailyTasks();
@@ -324,6 +319,28 @@ class SyncRepository implements DataBaseRepository {
         debugPrint('⏸️ Sync skipped (no local changes, force=false).');
         return;
       }
+
+      if (!remoteAllowed) {
+        debugPrint(
+          '☁️ Remote sync disabled via opt-out; caching signature only.',
+        );
+        _lastSignature = signature;
+        return;
+      }
+
+      // Ensure ownership once before any push to avoid cascading permission-denied
+      if (mainRepo is FirestoreRepository) {
+        try {
+          await (mainRepo as FirestoreRepository)
+              .ensureUserOwnershipPreflight();
+        } catch (e) {
+          debugPrint('⛔ Sync preflight failed (ownership not stamped): $e');
+          return; // bail out; will retry on next trigger
+        }
+      }
+
+      // First, flush any pending tombstones to remote to avoid resurrection
+      await _flushTombstones();
 
       // Only push changed tasks using per-task checksums stored locally
       final prefs = await SharedPreferences.getInstance();
@@ -594,10 +611,44 @@ class SyncRepository implements DataBaseRepository {
     Future.microtask(syncAll);
   }
 
+  Future<bool> getRemoteWriteOptOut() async {
+    if (_remoteWriteOptOutCache != null) {
+      return _remoteWriteOptOutCache!;
+    }
+    final prefs = await SharedPreferences.getInstance();
+    _remoteWriteOptOutCache = prefs.getBool(PrefsKeys.syncOptOutKey) ?? false;
+    return _remoteWriteOptOutCache!;
+  }
+
+  Future<void> setRemoteWriteOptOut(
+    bool optOut, {
+    bool triggerSyncNow = true,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(PrefsKeys.syncOptOutKey, optOut);
+    _remoteWriteOptOutCache = optOut;
+    if (!optOut && triggerSyncNow) {
+      triggerSync(force: true);
+    }
+  }
+
+  Future<bool> _isRemoteWriteAllowed() async {
+    final optOut = await getRemoteWriteOptOut();
+    return !optOut;
+  }
+
+  void invalidateSignatureCache() {
+    _lastSignature = null;
+  }
+
   /// Sync locally-won prizes to remote once per day. Uses an idempotent
   /// deterministic upsert when available on FirestoreRepository.
   Future<void> syncPrizesToRemoteIfNeeded() async {
     try {
+      if (!await _isRemoteWriteAllowed()) {
+        debugPrint('🎁 Remote sync opt-out active; skipping remote prize sync');
+        return;
+      }
       final prefs = await SharedPreferences.getInstance();
       final last = prefs.getString('prizes_last_sync');
       final now = DateTime.now();

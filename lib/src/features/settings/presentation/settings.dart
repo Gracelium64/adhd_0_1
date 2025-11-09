@@ -1,7 +1,7 @@
 import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
 import 'package:adhd_0_1/src/features/settings/presentation/widgets/about.dart';
-import 'package:adhd_0_1/src/features/settings/presentation/widgets/view_user_data.dart';
+import 'package:adhd_0_1/src/features/user_data_portal/presentation/view_user_data.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/add_task_widget.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
@@ -68,6 +68,7 @@ class _SettingsState extends State<Settings> {
   Future<void> _pickSkin() async {
     final repo = context.read<DataBaseRepository>();
     final current = await repo.getSettings();
+    if (!mounted) return;
 
     // Anchor to the image container
     final RenderBox button =
@@ -122,6 +123,7 @@ class _SettingsState extends State<Settings> {
   Future<void> _pickLocation() async {
     final repo = context.read<DataBaseRepository>();
     final current = await repo.getSettings();
+    if (!mounted) return;
 
     // Compute popup position anchored to the button
     final RenderBox button =
@@ -173,6 +175,7 @@ class _SettingsState extends State<Settings> {
   Future<void> _pickStartOfWeek() async {
     final repo = context.read<DataBaseRepository>();
     final current = await repo.getSettings();
+    if (!mounted) return;
 
     final RenderBox button =
         _weekBtnKey.currentContext!.findRenderObject() as RenderBox;
@@ -217,6 +220,7 @@ class _SettingsState extends State<Settings> {
   Future<void> _pickStartOfDay() async {
     final repo = context.read<DataBaseRepository>();
     final current = await repo.getSettings();
+    if (!mounted) return;
     final picked = await showTimePicker(
       context: context,
       initialTime: _startOfDay ?? (current?.startOfDay ?? TimeOfDay.now()),
@@ -282,6 +286,7 @@ class _SettingsState extends State<Settings> {
           ),
     );
 
+    if (!mounted) return;
     if (proceed == true) {
       final repo = context.read<DataBaseRepository>();
       final resetScheduler = ResetScheduler(
