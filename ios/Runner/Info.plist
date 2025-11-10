@@ -47,5 +47,7 @@
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We use your photo library so you can select images to personalize your ADHD Companion experience.</string>
 </dict>
 </plist>
