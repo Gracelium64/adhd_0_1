@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/syncrepository.dart';
 import 'package:adhd_0_1/src/common/presentation/syncing_indicator.dart';
+import 'package:adhd_0_1/src/common/security/secure_name_manager.dart';
 
 class AccountSwitchingScreen extends StatefulWidget {
   final String userName;
@@ -28,12 +29,6 @@ class AccountSwitchingScreen extends StatefulWidget {
 
 class _AccountSwitchingScreenState extends State<AccountSwitchingScreen> {
   final _auth = FirebaseAuth.instance;
-
-  String _extractBaseName(String input) {
-    final idx = input.indexOf('_');
-    if (idx <= 0) return input;
-    return input.substring(0, idx);
-  }
 
   @override
   void initState() {
@@ -155,17 +150,12 @@ class _AccountSwitchingScreenState extends State<AccountSwitchingScreen> {
       await storage.write(key: 'userId', value: uname);
       await storage.write(key: 'password', value: widget.ownerPassword);
       await storage.write(key: 'email', value: email);
-      // Migrate legacy key to 'secure_name' and delete legacy so only 'secure_name' remains
-      final legacySecure = await storage.read(key: 'secure_secure_name');
-      if (legacySecure != null && legacySecure.trim().isNotEmpty) {
-        await storage.write(key: 'secure_name', value: legacySecure);
-        await storage.delete(key: 'secure_secure_name');
-      } else {
-        await storage.write(
-          key: 'secure_name',
-          value: _extractBaseName(widget.userName),
-        );
-      }
+      final secureNameManager = SecureNameManager(
+        store: FlutterSecureStorageStore(storage),
+      );
+      await secureNameManager.ensure(
+        fallbackRawUserName: widget.userName,
+      );
       await storage.write(key: 'firebaseUid', value: currentUid);
 
       // 5) Mark onboarding as complete (firebaseUid stored in secure storage already)

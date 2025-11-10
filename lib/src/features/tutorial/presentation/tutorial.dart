@@ -93,6 +93,24 @@ class _TutorialState extends State<Tutorial> {
                                 child: Column(
                                   children: [
                                     Gap(16),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        IconButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              currentPage = 1;
+                                            });
+                                          },
+                                          icon: Icon(
+                                            Icons.chevron_right_rounded,
+                                            size: 50,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Gap(8),
                                     Text(
                                       "Disclaimer: I'm not like other apps",
                                       style: Theme.of(
@@ -167,7 +185,6 @@ class _TutorialState extends State<Tutorial> {
                                       ),
                                       textAlign: TextAlign.center,
                                     ),
-                                    Gap(50),
                                     Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
@@ -186,6 +203,7 @@ class _TutorialState extends State<Tutorial> {
                                       ],
                                     ),
                                     Gap(8),
+                                    Gap(50),
                                   ],
                                 ),
                               ),

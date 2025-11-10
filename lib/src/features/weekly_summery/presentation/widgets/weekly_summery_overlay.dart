@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
+import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,11 +11,13 @@ import 'package:adhd_0_1/src/common/domain/prizes.dart';
 class WeeklySummaryOverlay extends StatefulWidget {
   final List<Prizes> prizes;
   final OverlayPortalController controller;
+  final DataBaseRepository repository;
 
   const WeeklySummaryOverlay({
     super.key,
     required this.prizes,
     required this.controller,
+    required this.repository,
   });
 
   @override
@@ -23,7 +26,7 @@ class WeeklySummaryOverlay extends StatefulWidget {
 
 class _WeeklySummaryOverlayState extends State<WeeklySummaryOverlay> {
   bool _showDebug = false;
-  late final Future<Map<String, dynamic>> _summaryFuture;
+  late Future<Map<String, dynamic>> _summaryFuture;
   Map<String, dynamic>? _cachedSummary;
 
   @override
@@ -109,8 +112,13 @@ class _WeeklySummaryOverlayState extends State<WeeklySummaryOverlay> {
             ),
             _debugLine(
               context,
-              'weekly',
+              'weekly (summary)',
               '${data['weeklyCompleted']}/${data['weeklyTotal']}',
+            ),
+            _debugLine(
+              context,
+              'weekly (current)',
+              '${data['currentWeekCompleted']}/${data['currentWeekTotal']}',
             ),
             _debugLine(
               context,
@@ -134,6 +142,11 @@ class _WeeklySummaryOverlayState extends State<WeeklySummaryOverlay> {
             ),
             _debugLine(
               context,
+              'usingSnapshot',
+              '${data['usingSnapshot']}',
+            ),
+            _debugLine(
+              context,
               'lastWeeklyReset',
               '${data['lastWeeklyReset'] ?? '-'}',
             ),
@@ -153,12 +166,31 @@ class _WeeklySummaryOverlayState extends State<WeeklySummaryOverlay> {
     // Prefer last-week snapshot if present (immediately after reset)
     final dailyCompleted = prefs.getInt('dailyCompleted') ?? 0;
     final dailyTotal = prefs.getInt('dailyTotal') ?? 1;
-    final weeklyCompleted =
-        prefs.getInt('lastWeeklyCompleted') ??
-        prefs.getInt('weeklyCompleted') ??
-        0;
-    final weeklyTotal =
-        prefs.getInt('lastWeeklyTotal') ?? prefs.getInt('weeklyTotal') ?? 1;
+    final snapshotWeeklyCompleted = prefs.getInt('lastWeeklyCompleted');
+    final snapshotWeeklyTotal = prefs.getInt('lastWeeklyTotal');
+
+    int currentWeekCompleted = 0;
+    int currentWeekTotal = 0;
+    try {
+      final weeklyTasks = await widget.repository.getWeeklyTasks();
+      currentWeekTotal = weeklyTasks.length;
+      currentWeekCompleted = weeklyTasks.where((task) => task.isDone).length;
+    } catch (e) {
+      // Preserve previous behaviour if repository access fails.
+      debugPrint('Failed to load weekly tasks for summary: $e');
+    }
+
+    final bool hasSnapshot =
+        snapshotWeeklyCompleted != null && snapshotWeeklyTotal != null;
+    final int weeklyCompleted;
+    final int weeklyTotal;
+    if (hasSnapshot) {
+      weeklyCompleted = snapshotWeeklyCompleted;
+      weeklyTotal = snapshotWeeklyTotal;
+    } else {
+      weeklyCompleted = currentWeekCompleted;
+      weeklyTotal = currentWeekTotal;
+    }
     final questCompleted =
         prefs.getInt('lastQuestCompleted') ??
         prefs.getInt('questCompleted') ??
@@ -182,7 +214,7 @@ class _WeeklySummaryOverlayState extends State<WeeklySummaryOverlay> {
     final dailyAvg =
         dailyWeekCount == 0 ? 0.0 : (dailyWeekSum / dailyWeekCount);
     final weeklyRatio =
-        (weeklyCompleted / (weeklyTotal == 0 ? 1 : weeklyTotal));
+        weeklyTotal == 0 ? 0.0 : (weeklyCompleted / weeklyTotal);
 
     // Local recompute of prize count for transparency
     int prizesToGive = 0;
@@ -209,6 +241,9 @@ class _WeeklySummaryOverlayState extends State<WeeklySummaryOverlay> {
       'dailyRatioPct': dailyPct,
       'weeklyRatioPct': weeklyPct,
       'prizesToGiveCalc': prizesToGive,
+      'currentWeekCompleted': currentWeekCompleted,
+      'currentWeekTotal': currentWeekTotal,
+      'usingSnapshot': hasSnapshot,
     };
   }
 
@@ -230,6 +265,9 @@ class _WeeklySummaryOverlayState extends State<WeeklySummaryOverlay> {
         'dailyRatioPct': 0,
         'weeklyRatioPct': 0,
         'prizesToGiveCalc': 0,
+        'currentWeekCompleted': 0,
+        'currentWeekTotal': 0,
+        'usingSnapshot': false,
       };
     }
   }

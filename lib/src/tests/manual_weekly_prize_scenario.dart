@@ -13,7 +13,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ManualWeeklyPrizeScenario {
   /// Seeds this scenario and opens the weekly summary overlay using the
   /// new weekly-averaged daily completion logic.
-  /// Expected prizes: 1 (dailyAvg >=75%) + 1 (weekly >=75%) + 2 + 3 = 7
+  /// Expected prizes (with matching task data):
+  /// 1 (dailyAvg >=75%) + 1 (weekly >=75%) + quest + deadline
+  /// Ensure the repository already contains weekly tasks with the
+  /// desired completion ratio before running this helper, as the
+  /// prize logic now reads live task data instead of seeded counters.
   static Future<void> run({
     required DataBaseRepository repository,
     required OverlayPortalController controller,

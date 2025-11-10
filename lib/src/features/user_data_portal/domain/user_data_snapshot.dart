@@ -95,7 +95,7 @@ class UserDataSnapshot {
               as List<dynamic>?;
       if (raw == null) return const [];
       return raw
-      .map((e) => Task.fromJson(ensureMap(e)))
+          .map((e) => Task.fromJson(ensureMap(e)))
           .toList(growable: false);
     }
 
@@ -103,7 +103,7 @@ class UserDataSnapshot {
       final raw = json['prizes'] as List<dynamic>?;
       if (raw == null) return const [];
       return raw
-      .map((e) => Prizes.fromJson(ensureMap(e)))
+          .map((e) => Prizes.fromJson(ensureMap(e)))
           .toList(growable: false);
     }
 
@@ -124,12 +124,12 @@ class UserDataSnapshot {
       generatedAtUtc: generatedAt?.toUtc() ?? DateTime.now().toUtc(),
       user: userMap != null ? AppUser.fromJson(userMap) : null,
       settings: settingsMap != null ? Settings.fromJson(settingsMap) : null,
-  dailyTasks: parseTasks('daily'),
-  weeklyTasks: parseTasks('weekly'),
-  deadlineTasks: parseTasks('deadlines'),
-  questTasks: parseTasks('quests'),
-  prizes: parsePrizes(),
-  bonusPrize: parseBonusPrize(),
+      dailyTasks: parseTasks('daily'),
+      weeklyTasks: parseTasks('weekly'),
+      deadlineTasks: parseTasks('deadlines'),
+      questTasks: parseTasks('quests'),
+      prizes: parsePrizes(),
+      bonusPrize: parseBonusPrize(),
       secureStorage: secureStorage,
       remoteSyncOptOut: remoteOptOut,
     );

@@ -1,23 +1,28 @@
 import 'dart:convert';
+import 'dart:typed_data' as typed_data;
 import 'dart:ui';
 
-import 'package:adhd_0_1/src/common/domain/prizes.dart';
 import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
 import 'package:adhd_0_1/src/common/presentation/syncing_indicator.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
+import 'package:adhd_0_1/src/data/firebase_auth_repository.dart';
 import 'package:adhd_0_1/src/data/syncrepository.dart';
 import 'package:adhd_0_1/src/features/settings/presentation/widgets/load_saved_game.dart';
 import 'package:adhd_0_1/src/features/user_data_portal/domain/io/file_system_helper.dart';
 import 'package:adhd_0_1/src/features/user_data_portal/domain/user_data_service.dart';
 import 'package:adhd_0_1/src/features/user_data_portal/domain/user_data_snapshot.dart';
+import 'package:adhd_0_1/src/main_screen.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart'
+    show TargetPlatform, debugPrint, defaultTargetPlatform, kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ViewUserData extends StatefulWidget {
   final VoidCallback onClose;
@@ -35,8 +40,30 @@ class _ViewUserDataState extends State<ViewUserData> {
   String? _identifier;
   bool _remoteOptOut = false;
   bool _busy = false;
-  Prizes? _lastBonusPrize;
   DateTime? _lastExportedAt;
+
+  bool get _canExport {
+    // Disable backup exporting until core credentials exist (cold start).
+    final hasUser = (_userName ?? '').isNotEmpty;
+    final hasPassword = (_password ?? '').isNotEmpty;
+    return hasUser && hasPassword;
+  }
+
+  bool get _shouldUseShareFlow {
+    if (kIsWeb) return false;
+    return defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.android;
+  }
+
+  bool get _isIOS {
+    if (kIsWeb) return false;
+    return defaultTargetPlatform == TargetPlatform.iOS;
+  }
+
+  void _setBusy(bool value) {
+    if (!mounted) return;
+    setState(() => _busy = value);
+  }
 
   @override
   void initState() {
@@ -96,7 +123,7 @@ class _ViewUserDataState extends State<ViewUserData> {
       _showSnackBar('Saving backups is not supported on web yet.');
       return;
     }
-    setState(() => _busy = true);
+    _setBusy(true);
     try {
       final service = _service(context);
       final snapshot = await service.buildSnapshot(includeBonusPrize: true);
@@ -104,6 +131,27 @@ class _ViewUserDataState extends State<ViewUserData> {
       final bytes = utf8.encode(jsonString);
       final defaultName =
           'adhd_backup_${snapshot.generatedAtUtc.toIso8601String().replaceAll(':', '-')}.adhd';
+      if (_shouldUseShareFlow) {
+        final shareParams = ShareParams(
+          files: [
+            XFile.fromData(
+              typed_data.Uint8List.fromList(bytes),
+              name: defaultName,
+            ),
+          ],
+        );
+        _setBusy(false);
+        await SharePlus.instance.share(shareParams);
+        if (!mounted) return;
+        setState(() {
+          _lastExportedAt = snapshot.generatedAtUtc;
+        });
+        _showSnackBar(
+          'Backup ready to share. Choose Files or Drive to store it.',
+        );
+        return;
+      }
+//TODO: .adhd
       final selectedPath = await FilePicker.platform.saveFile(
         dialogTitle: 'Save ADHD backup',
         fileName: defaultName,
@@ -111,6 +159,7 @@ class _ViewUserDataState extends State<ViewUserData> {
         allowedExtensions: const ['adhd'],
       );
       if (selectedPath == null) {
+        _setBusy(false);
         return;
       }
       final targetPath =
@@ -120,39 +169,56 @@ class _ViewUserDataState extends State<ViewUserData> {
       await writeBytesToPath(targetPath, bytes);
       if (!mounted) return;
       setState(() {
-        _lastBonusPrize = snapshot.bonusPrize;
+        _busy = false;
         _lastExportedAt = snapshot.generatedAtUtc;
       });
-      final bonusText =
-          snapshot.bonusPrize != null
-              ? ' Bonus prize #${snapshot.bonusPrize!.prizeId} included!'
-              : '';
-      _showSnackBar('Backup saved to $targetPath.$bonusText');
+      _showSnackBar('Backup saved to $targetPath.');
     } on UnsupportedError catch (e) {
+      _setBusy(false);
       _showSnackBar(e.message ?? 'Saving backups is not supported here.');
     } catch (e) {
+      _setBusy(false);
       _showSnackBar('Could not save backup: $e');
-    } finally {
-      if (mounted) {
-        setState(() => _busy = false);
-      }
     }
   }
 
   Future<void> _handleImport() async {
-    setState(() => _busy = true);
+    _setBusy(true);
     try {
       final service = _service(context);
+      final authRepo = context.read<FirebaseAuthRepository?>();
+      final navigator = Navigator.of(context, rootNavigator: true);
+      bool shouldNavigateToMain = false;
+      final bool allowAnyFile =
+          _isIOS; // iOS document picker ignores custom extensions.
       final result = await FilePicker.platform.pickFiles(
         dialogTitle: 'Select ADHD backup',
-        type: FileType.custom,
-        allowedExtensions: const ['adhd'],
+        type: allowAnyFile ? FileType.any : FileType.custom,
+        allowedExtensions: allowAnyFile ? null : const ['adhd'],
         withData: kIsWeb,
       );
       if (result == null || result.files.isEmpty) {
+        _setBusy(false);
         return;
       }
       final file = result.files.single;
+      final lowerName = file.name.toLowerCase();
+      final pathLower = file.path?.toLowerCase();
+      final extension = file.extension?.toLowerCase();
+      const supportedExtensions = {'adhd', 'so', 'bin'};
+      bool matchesSuffix(String target) {
+        return supportedExtensions.any((ext) => target.endsWith('.$ext'));
+      }
+
+      final hasSupportedExtension =
+          (extension != null && supportedExtensions.contains(extension)) ||
+          matchesSuffix(lowerName) ||
+          (pathLower != null && matchesSuffix(pathLower));
+      if (!hasSupportedExtension) {
+        _setBusy(false);
+        _showSnackBar('Please choose a compatible backup (.adhd).');
+        return;
+      }
       String jsonString;
       if (file.bytes != null) {
         jsonString = utf8.decode(file.bytes!);
@@ -163,23 +229,53 @@ class _ViewUserDataState extends State<ViewUserData> {
       }
       final snapshot = UserDataSnapshot.fromJsonString(jsonString);
       await service.applySnapshot(snapshot);
+      final prefs = await SharedPreferences.getInstance();
+      final wasOnboardingComplete =
+          prefs.getBool('onboardingComplete') ?? false;
+      shouldNavigateToMain = !wasOnboardingComplete;
+      await prefs.setBool('onboardingComplete', true);
+      if (authRepo != null) {
+        try {
+          const storage = FlutterSecureStorage();
+          final email = await storage.read(key: 'email');
+          final password = await storage.read(key: 'password');
+          if (email != null && password != null) {
+            await authRepo.signInWithEmailAndPassword(email, password);
+          }
+        } catch (e) {
+          debugPrint('⚠️ Silent sign-in after import failed: $e');
+        }
+      }
       await _loadInitialData();
       if (!mounted) return;
       setState(() {
-        _lastBonusPrize = snapshot.bonusPrize;
+        _busy = false;
         _lastExportedAt = snapshot.generatedAtUtc;
       });
       _showSnackBar('Backup loaded successfully.');
+      if (shouldNavigateToMain) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          widget.onClose();
+          navigator.pushAndRemoveUntil(
+            PageRouteBuilder(
+              pageBuilder: (_, __, ___) => const MainScreen(),
+              transitionsBuilder:
+                  (_, animation, __, child) =>
+                      FadeTransition(opacity: animation, child: child),
+            ),
+            (route) => false,
+          );
+        });
+      }
     } on FormatException catch (e) {
+      _setBusy(false);
       _showSnackBar('Invalid backup file: ${e.message}');
     } on UnsupportedError catch (e) {
+      _setBusy(false);
       _showSnackBar(e.message ?? 'Loading backups is not supported here.');
     } catch (e) {
+      _setBusy(false);
       _showSnackBar('Could not load backup: $e');
-    } finally {
-      if (mounted) {
-        setState(() => _busy = false);
-      }
     }
   }
 
@@ -213,14 +309,18 @@ class _ViewUserDataState extends State<ViewUserData> {
   }
 
   void _openLegacySwitcher() {
-    Navigator.of(context, rootNavigator: true).push(
-      PageRouteBuilder(
-        pageBuilder: (_, __, ___) => const LoadSaveGame(),
-        transitionsBuilder:
-            (_, animation, __, child) =>
-                FadeTransition(opacity: animation, child: child),
-      ),
-    );
+    final navigator = Navigator.of(context, rootNavigator: true);
+    widget.onClose();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      navigator.push(
+        PageRouteBuilder(
+          pageBuilder: (_, __, ___) => const LoadSaveGame(),
+          transitionsBuilder:
+              (_, animation, __, child) =>
+                  FadeTransition(opacity: animation, child: child),
+        ),
+      );
+    });
   }
 
   @override
@@ -262,7 +362,7 @@ class _ViewUserDataState extends State<ViewUserData> {
         borderRadius: const BorderRadius.all(Radius.circular(25)),
         boxShadow: const [BoxShadow(color: Colors.black)],
         border: Border.all(color: Palette.basicBitchWhite, width: 2),
-        color: Palette.monarchPurple2.withValues(alpha: 0.9),
+        color: Palette.basicBitchBlack,
       ),
       width: 320,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
@@ -278,61 +378,60 @@ class _ViewUserDataState extends State<ViewUserData> {
                 fit: BoxFit.fill,
               ),
             ),
+            // // const SizedBox(height: 12),
+            // // if (_userName != null)
+            // //   Text(
+            // //     'User Name: $_userName',
+            // //     style: Theme.of(context).textTheme.bodySmall,
+            // //     textAlign: TextAlign.center,
+            // //   ),
+            // // if (_email != null && _email!.isNotEmpty)
+            // //   Text(
+            // //     'Email: $_email',
+            // //     style: Theme.of(context).textTheme.bodySmall,
+            // //     textAlign: TextAlign.center,
+            // //   ),
+            // // if (_password != null)
+            // //   Text(
+            // //     'Password: $_password',
+            // //     style: Theme.of(context).textTheme.bodySmall,
+            // //     textAlign: TextAlign.center,
+            // //   ),
+            // // if (_identifier != null)
+            // //   Text(
+            // //     'Identifier: $_identifier',
+            // //     style: Theme.of(context).textTheme.bodySmall,
+            // //     maxLines: 1,
+            // //     overflow: TextOverflow.ellipsis,
+            // //     textAlign: TextAlign.center,
+            // //   ),
             const SizedBox(height: 12),
-            if (_userName != null)
-              Text(
-                'User Name: $_userName',
-                style: Theme.of(context).textTheme.bodySmall,
-                textAlign: TextAlign.center,
-              ),
-            if (_email != null && _email!.isNotEmpty)
-              Text(
-                'Email: $_email',
-                style: Theme.of(context).textTheme.bodySmall,
-                textAlign: TextAlign.center,
-              ),
-            if (_password != null)
-              Text(
-                'Password: $_password',
-                style: Theme.of(context).textTheme.bodySmall,
-                textAlign: TextAlign.center,
-              ),
-            if (_identifier != null)
-              Text(
-                'Identifier: $_identifier',
-                style: Theme.of(context).textTheme.bodySmall,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-              ),
-            const SizedBox(height: 12),
-            TextButton(
-              onPressed: _busy ? null : _copyUserSummary,
-              child: Text(
-                'Copy details',
-                style: TextStyle(color: Palette.basicBitchWhite),
-              ),
-            ),
+
             const SizedBox(height: 8),
             ElevatedButton.icon(
-              onPressed: _busy ? null : _handleExport,
+              onPressed: _busy || !_canExport ? null : _handleExport,
               icon: const Icon(Icons.save_alt, size: 18),
-              label: const Text('Save backup (.adhd)'),
+              label: const Text('Save backup'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Palette.basicBitchBlack,
-                foregroundColor: Palette.basicBitchWhite,
+                backgroundColor: Palette.basicBitchWhite,
+                foregroundColor: Palette.basicBitchBlack,
+                disabledBackgroundColor: Palette.basicBitchWhite,
+                disabledForegroundColor: Palette.basicBitchWhite,
               ),
             ),
             const SizedBox(height: 8),
             ElevatedButton.icon(
               onPressed: _busy ? null : _handleImport,
               icon: const Icon(Icons.folder_open, size: 18),
-              label: const Text('Load backup (.adhd)'),
+              label: const Text('Load backup'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Palette.basicBitchBlack,
-                foregroundColor: Palette.basicBitchWhite,
+                backgroundColor: Palette.basicBitchWhite.withValues(
+                  alpha: 0.90,
+                ),
+                foregroundColor: Palette.basicBitchBlack,
               ),
             ),
+
             const SizedBox(height: 12),
             SwitchListTile.adaptive(
               value: _remoteOptOut,
@@ -342,18 +441,32 @@ class _ViewUserDataState extends State<ViewUserData> {
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               subtitle: Text(
-                'Keep updates on this device only.',
+                'Keep data on this device only.',
                 style: Theme.of(
                   context,
                 ).textTheme.bodySmall?.copyWith(color: Palette.lightTeal),
               ),
               activeColor: Palette.lightTeal,
             ),
+            TextButton(
+              onPressed: _busy ? null : _copyUserSummary,
+              style: TextButton.styleFrom(
+                backgroundColor: Palette.monarchPurple1Opacity,
+                foregroundColor: Palette.basicBitchWhite,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                'Copy account details to Clipboard',
+                style: TextStyle(color: Palette.basicBitchWhite, fontSize: 12),
+              ),
+            ),
             const SizedBox(height: 8),
             OutlinedButton.icon(
               onPressed: _busy ? null : _openLegacySwitcher,
               icon: const Icon(Icons.history, size: 18),
-              label: const Text('Open legacy account switch'),
+              label: const Text('Switch using Firestore Backup'),
               style: OutlinedButton.styleFrom(
                 foregroundColor: Palette.basicBitchWhite,
                 side: BorderSide(color: Palette.basicBitchWhite),
@@ -370,6 +483,7 @@ class _ViewUserDataState extends State<ViewUserData> {
                   textAlign: TextAlign.center,
                 ),
               ),
+
             const SizedBox(height: 20),
             ConfirmButton(onPressed: _busy ? null : widget.onClose),
           ],
@@ -380,10 +494,6 @@ class _ViewUserDataState extends State<ViewUserData> {
 
   String _exportSummaryText() {
     final timestamp = _lastExportedAt?.toLocal().toIso8601String() ?? '';
-    final prizeText =
-        _lastBonusPrize != null
-            ? 'Bonus prize #${_lastBonusPrize!.prizeId} packed with this backup.'
-            : 'No bonus prize included in the last backup.';
-    return 'Last backup: $timestamp\n$prizeText';
+    return 'Last backup: $timestamp';
   }
 }

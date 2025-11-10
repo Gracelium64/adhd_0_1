@@ -14,6 +14,7 @@ import 'package:provider/provider.dart';
 import 'package:adhd_0_1/src/common/domain/skin.dart';
 import 'package:adhd_0_1/src/features/morning_greeting/domain/daily_quote_notifier.dart';
 import 'package:adhd_0_1/src/features/morning_greeting/domain/deadline_notifier.dart';
+import 'package:adhd_0_1/src/data/syncrepository.dart';
 
 class _SkinOpt {
   final bool? value;
@@ -34,6 +35,7 @@ class _SettingsState extends State<Settings> {
   Weekday? _startOfWeek;
   TimeOfDay? _startOfDay;
   bool? _appSkinColor;
+  bool _morningNotificationSilent = false;
   final GlobalKey _locationBtnKey = GlobalKey();
   final GlobalKey _weekBtnKey = GlobalKey();
   final GlobalKey _dayBtnKey = GlobalKey();
@@ -49,11 +51,13 @@ class _SettingsState extends State<Settings> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final repo = context.read<DataBaseRepository>();
       final s = await repo.getSettings();
+      final user = await repo.getAppUser();
       setState(() {
         _appSkinColor = s?.appSkinColor;
         _location = s?.location ?? 'Berlin';
         _startOfWeek = s?.startOfWeek ?? Weekday.mon;
         _startOfDay = s?.startOfDay ?? const TimeOfDay(hour: 7, minute: 15);
+        _morningNotificationSilent = user?.morningNotificationSilent ?? false;
       });
     });
   }
@@ -241,6 +245,7 @@ class _SettingsState extends State<Settings> {
       try {
         await DailyQuoteNotifier.instance.scheduleDailyQuote(
           updated.startOfDay,
+          silent: _morningNotificationSilent,
         );
       } catch (_) {}
       try {
@@ -249,6 +254,77 @@ class _SettingsState extends State<Settings> {
           repo,
         );
       } catch (_) {}
+    }
+  }
+
+  Future<void> _toggleMorningSilent(bool value) async {
+    final repo = context.read<DataBaseRepository>();
+    final previous = _morningNotificationSilent;
+    if (!mounted) return;
+    setState(() => _morningNotificationSilent = value);
+    Future<void> apply({required bool allowRepair}) async {
+      try {
+        if (repo is SyncRepository) {
+          await repo.setMorningNotificationSilent(value);
+        } else {
+          final user = await repo.getAppUser();
+          if (user != null) {
+            await repo.setAppUser(
+              user.userId,
+              user.userName,
+              user.email,
+              user.password,
+              user.isPowerUser,
+              morningNotificationSilent: value,
+            );
+          }
+        }
+        await DailyQuoteNotifier.instance.rescheduleFromRepository(repo);
+      } catch (e, stack) {
+        final message = e.toString();
+        debugPrint('⚠️ Failed to update morning silent preference: $message');
+        debugPrint(stack.toString());
+        final looksLikeNullInt = message.contains(
+          "type 'Null' is not a subtype of 'int'",
+        );
+        if (allowRepair && looksLikeNullInt) {
+          debugPrint('⚙️ Sanitizing start-of-day setting and retrying.');
+          await _repairStartOfDay(repo);
+          await apply(allowRepair: false);
+          return;
+        }
+        rethrow;
+      }
+    }
+
+    try {
+      await apply(allowRepair: true);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _morningNotificationSilent = previous);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Could not update notification preference: $e',
+            style: Theme.of(context).snackBarTheme.contentTextStyle,
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<void> _repairStartOfDay(DataBaseRepository repo) async {
+    final fallback = const TimeOfDay(hour: 7, minute: 15);
+    final current = await repo.getSettings();
+    final updated = await repo.setSettings(
+      current?.appSkinColor,
+      current?.language ?? 'English',
+      current?.location ?? 'Berlin',
+      fallback,
+      current?.startOfWeek ?? Weekday.mon,
+    );
+    if (mounted) {
+      setState(() => _startOfDay = updated.startOfDay);
     }
   }
 
@@ -328,7 +404,7 @@ class _SettingsState extends State<Settings> {
 
   @override
   Widget build(BuildContext context) {
-    // final repository = context.read<DataBaseRepository>();
+    final repository = context.read<DataBaseRepository>();
     // final auth = context.read<FirebaseAuthRepository>();
 
     OverlayPortalController overlayControllerUserData =
@@ -361,6 +437,7 @@ class _SettingsState extends State<Settings> {
                                 (_) => WeeklySummaryOverlay(
                                   prizes: weeklyPrizes,
                                   controller: overlayControllerSummery,
+                                  repository: repository,
                                 ),
                           ),
                           Row(
@@ -471,6 +548,22 @@ class _SettingsState extends State<Settings> {
                               ),
                             ],
                           ),
+                          SwitchListTile.adaptive(
+                            value: _morningNotificationSilent,
+                            onChanged: (value) => _toggleMorningSilent(value),
+                            contentPadding: EdgeInsets.zero,
+                            activeColor: Palette.lightTeal,
+                            title: Text(
+                              'Make morning notification silent',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            subtitle: Text(
+                              'Keep the daily reminder without sound.',
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: Palette.lightTeal),
+                            ),
+                          ),
+
                           // Row(
                           //   children: [
                           //     Text(
@@ -518,7 +611,7 @@ class _SettingsState extends State<Settings> {
                                   overlayControllerUserData.toggle();
                                 },
                                 child: Text(
-                                  'View User Data',
+                                  'User Data',
                                   style: Theme.of(context).textTheme.bodyMedium
                                       ?.copyWith(color: Palette.lightTeal),
                                 ),

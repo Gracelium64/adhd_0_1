@@ -68,8 +68,9 @@ abstract class DataBaseRepository {
     String userName,
     String email,
     String password,
-    bool isPowerUser,
-  );
+    bool isPowerUser, {
+    bool? morningNotificationSilent,
+  });
   Future<AppUser?> getAppUser();
   Future<void> toggleDaily(String dataTaskId, bool dataIsDone);
   Future<void> toggleWeekly(String dataTaskId, bool dataIsDone);
@@ -80,4 +81,18 @@ abstract class DataBaseRepository {
 
   /// Only applies to weekly tasks with dayOfWeek == null or 'any'
   Future<void> saveWeeklyAnyOrder(List<String> orderedTaskIds);
+
+  Future<Task> addSubTask(Task parentTask, String description);
+  Future<Task> editSubTask(
+    Task parentTask,
+    String subTaskId,
+    String description,
+  );
+  Future<Task> toggleSubTask(
+    Task parentTask,
+    String subTaskId,
+    bool isDone,
+  );
+  Future<Task> deleteSubTask(Task parentTask, String subTaskId);
+  Future<Task> replaceTask(Task originalTask, Task replacement);
 }

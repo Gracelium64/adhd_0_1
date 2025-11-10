@@ -76,8 +76,18 @@ class ResetScheduler {
           final snapPrefs = await SharedPreferences.getInstance();
           final lastDailyWeekSum = snapPrefs.getDouble('dailyWeekSum') ?? 0.0;
           final lastDailyWeekCount = snapPrefs.getInt('dailyWeekCount') ?? 0;
-          final lastWeeklyCompleted = snapPrefs.getInt('weeklyCompleted') ?? 0;
-          final lastWeeklyTotal = snapPrefs.getInt('weeklyTotal') ?? 0;
+          int lastWeeklyCompleted;
+          int lastWeeklyTotal;
+          try {
+            final weeklyTasks = await repository.getWeeklyTasks();
+            lastWeeklyTotal = weeklyTasks.length;
+            lastWeeklyCompleted =
+                weeklyTasks.where((task) => task.isDone).length;
+          } catch (e) {
+            lastWeeklyCompleted = snapPrefs.getInt('weeklyCompleted') ?? 0;
+            lastWeeklyTotal = snapPrefs.getInt('weeklyTotal') ?? 0;
+            debugPrint('Weekly snapshot fallback to stored counters: $e');
+          }
           final lastQuestCompleted = snapPrefs.getInt('questCompleted') ?? 0;
           final lastDeadlineCompleted =
               snapPrefs.getInt('deadlineCompleted') ?? 0;

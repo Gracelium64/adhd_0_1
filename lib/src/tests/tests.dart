@@ -16,7 +16,11 @@ class TestScenarios {
   /// - 80% weekly tasks completion across the week
   /// - 2 deadline tasks completed
   /// - 3 quest tasks completed
-  /// Expected prizes: 1 (daily >=75%) + 1 (weekly >=75%) + 2 + 3 = 7
+  /// Expected prizes (assuming task data reflects these ratios):
+  /// 1 (daily >=75%) + 1 (weekly >=75%) + 2 + 3 = 7
+  /// Note: Weekly completion is now derived from the live repository
+  /// tasks, so ensure the account has the desired weekly task
+  /// completions before executing this scenario.
   static Future<void> runWeeklyPrizeScenario({
     required DataBaseRepository repository,
     required OverlayPortalController controller,

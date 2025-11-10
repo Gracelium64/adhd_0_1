@@ -21,6 +21,7 @@ import 'package:adhd_0_1/src/common/domain/refresh_bus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:adhd_0_1/src/data/domain/pending_registration.dart';
 import 'package:adhd_0_1/src/common/notifications/awesome_notif_service.dart';
+import 'package:adhd_0_1/src/common/security/secure_name_manager.dart';
 
 // import 'package/flutter/foundation.dart';
 // import 'package:device_preview/device_preview.dart';
@@ -48,8 +49,9 @@ void initSyncListeners(SyncRepository repository) {
   final Connectivity connectivity = Connectivity();
 
   connectivity.onConnectivityChanged.listen((statuses) async {
-    final hasConnection =
-        statuses.any((result) => result != ConnectivityResult.none);
+    final hasConnection = statuses.any(
+      (result) => result != ConnectivityResult.none,
+    );
 
     if (hasConnection) {
       debugPrint('📶 Connectivity regained: $statuses');
@@ -204,19 +206,13 @@ Future<void> main() async {
   // One-time migration: consolidate legacy 'secure_secure_name' into 'secure_name'
   try {
     const storage = FlutterSecureStorage();
-    final legacy = await storage.read(key: 'secure_secure_name');
-    final current = await storage.read(key: 'secure_name');
-    if (legacy != null && legacy.trim().isNotEmpty) {
-      if (current == null || current.trim().isEmpty) {
-        await storage.write(key: 'secure_name', value: legacy);
-      }
-      await storage.delete(key: 'secure_secure_name');
-      debugPrint(
-        '🔧 Migrated secure_secure_name to secure_name and removed legacy key',
-      );
-    }
-  } catch (e) {
+    final secureNameManager = SecureNameManager(
+      store: FlutterSecureStorageStore(storage),
+    );
+    await secureNameManager.ensure();
+  } catch (e, stack) {
     debugPrint('⚠️ secure_name migration failed: $e');
+    debugPrint(stack.toString());
   }
 
   final auth = FirebaseAuthRepository();
@@ -234,6 +230,13 @@ Future<void> main() async {
 
   // Kick a one-time dedup pass at cold start as well (safe: mark-only)
   Future.microtask(() => repository.runOneTimeDedupMarking());
+
+  // Pull down any new remote prizes roughly once per week.
+  try {
+    await repository.syncPrizesFromRemoteWeeklyIfNeeded();
+  } catch (e) {
+    debugPrint('⚠️ Prize pull on startup failed: $e');
+  }
 
   // Sync locally won prizes to Firestore once per day at cold start.
   try {
@@ -287,30 +290,29 @@ Future<void> main() async {
   //
 
   //
-  // v.0.1.2.1 //
+  // v.0.1.2.2+ //
   //
 
-  // Test Release 2 // v.0.1.2.1.2 //
-  //TODO: confirm bug fixes with testers after deployment   // GRACE //
+  // Test Release 3 // v.0.1.2.1.3 // Ready further documents needed to apply the app to the App Store and Play Store
+  // // //TODO: sometimes the weekly summery shows 100% when not really all tasks were finished. suspecting the adding of tasks messed the calculation. instate recalculation when changing number of tasks and also when installing this update.
+  // // //TODO: save a list of which quotes have been shown already to the user in the morning notification, try to keep them at a minimum, give priority to those not yet displayed
+  // // //TODO: tasks with multiple subtasks
+  // // //TODO: enable changing task type in edit task widget
+  // // //TODO: how to save files outside of shared memory - save local backup of user data from local repository. *** works on iPhone simulator
+  // // //TODO: give user option to opt out of the sound of the morning notification through the settings menu in the form of a toggle switch
+  // // //TODO: give that option as well in the onboarding flow when choosing a start time
+  //todo: silent morning notification
+  //TODO: weather API - in another daily silent notification in the morning with a one liner and symbol for today's weather, to be timed for 5 minutes before the daily quote
 
-  // Test Release 3 //
+  // Test Release 4 // v.0.1.3 // Apply for review in App Store and Play Store
   //TODO: responsive design - accesibility big fonts    // GRACE //
   //TODO: fix bleed in dragging tasks to change order
-  //TODO: weather API
-  //TODO: cleanup - secure_name / secure_secure_name
-  // // //TODO: UNDO Button in SncakBar when completing a Quest or Deadline Tasks
   //TODO: eastereggs
   //TODO: make more AI abominations for prizes
-  //TODO: confirm bug fixes with testers after deployment
 
-  // Test Release 4 //
-  //TODO: how to save files outside of shared memory - save local backup of user data from local repository
-  //TODO: confirm bug fixes with testers after deployment
-
-  // Test Release 5 //
+  // First Update after Release // v.0.1.3.1 //
   //TODO: translations
   //TODO: repurpose FridgeLock (?)
-  //TODO: tasks with multiple subtasks
   //TODO: animated splash screen
   //TODO: confirm bug fixes with testers after deployment
 

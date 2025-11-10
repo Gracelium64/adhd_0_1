@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'dart:async';
 import 'package:adhd_0_1/src/data/domain/firestore_initializer.dart';
+import 'package:adhd_0_1/src/data/domain/prefs_keys.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/app_bg_coldstart.dart';
 import 'package:adhd_0_1/src/main_screen.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
@@ -84,6 +85,10 @@ class _OnboardingCompletionState extends State<OnboardingCompletion> {
                                   await SharedPreferences.getInstance();
                               debugPrint('🧭 Setting onboardingComplete=true');
                               await prefs.setBool('onboardingComplete', true);
+                              await prefs.setBool(
+                                PrefsKeys.postRegistrationPrefsPendingKey,
+                                true,
+                              );
 
                               final storage = FlutterSecureStorage();
                               String? userId = await storage.read(
@@ -140,6 +145,10 @@ class _OnboardingCompletionState extends State<OnboardingCompletion> {
                                   await SharedPreferences.getInstance();
                               debugPrint('🧭 Setting onboardingComplete=true');
                               await prefs.setBool('onboardingComplete', true);
+                              await prefs.setBool(
+                                PrefsKeys.postRegistrationPrefsPendingKey,
+                                true,
+                              );
 
                               final storage = FlutterSecureStorage();
                               String? userId = await storage.read(

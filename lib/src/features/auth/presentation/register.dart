@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:adhd_0_1/src/features/user_data_portal/presentation/view_user_data.dart';
 import 'package:provider/provider.dart';
+import 'package:adhd_0_1/src/common/security/secure_name_manager.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key});
@@ -41,12 +42,6 @@ class _RegisterState extends State<Register> {
     final now = DateTime.now().microsecondsSinceEpoch;
     final random = 10000000 + (now % 90000000);
     return random;
-  }
-
-  String extractBaseName(String input) {
-    final idx = input.indexOf('_');
-    if (idx <= 0) return input;
-    return input.substring(0, idx);
   }
 
   final formKey = GlobalKey<FormState>();
@@ -178,7 +173,7 @@ class _RegisterState extends State<Register> {
                             );
                             await storage.write(
                               key: 'secure_name',
-                              value: extractBaseName(userId),
+                              value: SecureNameManager.deriveSecureName(userId),
                             );
                             final name =
                                 await storage.read(key: 'name') ?? 'No User';

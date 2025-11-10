@@ -104,6 +104,7 @@ class UserDataService {
         user.email,
         user.password,
         user.isPowerUser,
+        morningNotificationSilent: user.morningNotificationSilent,
       );
     }
 

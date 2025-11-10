@@ -6,10 +6,14 @@ import 'package:adhd_0_1/src/common/domain/settings.dart';
 import 'package:adhd_0_1/src/common/domain/app_user.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/data/domain/prize_manager.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class _FakeRepo implements DataBaseRepository {
+  List<Task> weeklyTasks = <Task>[];
+  List<Task> dailyTasks = <Task>[];
+
   @override
   Future<void> addDaily(String data) async {}
   @override
@@ -41,7 +45,7 @@ class _FakeRepo implements DataBaseRepository {
   @override
   Future<void> editWeekly(String dataTaskId, String data, day) async {}
   @override
-  Future<List<Task>> getDailyTasks() async => <Task>[];
+  Future<List<Task>> getDailyTasks() async => dailyTasks;
   @override
   Future<List<Task>> getDeadlineTasks() async => <Task>[];
   @override
@@ -51,20 +55,26 @@ class _FakeRepo implements DataBaseRepository {
   @override
   Future<Settings?> getSettings() async => null;
   @override
-  Future<Settings> setSettings(bool? a, String b, String c, start, d) async =>
-      throw UnimplementedError();
+  Future<Settings> setSettings(
+    bool? dataAppSkinColor,
+    String dataLanguage,
+    String dataLocation,
+    TimeOfDay dataStartOfDay,
+    Weekday dataStartOfWeek,
+  ) async => throw UnimplementedError();
   @override
   Future<void> setAppUser(
     String userId,
-    userName,
-    email,
-    password,
-    bool isPowerUser,
-  ) async {}
+    String userName,
+    String email,
+    String password,
+    bool isPowerUser, {
+    bool? morningNotificationSilent,
+  }) async {}
   @override
   Future<AppUser?> getAppUser() async => null;
   @override
-  Future<List<Task>> getWeeklyTasks() async => <Task>[];
+  Future<List<Task>> getWeeklyTasks() async => weeklyTasks;
   @override
   Future<void> toggleDaily(String dataTaskId, bool dataIsDone) async {}
   @override
@@ -75,6 +85,27 @@ class _FakeRepo implements DataBaseRepository {
   Future<void> saveQuestOrder(List<String> orderedTaskIds) async {}
   @override
   Future<void> saveWeeklyAnyOrder(List<String> orderedTaskIds) async {}
+  @override
+  Future<Task> addSubTask(Task parentTask, String description) async =>
+      parentTask;
+  @override
+  Future<Task> editSubTask(
+    Task parentTask,
+    String subTaskId,
+    String description,
+  ) async => parentTask;
+  @override
+  Future<Task> toggleSubTask(
+    Task parentTask,
+    String subTaskId,
+    bool isDone,
+  ) async => parentTask;
+  @override
+  Future<Task> deleteSubTask(Task parentTask, String subTaskId) async =>
+      parentTask;
+  @override
+  Future<Task> replaceTask(Task originalTask, Task replacement) async =>
+      replacement;
 }
 
 void main() {
@@ -104,6 +135,18 @@ void main() {
         await prefs.setInt('deadlineCompleted', 1);
 
         final repo = _FakeRepo();
+        repo.weeklyTasks = List.generate(
+          10,
+          (index) => Task(
+            'w$index',
+            'weekly',
+            'Task $index',
+            null,
+            null,
+            null,
+            index < 7,
+          ),
+        );
         final pm = PrizeManager(repo);
         final prizes = await pm.awardWeeklyPrizes();
 
@@ -125,6 +168,18 @@ void main() {
         await prefs.setInt('deadlineCompleted', 0);
 
         final repo = _FakeRepo();
+        repo.weeklyTasks = List.generate(
+          4,
+          (index) => Task(
+            'w$index',
+            'weekly',
+            'Task $index',
+            null,
+            null,
+            null,
+            index < 3,
+          ),
+        );
         final pm = PrizeManager(repo);
         final prizes = await pm.awardWeeklyPrizes();
 
@@ -146,5 +201,24 @@ void main() {
       expect(prefs.getInt('dailyWeekCount') ?? 0, 0);
       expect(prefs.getBool('weeklyRewardGiven') ?? false, false);
     });
+
+    test(
+      'trackWeeklyCompletion reflects current repo state when toggled off',
+      () async {
+        final prefs = await SharedPreferences.getInstance();
+        final repo = _FakeRepo();
+        repo.weeklyTasks = [
+          Task('w1', 'weekly', 'Done task', null, null, null, true),
+          Task('w2', 'weekly', 'Pending task', null, null, null, false),
+          Task('w3', 'weekly', 'Another pending task', null, null, null, false),
+        ];
+        final pm = PrizeManager(repo);
+
+        await pm.trackWeeklyCompletion(false);
+
+        expect(prefs.getInt('weeklyTotal'), 3);
+        expect(prefs.getInt('weeklyCompleted'), 1);
+      },
+    );
   });
 }

@@ -41,12 +41,25 @@ class PrizeManager {
 
   Future<void> trackWeeklyCompletion(bool isDone) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('weeklyTotal', (prefs.getInt('weeklyTotal') ?? 0) + 1);
-    if (isDone) {
+    try {
+      final tasks = await repository.getWeeklyTasks();
+      final total = tasks.length;
+      final completed = tasks.where((task) => task.isDone).length;
+      await prefs.setInt('weeklyTotal', total);
+      await prefs.setInt('weeklyCompleted', completed);
+    } catch (e) {
+      // Preserve legacy behaviour as a fallback if repository access fails.
       await prefs.setInt(
-        'weeklyCompleted',
-        (prefs.getInt('weeklyCompleted') ?? 0) + 1,
+        'weeklyTotal',
+        (prefs.getInt('weeklyTotal') ?? 0) + 1,
       );
+      if (isDone) {
+        await prefs.setInt(
+          'weeklyCompleted',
+          (prefs.getInt('weeklyCompleted') ?? 0) + 1,
+        );
+      }
+      debugPrint('trackWeeklyCompletion fallback path triggered: $e');
     }
   }
 
@@ -90,8 +103,21 @@ class PrizeManager {
     final dailyAvg =
         dailyWeekCount == 0 ? 0.0 : (dailyWeekSum / dailyWeekCount);
 
-    final weeklyTotal = prefs.getInt('weeklyTotal') ?? 1;
-    final weeklyCompleted = prefs.getInt('weeklyCompleted') ?? 0;
+    int weeklyTotal = 0;
+    int weeklyCompleted = 0;
+    try {
+      final weeklyTasks = await repository.getWeeklyTasks();
+      weeklyTotal = weeklyTasks.length;
+      weeklyCompleted = weeklyTasks.where((task) => task.isDone).length;
+      await prefs.setInt('weeklyTotal', weeklyTotal);
+      await prefs.setInt('weeklyCompleted', weeklyCompleted);
+    } catch (e) {
+      weeklyTotal = prefs.getInt('weeklyTotal') ?? 0;
+      weeklyCompleted = prefs.getInt('weeklyCompleted') ?? 0;
+      debugPrint(
+        'awardWeeklyPrizes using stored weekly counters due to error: $e',
+      );
+    }
     final questCount = prefs.getInt('questCompleted') ?? 0;
     final deadlineCount = prefs.getInt('deadlineCompleted') ?? 0;
 
@@ -99,11 +125,13 @@ class PrizeManager {
     final awarded = <Prizes>[];
 
     if (dailyAvg >= 0.75) prizesToGive++;
-    if ((weeklyCompleted / weeklyTotal) >= 0.75) prizesToGive++;
+    if (weeklyTotal > 0 && (weeklyCompleted / weeklyTotal) >= 0.75) {
+      prizesToGive++;
+    }
     prizesToGive += questCount + deadlineCount;
 
     // Debug: log calculation (temporary)
-    
+
     debugPrint(
       '[PrizeManager] dailyAvg: ${dailyAvg.toStringAsFixed(2)} (sum=$dailyWeekSum, n=$dailyWeekCount), weekly: '
       '$weeklyCompleted/$weeklyTotal, quest: $questCount, deadline: $deadlineCount, '

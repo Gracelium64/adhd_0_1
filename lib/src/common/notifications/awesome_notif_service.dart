@@ -6,9 +6,11 @@ class AwesomeNotifService {
   static final AwesomeNotifService instance = AwesomeNotifService._();
 
   static const String dailyChannelKey = 'daily_quote_channel_v3';
+  static const String dailyChannelSilentKey = 'daily_quote_channel_v3_silent';
   static const String deadlineChannelKey = 'deadline_alerts_channel_v4';
   static const String dailyGroupKey = 'group_daily_quote';
   static const String deadlineGroupKey = 'group_deadline_alerts';
+
 
   Future<void> init() async {
     await AwesomeNotifications().initialize(
@@ -27,6 +29,16 @@ class AwesomeNotifService {
           // Awesome iOS resolves resource sounds as AIFF by name (no extension)
           // Ensure a my_sound.aiff exists in the app bundle
           soundSource: 'resource://raw/my_sound',
+        ),
+        NotificationChannel(
+          channelKey: dailyChannelSilentKey,
+          channelName: 'Daily Quotes (Silent)',
+          channelDescription: 'Daily tip of the day without sound',
+          importance: NotificationImportance.Default,
+          defaultRingtoneType: DefaultRingtoneType.Notification,
+          ledColor: null,
+          playSound: false,
+          enableVibration: false,
         ),
         NotificationChannel(
           channelKey: deadlineChannelKey,
@@ -109,6 +121,10 @@ class AwesomeNotifService {
 
   Future<void> cancel(int id) async {
     await AwesomeNotifications().cancel(id);
+    try {
+      // Ensure scheduled notifications with this id are also removed.
+      await AwesomeNotifications().cancelSchedule(id);
+    } catch (_) {}
   }
 
   Future<void> schedulePersistentAt({

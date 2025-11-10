@@ -14,6 +14,7 @@ import 'package:adhd_0_1/src/features/tutorial/presentation/tutorial.dart';
 import 'package:adhd_0_1/src/features/tasks_weeklys/presentation/weeklys.dart';
 import 'package:adhd_0_1/src/features/weekly_summery/presentation/widgets/weekly_summery_overlay.dart';
 import 'package:adhd_0_1/src/features/morning_greeting/presentation/widgets/daily_start_overlay.dart';
+import 'package:adhd_0_1/src/features/morning_greeting/domain/daily_quote_notifier.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -23,6 +24,7 @@ import 'package:adhd_0_1/src/common/domain/refresh_bus.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:adhd_0_1/src/common/domain/progress_triggers.dart';
+import 'package:adhd_0_1/src/data/domain/prefs_keys.dart';
 
 class MainScreen extends StatefulWidget {
   final bool showTutorial;
@@ -31,6 +33,16 @@ class MainScreen extends StatefulWidget {
 
   @override
   State<MainScreen> createState() => _MainScreenState();
+}
+
+class _PostRegistrationPrefsResult {
+  const _PostRegistrationPrefsResult({
+    required this.remoteOptOut,
+    required this.silent,
+  });
+
+  final bool remoteOptOut;
+  final bool silent;
 }
 
 class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
@@ -54,6 +66,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       if (widget.showTutorial) {
         overlayControllerTutorial.show();
       }
+      unawaited(_maybeShowPostRegistrationDialog());
     });
     performResetsIfNeeded();
     _startDayWatcher();
@@ -83,6 +96,150 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         await performResetsIfNeeded();
       }
     });
+  }
+
+  Future<void> _maybeShowPostRegistrationDialog() async {
+    final prefs = await SharedPreferences.getInstance();
+    final pending =
+        prefs.getBool(PrefsKeys.postRegistrationPrefsPendingKey) ?? false;
+    if (!pending || !mounted) return;
+
+    final repoBase = context.read<DataBaseRepository>();
+    final syncRepo = repoBase is SyncRepository ? repoBase : null;
+
+    bool remoteOptOut = false;
+    try {
+      if (syncRepo != null) {
+        remoteOptOut = await syncRepo.getRemoteWriteOptOut();
+      }
+    } catch (_) {}
+
+    bool silentPref = false;
+    try {
+      final user = await repoBase.getAppUser();
+      silentPref = user?.morningNotificationSilent ?? false;
+    } catch (_) {}
+
+    if (!mounted) return;
+    var optOutValue = remoteOptOut;
+    var silentValue = silentPref;
+
+    final result = await showDialog<_PostRegistrationPrefsResult>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: Palette.monarchPurple2,
+              title: Text(
+                'Set up your backups',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SwitchListTile.adaptive(
+                    value: optOutValue,
+                    onChanged: (value) => setState(() => optOutValue = value),
+                    contentPadding: EdgeInsets.zero,
+                    activeColor: Palette.lightTeal,
+                    title: Text(
+                      'Opt out of Firebase backup',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    subtitle: Text(
+                      'Keep everything on this device only.',
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Palette.lightTeal),
+                    ),
+                  ),
+                  SwitchListTile.adaptive(
+                    value: silentValue,
+                    onChanged: (value) => setState(() => silentValue = value),
+                    contentPadding: EdgeInsets.zero,
+                    activeColor: Palette.lightTeal,
+                    title: Text(
+                      'Make morning notification silent',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    subtitle: Text(
+                      'Still get the reminder, just without sound.',
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Palette.lightTeal),
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(null),
+                  child: Text(
+                    'Maybe later',
+                    style: TextStyle(color: Palette.basicBitchWhite),
+                  ),
+                ),
+                TextButton(
+                  onPressed:
+                      () => Navigator.of(ctx).pop(
+                        _PostRegistrationPrefsResult(
+                          remoteOptOut: optOutValue,
+                          silent: silentValue,
+                        ),
+                      ),
+                  child: Text(
+                    'Save',
+                    style: TextStyle(color: Palette.lightTeal),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    await prefs.setBool(PrefsKeys.postRegistrationPrefsPendingKey, false);
+
+    if (!mounted || result == null) return;
+
+    try {
+      if (syncRepo != null) {
+        if (result.remoteOptOut != remoteOptOut) {
+          await syncRepo.setRemoteWriteOptOut(result.remoteOptOut);
+        }
+        if (result.silent != silentPref) {
+          await syncRepo.setMorningNotificationSilent(result.silent);
+        }
+      } else {
+        if (result.silent != silentPref) {
+          final user = await repoBase.getAppUser();
+          if (user != null) {
+            await repoBase.setAppUser(
+              user.userId,
+              user.userName,
+              user.email,
+              user.password,
+              user.isPowerUser,
+              morningNotificationSilent: result.silent,
+            );
+          }
+        }
+      }
+      await DailyQuoteNotifier.instance.rescheduleFromRepository(repoBase);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Could not update preferences: $e',
+            style: Theme.of(context).snackBarTheme.contentTextStyle,
+          ),
+        ),
+      );
+    }
   }
 
   Future<void> performResetsIfNeeded() async {
@@ -252,6 +409,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
               key: UniqueKey(),
               prizes: weeklyPrizes,
               controller: overlayControllerSummery,
+              repository: repository,
             );
           },
         ),

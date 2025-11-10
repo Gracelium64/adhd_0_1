@@ -231,10 +231,26 @@ class FirestoreRepository implements DataBaseRepository {
         .doc(userId)
         .collection('deadlineTasks')
         .doc(docId);
-    await docRef.update({'isDone': true});
-    await docRef.delete();
+    var completed = false;
+    await fs.runTransaction((tx) async {
+      final snap = await tx.get(docRef);
+      if (!snap.exists) return;
+      final raw = snap.data();
+      if (raw != null) {
+        final task = Task.fromMap(Map<String, dynamic>.from(raw));
+        final hasIncomplete =
+            task.subTasks.isNotEmpty && task.subTasks.any((s) => !s.isDone);
+        if (hasIncomplete) {
+          throw StateError('Cannot complete task with incomplete subtasks');
+        }
+      }
+      tx.delete(docRef);
+      completed = true;
+    });
 
-    await PrizeManager(this).incrementDeadlineCounter();
+    if (completed) {
+      await PrizeManager(this).incrementDeadlineCounter();
+    }
   }
 
   @override
@@ -247,10 +263,26 @@ class FirestoreRepository implements DataBaseRepository {
         .doc(userId)
         .collection('questTasks')
         .doc(docId);
-    await docRef.update({'isDone': true});
-    await docRef.delete();
+    var completed = false;
+    await fs.runTransaction((tx) async {
+      final snap = await tx.get(docRef);
+      if (!snap.exists) return;
+      final raw = snap.data();
+      if (raw != null) {
+        final task = Task.fromMap(Map<String, dynamic>.from(raw));
+        final hasIncomplete =
+            task.subTasks.isNotEmpty && task.subTasks.any((s) => !s.isDone);
+        if (hasIncomplete) {
+          throw StateError('Cannot complete task with incomplete subtasks');
+        }
+      }
+      tx.delete(docRef);
+      completed = true;
+    });
 
-    await PrizeManager(this).incrementQuestCounter();
+    if (completed) {
+      await PrizeManager(this).incrementQuestCounter();
+    }
   }
 
   @override
@@ -626,23 +658,59 @@ class FirestoreRepository implements DataBaseRepository {
     final data = query.data();
     if (data == null) return null;
 
-    return Settings.fromMap(data);
+    try {
+      return Settings.fromMap(data);
+    } catch (e, stack) {
+      debugPrint('⚠️ Firestore settings invalid, using defaults: $e');
+      debugPrint(stack.toString());
+      final bool? skin =
+          data['appSkinColor'] is bool ? data['appSkinColor'] as bool : null;
+      final String language =
+          data['language'] is String ? data['language'] as String : 'English';
+      final String location =
+          data['location'] is String ? data['location'] as String : 'Berlin';
+      final String? startOfWeekRaw = data['startOfWeek'] as String?;
+      final Weekday startOfWeek =
+          startOfWeekRaw != null
+              ? Weekday.values.firstWhere(
+                (w) => w.name == startOfWeekRaw,
+                orElse: () => Weekday.mon,
+              )
+              : Weekday.mon;
+      final Settings fallback = Settings(
+        appSkinColor: skin,
+        language: language,
+        location: location,
+        startOfDay: const TimeOfDay(hour: 7, minute: 15),
+        startOfWeek: startOfWeek,
+      );
+      return fallback;
+    }
   }
 
   @override
   Future<void> setAppUser(
     String userId,
-    userName,
-    email,
-    password,
-    bool isPowerUser,
-  ) async {
+    String userName,
+    String email,
+    String password,
+    bool isPowerUser, {
+    bool? morningNotificationSilent,
+  }) async {
+    bool silent = morningNotificationSilent ?? false;
+    if (morningNotificationSilent == null) {
+      try {
+        final existing = await getAppUser();
+        silent = existing?.morningNotificationSilent ?? false;
+      } catch (_) {}
+    }
     final AppUser user = AppUser(
       userId: userId,
       userName: userName,
       email: email,
       password: password,
       isPowerUser: isPowerUser,
+      morningNotificationSilent: silent,
     );
 
     final uid = FirebaseAuth.instance.currentUser?.uid;
@@ -663,6 +731,7 @@ class FirestoreRepository implements DataBaseRepository {
       'userName': user.userName,
       'email': user.email,
       'isPowerUser': user.isPowerUser,
+      'morningNotificationSilent': user.morningNotificationSilent,
       'ownerUid': uid,
       if (savedPassword != null && savedPassword.isNotEmpty)
         'ownerPassword': savedPassword,
@@ -687,12 +756,14 @@ class FirestoreRepository implements DataBaseRepository {
         (data['userName'] as String?) ??
         (await storage.read(key: 'name') ?? userId);
     final isPowerUser = (data['isPowerUser'] as bool?) ?? false;
+    final morningSilent = (data['morningNotificationSilent'] as bool?) ?? false;
     return AppUser(
       userId: userId,
       userName: userName,
       email: email,
       password: password,
       isPowerUser: isPowerUser,
+      morningNotificationSilent: morningSilent,
     );
   }
 
@@ -707,6 +778,82 @@ class FirestoreRepository implements DataBaseRepository {
     }, SetOptions(merge: true));
   }
 
+  String _collectionForCategory(String category) {
+    switch (category.toLowerCase()) {
+      case 'daily':
+        return 'dailyTasks';
+      case 'weekly':
+        return 'weeklyTasks';
+      case 'deadline':
+        return 'deadlineTasks';
+      case 'quest':
+        return 'questTasks';
+    }
+    throw UnsupportedError('Unsupported task category $category');
+  }
+
+  @override
+  Future<Task> addSubTask(Task parentTask, String description) {
+    throw UnsupportedError(
+      'Direct subtask mutations should go through SyncRepository/local store first.',
+    );
+  }
+
+  @override
+  Future<Task> editSubTask(
+    Task parentTask,
+    String subTaskId,
+    String description,
+  ) {
+    throw UnsupportedError(
+      'Direct subtask mutations should go through SyncRepository/local store first.',
+    );
+  }
+
+  @override
+  Future<Task> toggleSubTask(
+    Task parentTask,
+    String subTaskId,
+    bool isDone,
+  ) {
+    throw UnsupportedError(
+      'Direct subtask mutations should go through SyncRepository/local store first.',
+    );
+  }
+
+  @override
+  Future<Task> deleteSubTask(Task parentTask, String subTaskId) {
+    throw UnsupportedError(
+      'Direct subtask mutations should go through SyncRepository/local store first.',
+    );
+  }
+
+  @override
+  Future<Task> replaceTask(Task originalTask, Task replacement) async {
+    final String? userId = await loadUserId();
+    if (userId == null) throw Exception('User ID not found');
+
+    await _ensureUserDoc(userId);
+
+    final sourceCollection = _collectionForCategory(originalTask.taskCatagory);
+    final targetCollection = _collectionForCategory(replacement.taskCatagory);
+    final docId = _extractCounterPrefix(originalTask.taskId);
+    final userRef = fs.collection('users').doc(userId);
+
+    if (sourceCollection == targetCollection) {
+      final docRef = userRef.collection(sourceCollection).doc(docId);
+      await docRef.set(replacement.toMap());
+      return replacement;
+    }
+
+    final sourceRef = userRef.collection(sourceCollection).doc(docId);
+    await sourceRef.delete();
+
+    final targetRef = userRef.collection(targetCollection).doc(docId);
+    await targetRef.set(replacement.toMap());
+    return replacement;
+  }
+
   @override
   Future<void> toggleDaily(String dataTaskId, bool dataIsDone) async {
     final String? userId = await loadUserId();
@@ -717,9 +864,47 @@ class FirestoreRepository implements DataBaseRepository {
         .doc(userId)
         .collection('dailyTasks')
         .doc(docId);
-    await docRef.update({'isDone': dataIsDone});
+    var updated = false;
+    await fs.runTransaction((tx) async {
+      final snap = await tx.get(docRef);
+      if (!snap.exists) {
+        tx.set(docRef, {
+          'isDone': dataIsDone,
+          'subTasks': const <Map<String, dynamic>>[],
+        });
+        updated = true;
+        return;
+      }
+      final raw = snap.data();
+      if (raw == null) {
+        tx.update(docRef, {'isDone': dataIsDone});
+        updated = true;
+        return;
+      }
+      final task = Task.fromMap(Map<String, dynamic>.from(raw));
+      if (dataIsDone) {
+        final hasIncomplete =
+            task.subTasks.isNotEmpty && task.subTasks.any((s) => !s.isDone);
+        if (hasIncomplete) {
+          throw StateError('Cannot complete task with incomplete subtasks');
+        }
+        task.isDone = true;
+      } else {
+        task.isDone = false;
+        for (final subTask in task.subTasks) {
+          subTask.isDone = false;
+        }
+      }
+      tx.update(docRef, {
+        'isDone': task.isDone,
+        'subTasks': task.subTasks.map((s) => s.toJson()).toList(),
+      });
+      updated = true;
+    });
 
-    await PrizeManager(this).trackDailyCompletion(dataIsDone);
+    if (updated) {
+      await PrizeManager(this).trackDailyCompletion(dataIsDone);
+    }
   }
 
   @override
@@ -732,9 +917,47 @@ class FirestoreRepository implements DataBaseRepository {
         .doc(userId)
         .collection('weeklyTasks')
         .doc(docId);
-    await docRef.update({'isDone': dataIsDone});
+    var updated = false;
+    await fs.runTransaction((tx) async {
+      final snap = await tx.get(docRef);
+      if (!snap.exists) {
+        tx.set(docRef, {
+          'isDone': dataIsDone,
+          'subTasks': const <Map<String, dynamic>>[],
+        });
+        updated = true;
+        return;
+      }
+      final raw = snap.data();
+      if (raw == null) {
+        tx.update(docRef, {'isDone': dataIsDone});
+        updated = true;
+        return;
+      }
+      final task = Task.fromMap(Map<String, dynamic>.from(raw));
+      if (dataIsDone) {
+        final hasIncomplete =
+            task.subTasks.isNotEmpty && task.subTasks.any((s) => !s.isDone);
+        if (hasIncomplete) {
+          throw StateError('Cannot complete task with incomplete subtasks');
+        }
+        task.isDone = true;
+      } else {
+        task.isDone = false;
+        for (final subTask in task.subTasks) {
+          subTask.isDone = false;
+        }
+      }
+      tx.update(docRef, {
+        'isDone': task.isDone,
+        'subTasks': task.subTasks.map((s) => s.toJson()).toList(),
+      });
+      updated = true;
+    });
 
-    await PrizeManager(this).trackWeeklyCompletion(dataIsDone);
+    if (updated) {
+      await PrizeManager(this).trackWeeklyCompletion(dataIsDone);
+    }
   }
 }
 

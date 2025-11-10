@@ -12,6 +12,7 @@ import 'package:adhd_0_1/src/common/notifications/awesome_notif_service.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DailyQuoteNotifier {
   DailyQuoteNotifier._();
@@ -19,12 +20,16 @@ class DailyQuoteNotifier {
 
   // Centralized channel metadata (easy to change before release)
   static const String _channelId = 'daily_quote_channel_v3';
+  static const String _silentChannelId = 'daily_quote_channel_v3_silent';
   static const String _channelName = 'Daily Quotes';
   static const String _channelDescription =
       'Daily tip of the day notification at startOfDay';
+  static const String _quoteHistoryKey = 'daily_quote_history_v1';
+  static const int _quoteHistoryLimit = 100;
 
   final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
+  final Random _random = Random();
 
   bool _initialized = false;
   bool _scheduling = false;
@@ -78,6 +83,19 @@ class DailyQuoteNotifier {
         >()
         ?.createNotificationChannel(channel);
 
+    const AndroidNotificationChannel silentChannel = AndroidNotificationChannel(
+      _silentChannelId,
+      'Daily Quotes (Silent)',
+      description: 'Daily tip of the day notification at startOfDay (silent)',
+      importance: Importance.defaultImportance,
+      playSound: false,
+    );
+    await _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >()
+        ?.createNotificationChannel(silentChannel);
+
     _initialized = true;
   }
 
@@ -94,12 +112,13 @@ class DailyQuoteNotifier {
         ?.requestPermissions(alert: true, badge: true, sound: true);
   }
 
-  Future<void> scheduleDailyQuote(TimeOfDay time) async {
+  Future<void> scheduleDailyQuote(TimeOfDay time, {bool silent = false}) async {
     if (_scheduling) {
       debugPrint('[DailyQuoteNotifier] schedule already in progress; skipping');
       return;
     }
     _scheduling = true;
+    final quote = await _pickQuote();
     try {
       await init();
       // Ensure permissions are granted (Android 13+/iOS)
@@ -125,6 +144,12 @@ class DailyQuoteNotifier {
       try {
         await AwesomeNotifService.instance.cancel(1001);
       } catch (_) {}
+      try {
+        await _plugin.cancel(1001);
+      } catch (_) {}
+
+      final int hour = time.hour.clamp(0, 23).toInt();
+      final int minute = time.minute.clamp(0, 59).toInt();
 
       final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
       // Candidate next occurrence today at chosen hh:mm; if it already passed, move to tomorrow
@@ -133,35 +158,92 @@ class DailyQuoteNotifier {
         now.year,
         now.month,
         now.day,
-        time.hour,
-        time.minute,
+        hour,
+        minute,
       );
       if (!next.isAfter(now)) {
         next = next.add(const Duration(days: 1));
       }
 
-      // Pick a random quote without quotes
-      final quote = _randomQuote();
-
-      // iOS time sensitive intention is implied by category/reminder; channel sound is set in AwesomeNotifService
-
-      try {
-        // Use Awesome Notifications daily repeating schedule (reboot persistent)
-        await AwesomeNotifService.instance.scheduleDailyRepeating(
-          id: 1001,
-          hour: time.hour,
-          minute: time.minute,
-          title: 'Good morning',
-          body: quote,
-          payload: {'route': 'dailys'},
-          channelKey: AwesomeNotifService.dailyChannelKey,
-          groupKey: AwesomeNotifService.dailyGroupKey,
-          // Daily quote likely dismissible and not locked
-          locked: false,
-          autoDismissible: true,
+      if (silent) {
+        final NotificationDetails details = NotificationDetails(
+          android: AndroidNotificationDetails(
+            _silentChannelId,
+            'Daily Quotes (Silent)',
+            channelDescription:
+                'Daily tip of the day notification at startOfDay (silent)',
+            importance: Importance.high,
+            priority: Priority.high,
+            playSound: false,
+            enableVibration: false,
+          ),
+          iOS: const DarwinNotificationDetails(presentSound: false),
         );
-      } on PlatformException catch (e) {
-        debugPrint('Schedule failed (${e.code}): ${e.message}.');
+        try {
+          await _plugin.zonedSchedule(
+            1001,
+            'Good morning',
+            quote,
+            next,
+            details,
+            payload: 'dailys',
+            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+            uiLocalNotificationDateInterpretation:
+                UILocalNotificationDateInterpretation.absoluteTime,
+            matchDateTimeComponents: DateTimeComponents.time,
+          );
+        } catch (e, stack) {
+          debugPrint(
+            '⚠️ Failed to schedule silent daily quote notification: $e',
+          );
+          debugPrint(stack.toString());
+          rethrow;
+        }
+      } else {
+        final String channelKey = AwesomeNotifService.dailyChannelKey;
+        // iOS time sensitive intention is implied by category/reminder; channel sound is set in AwesomeNotifService
+        try {
+          // Use Awesome Notifications daily repeating schedule (reboot persistent)
+          await AwesomeNotifService.instance.scheduleDailyRepeating(
+            id: 1001,
+            hour: hour,
+            minute: minute,
+            title: 'Good morning',
+            body: quote,
+            payload: {'route': 'dailys'},
+            channelKey: channelKey,
+            groupKey: AwesomeNotifService.dailyGroupKey,
+            // Daily quote likely dismissible and not locked
+            locked: false,
+            autoDismissible: true,
+          );
+        } on PlatformException catch (e) {
+          debugPrint('Schedule failed (${e.code}): ${e.message}.');
+          rethrow;
+        } on TypeError catch (e, stack) {
+          debugPrint(
+            '⚠️ Invalid time components when scheduling daily quote: $e',
+          );
+          debugPrint(stack.toString());
+          const fallbackHour = 7;
+          const fallbackMinute = 15;
+          debugPrint(
+            '[DailyQuoteNotifier] Falling back to default time '
+            '$fallbackHour:$fallbackMinute for daily quote schedule.',
+          );
+          await AwesomeNotifService.instance.scheduleDailyRepeating(
+            id: 1001,
+            hour: fallbackHour,
+            minute: fallbackMinute,
+            title: 'Good morning',
+            body: quote,
+            payload: {'route': 'dailys'},
+            channelKey: channelKey,
+            groupKey: AwesomeNotifService.dailyGroupKey,
+            locked: false,
+            autoDismissible: true,
+          );
+        }
       }
 
       // Print pending notifications for diagnostics
@@ -178,7 +260,7 @@ class DailyQuoteNotifier {
   Future<void> showTestNow() async {
     await init();
     await requestPermissions();
-    final quote = _randomQuote();
+    final quote = await _pickQuote();
     await AwesomeNotifService.instance.showPersistent(
       channelKey: AwesomeNotifService.dailyChannelKey,
       id: 2002,
@@ -252,16 +334,96 @@ class DailyQuoteNotifier {
   }
 
   Future<void> rescheduleFromRepository(DataBaseRepository repo) async {
-    final settings = await repo.getSettings();
-    final t = settings?.startOfDay ?? const TimeOfDay(hour: 7, minute: 15);
-    await scheduleDailyQuote(t);
+    TimeOfDay scheduleTime = const TimeOfDay(hour: 7, minute: 15);
+    try {
+      final settings = await repo.getSettings();
+      if (settings != null) {
+        scheduleTime = TimeOfDay(
+          hour: settings.startOfDay.hour,
+          minute: settings.startOfDay.minute,
+        );
+      }
+    } catch (e, stack) {
+      debugPrint(
+        '⚠️ Failed to load startOfDay from repository, using default: $e',
+      );
+      debugPrint(stack.toString());
+    }
+
+    bool silent = false;
+    try {
+      final user = await repo.getAppUser();
+      silent = user?.morningNotificationSilent ?? false;
+    } catch (e, stack) {
+      debugPrint(
+        '⚠️ Failed to load user preference for silent notifications: $e',
+      );
+      debugPrint(stack.toString());
+    }
+
+    await scheduleDailyQuote(scheduleTime, silent: silent);
   }
 
-  String _randomQuote() {
+  @visibleForTesting
+  Future<String> debugPickQuote({Random? random}) => _pickQuote(random: random);
+
+  Future<String> _pickQuote({Random? random}) async {
+    final rng = random ?? _random;
     if (tipOfTheDay.isEmpty) return 'Mood is for love play and cattle.';
-    final rnd = Random();
-    final s = tipOfTheDay[rnd.nextInt(tipOfTheDay.length)];
-    // strip surrounding quotes if any; and trim
-    return s.replaceAll('"', '').trim();
+
+    SharedPreferences? prefs;
+    try {
+      prefs = await SharedPreferences.getInstance();
+    } catch (e, stack) {
+      debugPrint('⚠️ Failed to access SharedPreferences for quote history: $e');
+      debugPrint(stack.toString());
+    }
+
+    final totalQuotes = tipOfTheDay.length;
+    final history = <int>[];
+    final seen = <int>{};
+
+    if (prefs != null) {
+      final rawHistory = prefs.getStringList(_quoteHistoryKey) ?? const [];
+      for (final entry in rawHistory) {
+        final parsed = int.tryParse(entry);
+        if (parsed == null) continue;
+        if (parsed < 0 || parsed >= totalQuotes) continue;
+        if (seen.add(parsed)) history.add(parsed);
+      }
+    }
+
+    final unseen = <int>[];
+    for (int i = 0; i < totalQuotes; i++) {
+      if (!seen.contains(i)) unseen.add(i);
+    }
+
+    int chosenIndex;
+    if (unseen.isNotEmpty) {
+      chosenIndex = unseen[rng.nextInt(unseen.length)];
+    } else if (history.isNotEmpty) {
+      final oldestFirst = history.reversed.toList();
+      const int windowCap = 25;
+      final int windowSize = min(windowCap, oldestFirst.length);
+      final pool = oldestFirst.take(windowSize).toList(growable: false);
+      chosenIndex = pool[rng.nextInt(pool.length)];
+    } else {
+      chosenIndex = rng.nextInt(totalQuotes);
+    }
+
+    if (prefs != null) {
+      history.remove(chosenIndex);
+      history.insert(0, chosenIndex);
+      if (history.length > _quoteHistoryLimit) {
+        history.removeRange(_quoteHistoryLimit, history.length);
+      }
+      await prefs.setStringList(
+        _quoteHistoryKey,
+        history.map((index) => index.toString()).toList(growable: false),
+      );
+    }
+
+    final rawQuote = tipOfTheDay[chosenIndex];
+    return rawQuote.replaceAll('"', '').trim();
   }
 }

@@ -25,6 +25,7 @@ class SyncRepository implements DataBaseRepository {
   bool _forceNextSync = false; // allow bypassing signature check when needed
   Timer? _debounceTimer; // throttle frequent sync requests
   bool? _remoteWriteOptOutCache;
+  static const _prizesRemotePullKey = 'prizes_last_remote_pull_v1';
   // Public notifier for UI to show a tiny sync indicator
   final ValueNotifier<bool> isSyncingNotifier = ValueNotifier<bool>(false);
   // Tombstones: locally record deletions to ensure remote is purged and prevent resurrection
@@ -191,12 +192,48 @@ class SyncRepository implements DataBaseRepository {
   @override
   Future<void> setAppUser(
     String userId,
-    userName,
-    email,
-    password,
-    isPowerUser,
-  ) async {
-    await localRepo.setAppUser(userId, userName, email, password, isPowerUser);
+    String userName,
+    String email,
+    String password,
+    bool isPowerUser, {
+    bool? morningNotificationSilent,
+  }) async {
+    await localRepo.setAppUser(
+      userId,
+      userName,
+      email,
+      password,
+      isPowerUser,
+      morningNotificationSilent: morningNotificationSilent,
+    );
+    triggerSync();
+  }
+
+  Future<void> setMorningNotificationSilent(bool value) async {
+    final user = await getAppUser();
+    if (user == null) return;
+    await localRepo.setAppUser(
+      user.userId,
+      user.userName,
+      user.email,
+      user.password,
+      user.isPowerUser,
+      morningNotificationSilent: value,
+    );
+    if (await _isRemoteWriteAllowed()) {
+      try {
+        await mainRepo.setAppUser(
+          user.userId,
+          user.userName,
+          user.email,
+          user.password,
+          user.isPowerUser,
+          morningNotificationSilent: value,
+        );
+      } catch (e) {
+        debugPrint('⚠️ Failed to update remote silent preference: $e');
+      }
+    }
     triggerSync();
   }
 
@@ -220,11 +257,84 @@ class SyncRepository implements DataBaseRepository {
   Future<void> toggleWeekly(String dataTaskId, bool dataIsDone) async {
     await localRepo.toggleWeekly(dataTaskId, dataIsDone);
     //////////////
-    if (dataIsDone) {
-      await prizeManager.trackWeeklyCompletion(true);
-    }
+    await prizeManager.trackWeeklyCompletion(dataIsDone);
     //////////////
     triggerSync();
+  }
+
+  @override
+  Future<Task> addSubTask(Task parentTask, String description) async {
+    final updated = await localRepo.addSubTask(parentTask, description);
+    triggerSync();
+    return updated;
+  }
+
+  @override
+  Future<Task> editSubTask(
+    Task parentTask,
+    String subTaskId,
+    String description,
+  ) async {
+    final updated = await localRepo.editSubTask(
+      parentTask,
+      subTaskId,
+      description,
+    );
+    triggerSync();
+    return updated;
+  }
+
+  @override
+  Future<Task> toggleSubTask(
+    Task parentTask,
+    String subTaskId,
+    bool isDone,
+  ) async {
+    final wasDone = parentTask.isDone;
+    final updated = await localRepo.toggleSubTask(
+      parentTask,
+      subTaskId,
+      isDone,
+    );
+    final category = updated.taskCatagory.toLowerCase();
+    if (!wasDone && updated.isDone) {
+      if (category == 'daily') {
+        await prizeManager.trackDailyCompletion(true);
+      } else if (category == 'weekly') {
+        await prizeManager.trackWeeklyCompletion(true);
+      }
+    } else if (wasDone && !updated.isDone && category == 'weekly') {
+      await prizeManager.trackWeeklyCompletion(false);
+    }
+    triggerSync();
+    return updated;
+  }
+
+  @override
+  Future<Task> deleteSubTask(Task parentTask, String subTaskId) async {
+    final updated = await localRepo.deleteSubTask(parentTask, subTaskId);
+    final category = updated.taskCatagory.toLowerCase();
+    if (category == 'weekly') {
+      await prizeManager.trackWeeklyCompletion(updated.isDone);
+    }
+    triggerSync();
+    return updated;
+  }
+
+  @override
+  Future<Task> replaceTask(Task originalTask, Task replacement) async {
+    final updated = await localRepo.replaceTask(originalTask, replacement);
+    if (await _isRemoteWriteAllowed()) {
+      try {
+        await mainRepo.replaceTask(originalTask, updated);
+      } catch (e) {
+        debugPrint(
+          '⚠️ Failed to replace remote task ${originalTask.taskId}: $e',
+        );
+      }
+    }
+    triggerSync();
+    return updated;
   }
 
   @override
@@ -299,8 +409,10 @@ class SyncRepository implements DataBaseRepository {
       debugPrint(
         '📊 Local snapshot counts -> dailies:${dailies.length}, weeklies:${weeklies.length}, deadlines:${deadlines.length}, quests:${quests.length}, prizes:${prizes.length}, settings:${settings == null ? 'none' : 'present'}',
       );
+      String sigSubTask(SubTask s) =>
+          '${s.subTaskId}:${s.description}:${s.isDone}:${s.orderIndex ?? ''}';
       String sigPartTask(Task t) =>
-          '${t.taskId}|${t.taskCatagory}|${t.taskDesctiption}|${t.deadlineDate}|${t.deadlineTime}|${t.dayOfWeek}|${t.isDone}|${t.orderIndex ?? ''}';
+          '${t.taskId}|${t.taskCatagory}|${t.taskDesctiption}|${t.deadlineDate}|${t.deadlineTime}|${t.dayOfWeek}|${t.isDone}|${t.orderIndex ?? ''}|${t.subTasks.map(sigSubTask).join('~')}';
       final signature = [
         ...dailies.map(sigPartTask),
         ...weeklies.map(sigPartTask),
@@ -693,6 +805,80 @@ class SyncRepository implements DataBaseRepository {
       debugPrint('🎁 Prizes sync completed; pushed ${prizes.length} items');
     } catch (e) {
       debugPrint('⚠️ Prizes sync failed: $e');
+    }
+  }
+
+  Future<void> syncPrizesFromRemoteWeeklyIfNeeded() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final lastRaw = prefs.getString(_prizesRemotePullKey);
+      final now = DateTime.now();
+      if (lastRaw != null) {
+        final last = DateTime.tryParse(lastRaw);
+        if (last != null) {
+          final diff = now.difference(last);
+          if (diff.inDays < 7) {
+            debugPrint(
+              '🎁 Remote prize pull skipped; last run ${diff.inDays} day(s) ago',
+            );
+            return;
+          }
+        }
+      }
+
+      final remotePrizes = await mainRepo.getPrizes();
+      if (remotePrizes.isEmpty) {
+        await prefs.setString(_prizesRemotePullKey, now.toIso8601String());
+        debugPrint('🎁 Remote prize pull found no prizes to import');
+        return;
+      }
+
+      final localPrizes = await localRepo.getPrizes();
+      final merged = <int, Prizes>{
+        for (final prize in localPrizes) prize.prizeId: prize,
+      };
+
+      int newlyAdded = 0;
+      bool updatedExisting = false;
+      for (final remote in remotePrizes) {
+        final existing = merged[remote.prizeId];
+        if (existing == null) {
+          newlyAdded++;
+          merged[remote.prizeId] = remote;
+        } else if (existing.prizeUrl != remote.prizeUrl) {
+          merged[remote.prizeId] = remote;
+          updatedExisting = true;
+        }
+      }
+
+      if (localRepo is SharedPreferencesRepository) {
+        final spRepo = localRepo as SharedPreferencesRepository;
+        final ordered =
+            merged.values.toList()
+              ..sort((a, b) => a.prizeId.compareTo(b.prizeId));
+        await spRepo.replacePrizes(ordered);
+      } else if (newlyAdded > 0) {
+        final localIds = localPrizes.map((p) => p.prizeId).toSet();
+        for (final remote in remotePrizes) {
+          if (!localIds.contains(remote.prizeId)) {
+            await localRepo.addPrize(remote.prizeId, remote.prizeUrl);
+          }
+        }
+      }
+
+      await prefs.setString(_prizesRemotePullKey, now.toIso8601String());
+
+      if (newlyAdded > 0 || updatedExisting) {
+        invalidateSignatureCache();
+        debugPrint(
+          '🎁 Imported $newlyAdded new prize(s) from remote${updatedExisting ? ' and refreshed existing entries' : ''}.',
+        );
+      } else {
+        debugPrint('🎁 Remote prize pull found no differences.');
+      }
+    } catch (e, stack) {
+      debugPrint('⚠️ Remote prize pull failed: $e');
+      debugPrint('$stack');
     }
   }
 
