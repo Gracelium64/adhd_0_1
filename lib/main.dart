@@ -295,10 +295,10 @@ Future<void> main() async {
   //
 
   // Test Release 3 // v.0.1.2.1.3 // Ready further documents needed to apply the app to the App Store and Play Store
-  //todo: silent morning notification
-  //TODO: weather API - in another daily silent notification in the morning with a one liner and symbol for today's weather, to be timed for 5 minutes before the daily quote
 
   // Test Release 4 // v.0.1.3 // Apply for review in App Store and Play Store
+  //todo: silent morning notification
+  //TODO: weather API - in another daily silent notification in the morning with a one liner and symbol for today's weather, to be timed for 5 minutes before the daily quote
   //TODO: responsive design - accesibility big fonts    // GRACE //
   //TODO: fix bleed in dragging tasks to change order
   //TODO: eastereggs

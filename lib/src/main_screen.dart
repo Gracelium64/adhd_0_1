@@ -184,8 +184,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         if (result.remoteOptOut != remoteOptOut) {
           await syncRepo.setRemoteWriteOptOut(result.remoteOptOut);
         }
-      } else {
-      }
+      } else {}
       await DailyQuoteNotifier.instance.rescheduleFromRepository(repoBase);
     } catch (e) {
       if (!mounted) return;
