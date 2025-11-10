@@ -4,7 +4,6 @@ class AppUser {
   final String email; // kept locally only; not stored in Firestore
   final String password; // kept locally only; not stored in Firestore
   final bool isPowerUser;
-  final bool morningNotificationSilent;
 
   AppUser({
     required this.userId,
@@ -12,7 +11,6 @@ class AppUser {
     required this.email,
     required this.password,
     required this.isPowerUser,
-    required this.morningNotificationSilent,
   });
 
   Map<String, dynamic> toJson() {
@@ -22,7 +20,6 @@ class AppUser {
       'email': email,
       'password': password,
       'isPowerUser': isPowerUser,
-      'morningNotificationSilent': morningNotificationSilent,
     };
   }
 
@@ -33,7 +30,6 @@ class AppUser {
       email: json['email'],
       password: json['password'],
       isPowerUser: json['isPowerUser'] ?? false,
-      morningNotificationSilent: json['morningNotificationSilent'] ?? false,
     );
   }
 
@@ -43,7 +39,6 @@ class AppUser {
       'userName': userName,
       // email/password intentionally excluded from Firestore persistence
       'isPowerUser': isPowerUser,
-      'morningNotificationSilent': morningNotificationSilent,
     };
   }
 
@@ -54,7 +49,6 @@ class AppUser {
       email: map['email'] ?? '',
       password: map['password'] ?? '',
       isPowerUser: map['isPowerUser'] ?? false,
-      morningNotificationSilent: map['morningNotificationSilent'] ?? false,
     );
   }
 }

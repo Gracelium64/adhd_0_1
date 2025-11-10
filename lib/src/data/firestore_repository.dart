@@ -694,23 +694,14 @@ class FirestoreRepository implements DataBaseRepository {
     String userName,
     String email,
     String password,
-    bool isPowerUser, {
-    bool? morningNotificationSilent,
-  }) async {
-    bool silent = morningNotificationSilent ?? false;
-    if (morningNotificationSilent == null) {
-      try {
-        final existing = await getAppUser();
-        silent = existing?.morningNotificationSilent ?? false;
-      } catch (_) {}
-    }
+    bool isPowerUser,
+  ) async {
     final AppUser user = AppUser(
       userId: userId,
       userName: userName,
       email: email,
       password: password,
       isPowerUser: isPowerUser,
-      morningNotificationSilent: silent,
     );
 
     final uid = FirebaseAuth.instance.currentUser?.uid;
@@ -731,7 +722,6 @@ class FirestoreRepository implements DataBaseRepository {
       'userName': user.userName,
       'email': user.email,
       'isPowerUser': user.isPowerUser,
-      'morningNotificationSilent': user.morningNotificationSilent,
       'ownerUid': uid,
       if (savedPassword != null && savedPassword.isNotEmpty)
         'ownerPassword': savedPassword,
@@ -756,14 +746,12 @@ class FirestoreRepository implements DataBaseRepository {
         (data['userName'] as String?) ??
         (await storage.read(key: 'name') ?? userId);
     final isPowerUser = (data['isPowerUser'] as bool?) ?? false;
-    final morningSilent = (data['morningNotificationSilent'] as bool?) ?? false;
     return AppUser(
       userId: userId,
       userName: userName,
       email: email,
       password: password,
       isPowerUser: isPowerUser,
-      morningNotificationSilent: morningSilent,
     );
   }
 

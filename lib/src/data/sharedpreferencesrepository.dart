@@ -468,15 +468,9 @@ class SharedPreferencesRepository implements DataBaseRepository {
     String userName,
     String email,
     String password,
-    bool isPowerUser, {
-    bool? morningNotificationSilent,
-  }) async {
+    bool isPowerUser,
+  ) async {
     final prefs = await SharedPreferences.getInstance();
-    final existing = await getAppUser();
-    final silent =
-        morningNotificationSilent ??
-        existing?.morningNotificationSilent ??
-        false;
     await prefs.setString(
       PrefsKeys.appUserKey,
       jsonEncode(
@@ -486,7 +480,6 @@ class SharedPreferencesRepository implements DataBaseRepository {
           email: email,
           password: password,
           isPowerUser: isPowerUser,
-          morningNotificationSilent: silent,
         ).toJson(),
       ),
     );

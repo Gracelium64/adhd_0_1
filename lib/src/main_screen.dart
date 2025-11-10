@@ -38,11 +38,9 @@ class MainScreen extends StatefulWidget {
 class _PostRegistrationPrefsResult {
   const _PostRegistrationPrefsResult({
     required this.remoteOptOut,
-    required this.silent,
   });
 
   final bool remoteOptOut;
-  final bool silent;
 }
 
 class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
@@ -114,15 +112,8 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       }
     } catch (_) {}
 
-    bool silentPref = false;
-    try {
-      final user = await repoBase.getAppUser();
-      silentPref = user?.morningNotificationSilent ?? false;
-    } catch (_) {}
-
     if (!mounted) return;
     var optOutValue = remoteOptOut;
-    var silentValue = silentPref;
 
     final result = await showDialog<_PostRegistrationPrefsResult>(
       context: context,
@@ -155,22 +146,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                       ).textTheme.bodySmall?.copyWith(color: Palette.lightTeal),
                     ),
                   ),
-                  SwitchListTile.adaptive(
-                    value: silentValue,
-                    onChanged: (value) => setState(() => silentValue = value),
-                    contentPadding: EdgeInsets.zero,
-                    activeColor: Palette.lightTeal,
-                    title: Text(
-                      'Make morning notification silent',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    subtitle: Text(
-                      'Still get the reminder, just without sound.',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodySmall?.copyWith(color: Palette.lightTeal),
-                    ),
-                  ),
                 ],
               ),
               actions: [
@@ -186,7 +161,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                       () => Navigator.of(ctx).pop(
                         _PostRegistrationPrefsResult(
                           remoteOptOut: optOutValue,
-                          silent: silentValue,
                         ),
                       ),
                   child: Text(
@@ -210,23 +184,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         if (result.remoteOptOut != remoteOptOut) {
           await syncRepo.setRemoteWriteOptOut(result.remoteOptOut);
         }
-        if (result.silent != silentPref) {
-          await syncRepo.setMorningNotificationSilent(result.silent);
-        }
       } else {
-        if (result.silent != silentPref) {
-          final user = await repoBase.getAppUser();
-          if (user != null) {
-            await repoBase.setAppUser(
-              user.userId,
-              user.userName,
-              user.email,
-              user.password,
-              user.isPowerUser,
-              morningNotificationSilent: result.silent,
-            );
-          }
-        }
       }
       await DailyQuoteNotifier.instance.rescheduleFromRepository(repoBase);
     } catch (e) {

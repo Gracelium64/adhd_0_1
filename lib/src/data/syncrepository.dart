@@ -195,45 +195,15 @@ class SyncRepository implements DataBaseRepository {
     String userName,
     String email,
     String password,
-    bool isPowerUser, {
-    bool? morningNotificationSilent,
-  }) async {
+    bool isPowerUser,
+  ) async {
     await localRepo.setAppUser(
       userId,
       userName,
       email,
       password,
       isPowerUser,
-      morningNotificationSilent: morningNotificationSilent,
     );
-    triggerSync();
-  }
-
-  Future<void> setMorningNotificationSilent(bool value) async {
-    final user = await getAppUser();
-    if (user == null) return;
-    await localRepo.setAppUser(
-      user.userId,
-      user.userName,
-      user.email,
-      user.password,
-      user.isPowerUser,
-      morningNotificationSilent: value,
-    );
-    if (await _isRemoteWriteAllowed()) {
-      try {
-        await mainRepo.setAppUser(
-          user.userId,
-          user.userName,
-          user.email,
-          user.password,
-          user.isPowerUser,
-          morningNotificationSilent: value,
-        );
-      } catch (e) {
-        debugPrint('⚠️ Failed to update remote silent preference: $e');
-      }
-    }
     triggerSync();
   }
 

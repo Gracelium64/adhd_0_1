@@ -20,7 +20,6 @@ class DailyQuoteNotifier {
 
   // Centralized channel metadata (easy to change before release)
   static const String _channelId = 'daily_quote_channel_v3';
-  static const String _silentChannelId = 'daily_quote_channel_v3_silent';
   static const String _channelName = 'Daily Quotes';
   static const String _channelDescription =
       'Daily tip of the day notification at startOfDay';
@@ -83,19 +82,6 @@ class DailyQuoteNotifier {
         >()
         ?.createNotificationChannel(channel);
 
-    const AndroidNotificationChannel silentChannel = AndroidNotificationChannel(
-      _silentChannelId,
-      'Daily Quotes (Silent)',
-      description: 'Daily tip of the day notification at startOfDay (silent)',
-      importance: Importance.defaultImportance,
-      playSound: false,
-    );
-    await _plugin
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >()
-        ?.createNotificationChannel(silentChannel);
-
     _initialized = true;
   }
 
@@ -112,7 +98,7 @@ class DailyQuoteNotifier {
         ?.requestPermissions(alert: true, badge: true, sound: true);
   }
 
-  Future<void> scheduleDailyQuote(TimeOfDay time, {bool silent = false}) async {
+  Future<void> scheduleDailyQuote(TimeOfDay time) async {
     if (_scheduling) {
       debugPrint('[DailyQuoteNotifier] schedule already in progress; skipping');
       return;
@@ -165,85 +151,46 @@ class DailyQuoteNotifier {
         next = next.add(const Duration(days: 1));
       }
 
-      if (silent) {
-        final NotificationDetails details = NotificationDetails(
-          android: AndroidNotificationDetails(
-            _silentChannelId,
-            'Daily Quotes (Silent)',
-            channelDescription:
-                'Daily tip of the day notification at startOfDay (silent)',
-            importance: Importance.high,
-            priority: Priority.high,
-            playSound: false,
-            enableVibration: false,
-          ),
-          iOS: const DarwinNotificationDetails(presentSound: false),
+      // iOS time sensitive intention is implied by category/reminder; channel sound is set in AwesomeNotifService
+      try {
+        // Use Awesome Notifications daily repeating schedule (reboot persistent)
+        await AwesomeNotifService.instance.scheduleDailyRepeating(
+          id: 1001,
+          hour: hour,
+          minute: minute,
+          title: 'Good morning',
+          body: quote,
+          payload: {'route': 'dailys'},
+          groupKey: AwesomeNotifService.dailyGroupKey,
+          // Daily quote likely dismissible and not locked
+          locked: false,
+          autoDismissible: true,
         );
-        try {
-          await _plugin.zonedSchedule(
-            1001,
-            'Good morning',
-            quote,
-            next,
-            details,
-            payload: 'dailys',
-            androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-            uiLocalNotificationDateInterpretation:
-                UILocalNotificationDateInterpretation.absoluteTime,
-            matchDateTimeComponents: DateTimeComponents.time,
-          );
-        } catch (e, stack) {
-          debugPrint(
-            '⚠️ Failed to schedule silent daily quote notification: $e',
-          );
-          debugPrint(stack.toString());
-          rethrow;
-        }
-      } else {
-        final String channelKey = AwesomeNotifService.dailyChannelKey;
-        // iOS time sensitive intention is implied by category/reminder; channel sound is set in AwesomeNotifService
-        try {
-          // Use Awesome Notifications daily repeating schedule (reboot persistent)
-          await AwesomeNotifService.instance.scheduleDailyRepeating(
-            id: 1001,
-            hour: hour,
-            minute: minute,
-            title: 'Good morning',
-            body: quote,
-            payload: {'route': 'dailys'},
-            channelKey: channelKey,
-            groupKey: AwesomeNotifService.dailyGroupKey,
-            // Daily quote likely dismissible and not locked
-            locked: false,
-            autoDismissible: true,
-          );
-        } on PlatformException catch (e) {
-          debugPrint('Schedule failed (${e.code}): ${e.message}.');
-          rethrow;
-        } on TypeError catch (e, stack) {
-          debugPrint(
-            '⚠️ Invalid time components when scheduling daily quote: $e',
-          );
-          debugPrint(stack.toString());
-          const fallbackHour = 7;
-          const fallbackMinute = 15;
-          debugPrint(
-            '[DailyQuoteNotifier] Falling back to default time '
-            '$fallbackHour:$fallbackMinute for daily quote schedule.',
-          );
-          await AwesomeNotifService.instance.scheduleDailyRepeating(
-            id: 1001,
-            hour: fallbackHour,
-            minute: fallbackMinute,
-            title: 'Good morning',
-            body: quote,
-            payload: {'route': 'dailys'},
-            channelKey: channelKey,
-            groupKey: AwesomeNotifService.dailyGroupKey,
-            locked: false,
-            autoDismissible: true,
-          );
-        }
+      } on PlatformException catch (e) {
+        debugPrint('Schedule failed (${e.code}): ${e.message}.');
+        rethrow;
+      } on TypeError catch (e, stack) {
+        debugPrint(
+          '⚠️ Invalid time components when scheduling daily quote: $e',
+        );
+        debugPrint(stack.toString());
+        const fallbackHour = 7;
+        const fallbackMinute = 15;
+        debugPrint(
+          '[DailyQuoteNotifier] Falling back to default time '
+          '$fallbackHour:$fallbackMinute for daily quote schedule.',
+        );
+        await AwesomeNotifService.instance.scheduleDailyRepeating(
+          id: 1001,
+          hour: fallbackHour,
+          minute: fallbackMinute,
+          title: 'Good morning',
+          body: quote,
+          payload: {'route': 'dailys'},
+          groupKey: AwesomeNotifService.dailyGroupKey,
+          locked: false,
+          autoDismissible: true,
+        );
       }
 
       // Print pending notifications for diagnostics
@@ -350,18 +297,7 @@ class DailyQuoteNotifier {
       debugPrint(stack.toString());
     }
 
-    bool silent = false;
-    try {
-      final user = await repo.getAppUser();
-      silent = user?.morningNotificationSilent ?? false;
-    } catch (e, stack) {
-      debugPrint(
-        '⚠️ Failed to load user preference for silent notifications: $e',
-      );
-      debugPrint(stack.toString());
-    }
-
-    await scheduleDailyQuote(scheduleTime, silent: silent);
+    await scheduleDailyQuote(scheduleTime);
   }
 
   @visibleForTesting

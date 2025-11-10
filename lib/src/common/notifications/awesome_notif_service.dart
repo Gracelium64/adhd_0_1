@@ -1,4 +1,5 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
+
 import 'package:adhd_0_1/src/navigation/notification_router.dart';
 
 class AwesomeNotifService {
@@ -6,11 +7,9 @@ class AwesomeNotifService {
   static final AwesomeNotifService instance = AwesomeNotifService._();
 
   static const String dailyChannelKey = 'daily_quote_channel_v3';
-  static const String dailyChannelSilentKey = 'daily_quote_channel_v3_silent';
   static const String deadlineChannelKey = 'deadline_alerts_channel_v4';
   static const String dailyGroupKey = 'group_daily_quote';
   static const String deadlineGroupKey = 'group_deadline_alerts';
-
 
   Future<void> init() async {
     await AwesomeNotifications().initialize(
@@ -29,16 +28,6 @@ class AwesomeNotifService {
           // Awesome iOS resolves resource sounds as AIFF by name (no extension)
           // Ensure a my_sound.aiff exists in the app bundle
           soundSource: 'resource://raw/my_sound',
-        ),
-        NotificationChannel(
-          channelKey: dailyChannelSilentKey,
-          channelName: 'Daily Quotes (Silent)',
-          channelDescription: 'Daily tip of the day without sound',
-          importance: NotificationImportance.Default,
-          defaultRingtoneType: DefaultRingtoneType.Notification,
-          ledColor: null,
-          playSound: false,
-          enableVibration: false,
         ),
         NotificationChannel(
           channelKey: deadlineChannelKey,
@@ -169,15 +158,16 @@ class AwesomeNotifService {
     required String title,
     required String body,
     Map<String, String>? payload,
-    String channelKey = dailyChannelKey,
+    String? channelKey,
     String? groupKey,
     bool locked = false,
     bool autoDismissible = true,
   }) async {
+    final resolvedChannelKey = channelKey ?? dailyChannelKey;
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
         id: id,
-        channelKey: channelKey,
+        channelKey: resolvedChannelKey,
         title: title,
         body: body,
         notificationLayout: NotificationLayout.Default,

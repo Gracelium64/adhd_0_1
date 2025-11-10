@@ -68,9 +68,8 @@ abstract class DataBaseRepository {
     String userName,
     String email,
     String password,
-    bool isPowerUser, {
-    bool? morningNotificationSilent,
-  });
+    bool isPowerUser,
+  );
   Future<AppUser?> getAppUser();
   Future<void> toggleDaily(String dataTaskId, bool dataIsDone);
   Future<void> toggleWeekly(String dataTaskId, bool dataIsDone);

@@ -195,14 +195,6 @@ Future<void> main() async {
     debugPrint('⚠️ SharedPreferences prewarm failed: $e');
   }
 
-  // Initialize Awesome Notifications channels/permissions (Android/iOS)
-  try {
-    await AwesomeNotifService.instance.init();
-    debugPrint('🔔 Awesome Notifications initialized');
-  } catch (e) {
-    debugPrint('⚠️ Awesome Notifications init failed: $e');
-  }
-
   // One-time migration: consolidate legacy 'secure_secure_name' into 'secure_name'
   try {
     const storage = FlutterSecureStorage();
@@ -227,6 +219,15 @@ Future<void> main() async {
   );
 
   initSyncListeners(repository);
+
+  // Initialize Awesome Notifications channels/permissions (Android/iOS)
+  try {
+    await AwesomeNotifService.instance.init();
+    debugPrint('🔔 Awesome Notifications initialized');
+  } catch (e, stack) {
+    debugPrint('⚠️ Awesome Notifications init failed: $e');
+    debugPrint(stack.toString());
+  }
 
   // Kick a one-time dedup pass at cold start as well (safe: mark-only)
   Future.microtask(() => repository.runOneTimeDedupMarking());
@@ -294,13 +295,6 @@ Future<void> main() async {
   //
 
   // Test Release 3 // v.0.1.2.1.3 // Ready further documents needed to apply the app to the App Store and Play Store
-  // // //TODO: sometimes the weekly summery shows 100% when not really all tasks were finished. suspecting the adding of tasks messed the calculation. instate recalculation when changing number of tasks and also when installing this update.
-  // // //TODO: save a list of which quotes have been shown already to the user in the morning notification, try to keep them at a minimum, give priority to those not yet displayed
-  // // //TODO: tasks with multiple subtasks
-  // // //TODO: enable changing task type in edit task widget
-  // // //TODO: how to save files outside of shared memory - save local backup of user data from local repository. *** works on iPhone simulator
-  // // //TODO: give user option to opt out of the sound of the morning notification through the settings menu in the form of a toggle switch
-  // // //TODO: give that option as well in the onboarding flow when choosing a start time
   //todo: silent morning notification
   //TODO: weather API - in another daily silent notification in the morning with a one liner and symbol for today's weather, to be timed for 5 minutes before the daily quote
 

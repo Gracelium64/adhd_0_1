@@ -10,7 +10,7 @@ Good luck.
 # Attention Deficit oH Dear
 
 // V.0.1.2.1.3 // Mid-Test Release 2.1 //       
-Save user data and settings as .bin file while keeping access to legacy manual log ins, opt out of firebase backup, silent morning notification, subtasks, lower priority of last 100 seen quotes, change task type in edit task
+Save user data and settings as .bin file while keeping access to legacy manual log ins, opt out of firebase backup, subtasks, lower priority of last 100 seen quotes, change task type in edit task
 
 
 // V.0.1.2.2 // Test Release 2 //       22/8/25

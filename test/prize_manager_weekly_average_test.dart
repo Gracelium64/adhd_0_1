@@ -68,9 +68,8 @@ class _FakeRepo implements DataBaseRepository {
     String userName,
     String email,
     String password,
-    bool isPowerUser, {
-    bool? morningNotificationSilent,
-  }) async {}
+    bool isPowerUser,
+  ) async {}
   @override
   Future<AppUser?> getAppUser() async => null;
   @override
