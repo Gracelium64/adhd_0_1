@@ -144,6 +144,27 @@ class DeadlineNotifier {
 
       // Using Awesome Notifications for a persistent notification at fireAt
       final body = await _composeBodyAsync(repo, fireDay, nextDay);
+      // Also prime native Android path: save composed body and schedule native alarm
+      // so that native receivers (boot / exact alarms) show the same message when triggered.
+      if (Platform.isAndroid) {
+        const platform = MethodChannel('shadowapp.grace6424.adhd/alarm');
+        try {
+          await platform.invokeMethod('saveNextDeadlineMessage', {
+            'message': body,
+          });
+        } catch (e) {
+          debugPrint('[DeadlineNotifier] saveNextDeadlineMessage failed: $e');
+        }
+        try {
+          await platform.invokeMethod('scheduleNextDeadlineAlarm', {
+            'hour': dailyStart.hour,
+            'minute': dailyStart.minute,
+            'offsetSec': offsetSec,
+          });
+        } catch (e) {
+          debugPrint('[DeadlineNotifier] scheduleNextDeadlineAlarm failed: $e');
+        }
+      }
       await AwesomeNotifService.instance.schedulePersistentAt(
         channelKey: _channelId,
         id: _notificationId,
@@ -367,7 +388,13 @@ class DeadlineNotifier {
       bool hasDeadlineToday = _hasDeadlineOn(deadlineTasks, fireDay);
       bool hasDeadlineTomorrow = _hasDeadlineOn(deadlineTasks, nextDay);
       bool hasWeeklyToday = _hasWeeklyForDay(weeklyTasks, fireDay);
-      return hasDeadlineToday || hasDeadlineTomorrow || hasWeeklyToday;
+      // Also check weekly tasks scheduled for the next day so weekly tasks
+      // that fall on "tomorrow" still trigger the notifier.
+      bool hasWeeklyTomorrow = _hasWeeklyForDay(weeklyTasks, nextDay);
+      return hasDeadlineToday ||
+          hasDeadlineTomorrow ||
+          hasWeeklyToday ||
+          hasWeeklyTomorrow;
     } catch (e) {
       debugPrint('[DeadlineNotifier] _shouldNotifyForDays error: $e');
       return false;
@@ -384,6 +411,7 @@ class DeadlineNotifier {
     final List<String> tomorrowLines = [];
     final List<String> nextWeekLines = [];
     final List<String> weeklyTodayLines = [];
+    final List<String> weeklyTomorrowLines = [];
 
     try {
       final deadlines = await repo.getDeadlineTasks();
@@ -422,13 +450,18 @@ class DeadlineNotifier {
     try {
       final weekly = await repo.getWeeklyTasks();
       final today = _weekdayAbbrev(fireDay.weekday);
+      final tomorrow = _weekdayAbbrev(nextDay.weekday);
       for (final t in weekly) {
         if (t.isDone) continue;
         final raw = t.dayOfWeek;
         if (raw == null) continue;
-        if (raw.toLowerCase() == today) {
+        final low = raw.toLowerCase();
+        if (low == today) {
           final desc = t.taskDesctiption.trim();
           weeklyTodayLines.add("Don't forget today: $desc");
+        } else if (low == tomorrow) {
+          final desc = t.taskDesctiption.trim();
+          weeklyTomorrowLines.add("Don't forget tomorrow: $desc");
         }
       }
     } catch (_) {}
@@ -437,6 +470,7 @@ class DeadlineNotifier {
     final lines = <String>[
       ...todayLines,
       ...tomorrowLines,
+      ...weeklyTomorrowLines,
       ...nextWeekLines,
       ...weeklyTodayLines,
     ];

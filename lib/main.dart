@@ -208,8 +208,10 @@ Future<void> main() async {
   }
 
   final auth = FirebaseAuthRepository();
-  final mainRepo = FirestoreRepository();
+  // Local-first development toggle: set --dart-define=USE_LOCAL_REPO=true
   final localRepo = SharedPreferencesRepository();
+  final useLocal = const String.fromEnvironment('USE_LOCAL_REPO') == 'true';
+  final mainRepo = useLocal ? localRepo : FirestoreRepository();
   final prizeManager = PrizeManager(localRepo);
 
   final repository = SyncRepository(
@@ -230,28 +232,39 @@ Future<void> main() async {
   }
 
   // Kick a one-time dedup pass at cold start as well (safe: mark-only)
-  Future.microtask(() => repository.runOneTimeDedupMarking());
+  // Disabled temporarily to avoid network calls during local/dev runs.
+  // TODO(reenable): REENABLE_REMOTE_SYNC - Re-enable this for production
+  // Future.microtask(() => repository.runOneTimeDedupMarking());
 
-  // Pull down any new remote prizes roughly once per week.
+  // Pull down any new remote prizes roughly once per week. (disabled)
+  // TODO(reenable): REENABLE_REMOTE_SYNC - Re-enable this when network testing is desired
+  /*
   try {
     await repository.syncPrizesFromRemoteWeeklyIfNeeded();
   } catch (e) {
     debugPrint('⚠️ Prize pull on startup failed: $e');
   }
+  */
 
-  // Sync locally won prizes to Firestore once per day at cold start.
+  // Sync locally won prizes to Firestore once per day at cold start. (disabled)
+  // TODO(reenable): REENABLE_REMOTE_SYNC - Re-enable when remote writes are needed
+  /*
   try {
     await repository.syncPrizesToRemoteIfNeeded();
   } catch (e) {
     debugPrint('⚠️ Prize sync on startup failed: $e');
   }
+  */
 
-  // Ensure prize #22 is awarded after 3 days from first run.
+  // Ensure prize #22 is awarded after 3 days from first run. (disabled)
+  // TODO(reenable): REENABLE_REMOTE_SYNC - Re-enable after verifying prize sync behavior
+  /*
   try {
     await repository.ensurePrize22AfterThreeDays();
   } catch (e) {
     debugPrint('⚠️ ensurePrize22AfterThreeDays failed: $e');
   }
+  */
 
   runApp(
     MultiProvider(
@@ -299,12 +312,12 @@ Future<void> main() async {
   // Test Release 4 // v.0.1.3 // Apply for review in App Store and Play Store
   //todo: silent morning notification
   //TODO: weather API - in another daily silent notification in the morning with a one liner and symbol for today's weather, to be timed for 5 minutes before the daily quote
-  //TODO: responsive design - accesibility big fonts    // GRACE //
-  //TODO: fix bleed in dragging tasks to change order
   //TODO: eastereggs
   //TODO: make more AI abominations for prizes
 
   // First Update after Release // v.0.1.3.1 //
+  //TODO: fix bleed in dragging tasks to change order
+  //TODO: responsive design - accesibility big fonts    // GRACE //
   //TODO: translations
   //TODO: repurpose FridgeLock (?)
   //TODO: animated splash screen
