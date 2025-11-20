@@ -23,6 +23,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:adhd_0_1/src/features/user_data_portal/domain/io/file_picker_prefs.dart';
 
 class ViewUserData extends StatefulWidget {
   final VoidCallback onClose;
@@ -152,12 +153,33 @@ class _ViewUserDataState extends State<ViewUserData> {
         return;
       }
       //TODO: .adhd
-      final selectedPath = await FilePicker.platform.saveFile(
-        dialogTitle: 'Save ADHD backup',
-        fileName: defaultName,
-        type: FileType.custom,
-        allowedExtensions: const ['adhd'],
-      );
+      final useFilter = await FilePickerPrefs.shouldUseCustomFilter();
+      String? selectedPath;
+      try {
+        if (useFilter) {
+          selectedPath = await FilePicker.platform.saveFile(
+            dialogTitle: 'Save ADHD backup',
+            fileName: defaultName,
+            type: FileType.custom,
+            allowedExtensions: const ['adhd'],
+          );
+        } else {
+          selectedPath = await FilePicker.platform.saveFile(
+            dialogTitle: 'Save ADHD backup',
+            fileName: defaultName,
+            type: FileType.any,
+          );
+        }
+      } on PlatformException catch (e) {
+        debugPrint('[ViewUserData] saveFile PlatformException: $e');
+        // If device doesn't support custom filters, remember and retry with any
+        await FilePickerPrefs.markFilterUnsupported();
+        selectedPath = await FilePicker.platform.saveFile(
+          dialogTitle: 'Save ADHD backup',
+          fileName: defaultName,
+          type: FileType.any,
+        );
+      }
       if (selectedPath == null) {
         _setBusy(false);
         return;
@@ -192,23 +214,38 @@ class _ViewUserDataState extends State<ViewUserData> {
       final bool allowAnyFile =
           _isIOS; // iOS document picker ignores custom extensions.
       FilePickerResult? result;
+      final useFilter = await FilePickerPrefs.shouldUseCustomFilter();
       try {
-        result = await FilePicker.platform.pickFiles(
-          dialogTitle: 'Select ADHD backup',
-          type: allowAnyFile ? FileType.any : FileType.custom,
-          allowedExtensions: allowAnyFile ? null : const ['adhd'],
-          withData: kIsWeb,
-        );
+        if (allowAnyFile) {
+          result = await FilePicker.platform.pickFiles(
+            dialogTitle: 'Select ADHD backup',
+            type: FileType.any,
+            withData: kIsWeb,
+          );
+        } else if (useFilter) {
+          result = await FilePicker.platform.pickFiles(
+            dialogTitle: 'Select ADHD backup',
+            type: FileType.custom,
+            allowedExtensions: const ['adhd'],
+            withData: kIsWeb,
+          );
+        } else {
+          // Previously marked as unsupported: skip custom filter attempt
+          result = await FilePicker.platform.pickFiles(
+            dialogTitle: 'Select ADHD backup',
+            type: FileType.any,
+            withData: kIsWeb,
+          );
+        }
       } on PlatformException catch (e) {
-        // Some Android file pickers/do not support custom extension filters
-        // (especially non-standard extensions). Fall back to `FileType.any`
-        // and let the app validate the extension afterwards.
         debugPrint('[ViewUserData] FilePicker PlatformException: $e');
+        // Detect unsupported filter error and cache result so we avoid retries
         if ((e.message ?? '').contains('Unsupported filter') ||
             e.code.toLowerCase().contains('unsupported')) {
           _showSnackBar(
             'File picker filter unsupported on this device — showing all files.',
           );
+          await FilePickerPrefs.markFilterUnsupported();
           result = await FilePicker.platform.pickFiles(
             dialogTitle: 'Select ADHD backup',
             type: FileType.any,

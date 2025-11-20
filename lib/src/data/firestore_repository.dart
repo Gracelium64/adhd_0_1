@@ -217,8 +217,12 @@ class FirestoreRepository implements DataBaseRepository {
     final docRef =
         fs.collection('users').doc(userId).collection('prizesWon').doc();
 
-    final Prizes prize = Prizes(prizeId: prizeId, prizeUrl: prizeUrl);
-    await docRef.set(prize.toMap());
+    // Store server timestamp for wonAt so history can be shown consistently
+    await docRef.set({
+      'prizeId': prizeId,
+      'prizeUrl': prizeUrl,
+      'wonAt': FieldValue.serverTimestamp(),
+    });
   }
 
   @override

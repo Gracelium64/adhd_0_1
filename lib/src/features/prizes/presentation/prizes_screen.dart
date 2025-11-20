@@ -2,6 +2,7 @@ import 'package:adhd_0_1/src/common/domain/task.dart';
 import 'package:adhd_0_1/src/common/presentation/add_task_button.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/prizes/presentation/widgets/prize_overlay.dart';
+import 'package:adhd_0_1/src/common/domain/prizes.dart';
 import 'package:adhd_0_1/src/features/task_management/presentation/widgets/add_task_widget.dart';
 import 'package:adhd_0_1/src/common/presentation/sub_title.dart';
 import 'package:adhd_0_1/src/common/presentation/title_gaps.dart';
@@ -113,7 +114,7 @@ class _PrizesScreenState extends State<PrizesScreen> {
 
   final overlayController = OverlayPortalController();
   final overlayControllerPrize = OverlayPortalController();
-  String selectedPrizeUrl = '';
+  Prizes? selectedPrize;
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +142,7 @@ class _PrizesScreenState extends State<PrizesScreen> {
                               padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                               child: PrizesWidget((prize) {
                                 setState(() {
-                                  selectedPrizeUrl = prize.prizeUrl;
+                                  selectedPrize = prize;
                                 });
 
                                 Future.delayed(Duration(milliseconds: 10), () {
@@ -170,18 +171,24 @@ class _PrizesScreenState extends State<PrizesScreen> {
         OverlayPortal(
           controller: overlayControllerPrize,
           overlayChildBuilder:
-              (_) => PrizeOverlay(
-                prizeImageUrl: selectedPrizeUrl,
-                captureKey: _captureKey,
-                onShare: () async {
-                  debugPrint('SHARE TAP ✅: $selectedPrizeUrl');
-                  await _sharePrizeImageAndClose(selectedPrizeUrl);
-                },
-                onClose: () {
-                  debugPrint('OVERLAY CLOSED');
-                  overlayControllerPrize.hide();
-                },
-              ),
+              (_) =>
+                  selectedPrize == null
+                      ? const SizedBox.shrink()
+                      : PrizeOverlay(
+                        prizeId: selectedPrize!.prizeId,
+                        prizeImageUrl: selectedPrize!.prizeUrl,
+                        captureKey: _captureKey,
+                        onShare: () async {
+                          debugPrint('SHARE TAP ✅: ${selectedPrize!.prizeUrl}');
+                          await _sharePrizeImageAndClose(
+                            selectedPrize!.prizeUrl,
+                          );
+                        },
+                        onClose: () {
+                          debugPrint('OVERLAY CLOSED');
+                          overlayControllerPrize.hide();
+                        },
+                      ),
         ),
       ],
     );

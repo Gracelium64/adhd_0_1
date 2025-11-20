@@ -234,37 +234,41 @@ Future<void> main() async {
   // Kick a one-time dedup pass at cold start as well (safe: mark-only)
   // Disabled temporarily to avoid network calls during local/dev runs.
   // TODO(reenable): REENABLE_REMOTE_SYNC - Re-enable this for production
-  // Future.microtask(() => repository.runOneTimeDedupMarking());
+  // Re-enabled only when not using local repo for development.
+  if (!useLocal) {
+    Future.microtask(() => repository.runOneTimeDedupMarking());
+  }
 
   // Pull down any new remote prizes roughly once per week. (disabled)
   // TODO(reenable): REENABLE_REMOTE_SYNC - Re-enable this when network testing is desired
-  /*
-  try {
-    await repository.syncPrizesFromRemoteWeeklyIfNeeded();
-  } catch (e) {
-    debugPrint('⚠️ Prize pull on startup failed: $e');
-  }
-  */
-
+  //
+  //    if (!useLocal) {
+  //      try {
+  //        await repository.syncPrizesFromRemoteWeeklyIfNeeded();
+  //      } catch (e) {
+  //        debugPrint('⚠️ Prize pull on startup failed: $e');
+  //      }
+  //    }
   // Sync locally won prizes to Firestore once per day at cold start. (disabled)
   // TODO(reenable): REENABLE_REMOTE_SYNC - Re-enable when remote writes are needed
-  /*
-  try {
-    await repository.syncPrizesToRemoteIfNeeded();
-  } catch (e) {
-    debugPrint('⚠️ Prize sync on startup failed: $e');
-  }
-  */
-
+  //
+  //    if (!useLocal) {
+  //      try {
+  //        await repository.syncPrizesToRemoteIfNeeded();
+  //      } catch (e) {
+  //        debugPrint('⚠️ Prize sync on startup failed: $e');
+  //      }
+  //    }
   // Ensure prize #22 is awarded after 3 days from first run. (disabled)
   // TODO(reenable): REENABLE_REMOTE_SYNC - Re-enable after verifying prize sync behavior
-  /*
-  try {
-    await repository.ensurePrize22AfterThreeDays();
-  } catch (e) {
-    debugPrint('⚠️ ensurePrize22AfterThreeDays failed: $e');
-  }
-  */
+  //
+  //    if (!useLocal) {
+  //      try {
+  //        await repository.ensurePrize22AfterThreeDays();
+  //      } catch (e) {
+  //        debugPrint('⚠️ ensurePrize22AfterThreeDays failed: $e');
+  //      }
+  //    }
 
   runApp(
     MultiProvider(

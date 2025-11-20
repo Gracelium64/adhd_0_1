@@ -70,20 +70,20 @@ class _PrizesWidgetState extends State<PrizesWidget> {
   }
 
   List<Widget> buildImages(BuildContext context, List<Prizes> listData) {
-    // Aggregate by prizeUrl (assumption: same URL => same prize type)
-    final Map<String, int> counts = {};
-    final Map<String, Prizes> sample = {};
+    // Aggregate by prizeId (more robust): map id -> count and sample prize
+    final Map<int, int> counts = {};
+    final Map<int, Prizes> sample = {};
     for (final p in listData) {
-      final key = p.prizeUrl;
+      final key = p.prizeId;
       counts[key] = (counts[key] ?? 0) + 1;
       sample.putIfAbsent(key, () => p);
     }
 
     final List<Widget> displayPrizes = [];
     for (final entry in sample.entries) {
-      final prizeUrl = entry.key;
+      final prizeId = entry.key;
       final gridItem = entry.value;
-      final dupCount = counts[prizeUrl] ?? 1;
+      final dupCount = counts[prizeId] ?? 1;
 
       displayPrizes.add(
         GestureDetector(

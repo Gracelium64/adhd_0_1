@@ -369,7 +369,13 @@ class SharedPreferencesRepository implements DataBaseRepository {
   Future<void> addPrize(int prizeId, String prizeUrl) async {
     final prefs = await SharedPreferences.getInstance();
     final list = prefs.getStringList(PrefsKeys.prizesKey) ?? [];
-    list.add(jsonEncode({'prizeId': prizeId, 'prizeUrl': prizeUrl}));
+    list.add(
+      jsonEncode({
+        'prizeId': prizeId,
+        'prizeUrl': prizeUrl,
+        'wonAt': DateTime.now().toIso8601String(),
+      }),
+    );
     await prefs.setStringList(PrefsKeys.prizesKey, list);
   }
 

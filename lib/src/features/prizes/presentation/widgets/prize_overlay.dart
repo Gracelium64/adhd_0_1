@@ -7,6 +7,7 @@ import 'package:adhd_0_1/src/common/domain/prizes.dart';
 
 class PrizeOverlay extends StatelessWidget {
   final String prizeImageUrl;
+  final int prizeId;
   final GlobalKey
   captureKey; // RepaintBoundary key to capture the composited image
   final VoidCallback onShare;
@@ -14,6 +15,7 @@ class PrizeOverlay extends StatelessWidget {
 
   const PrizeOverlay({
     super.key,
+    required this.prizeId,
     required this.prizeImageUrl,
     required this.captureKey,
     required this.onShare,
@@ -25,7 +27,19 @@ class PrizeOverlay extends StatelessWidget {
     Future<int> dupCountFuture() async {
       final repo = context.read<DataBaseRepository>();
       final List<Prizes> list = await repo.getPrizes();
-      return list.where((p) => p.prizeUrl == prizeImageUrl).length;
+      return list.where((p) => p.prizeId == prizeId).length;
+    }
+
+    Future<List<Prizes>> historyFuture() async {
+      final repo = context.read<DataBaseRepository>();
+      final List<Prizes> list = await repo.getPrizes();
+      final filtered = list.where((p) => p.prizeId == prizeId).toList();
+      filtered.sort((a, b) {
+        final ad = a.wonAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+        final bd = b.wonAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+        return bd.compareTo(ad);
+      });
+      return filtered;
     }
 
     return Center(
@@ -128,7 +142,46 @@ class PrizeOverlay extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 24),
+              SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: FutureBuilder<List<Prizes>>(
+                  future: historyFuture(),
+                  builder: (context, snap) {
+                    if (!snap.hasData) return SizedBox.shrink();
+                    final items = snap.data!;
+                    return SizedBox(
+                      height: 100,
+                      child: ListView.separated(
+                        itemCount: items.length,
+                        separatorBuilder: (_, __) => const Divider(height: 8),
+                        itemBuilder: (context, index) {
+                          final p = items[index];
+                          final label =
+                              p.wonAt != null
+                                  ? '${p.wonAt!.toLocal()}'
+                                  : 'Unknown time';
+                          return Row(
+                            children: [
+                              SizedBox(
+                                width: 36,
+                                height: 36,
+                                child: Image.asset(
+                                  p.prizeUrl,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              SizedBox(width: 12),
+                              Expanded(child: Text(label)),
+                            ],
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+              SizedBox(height: 8),
               ElevatedButton.icon(
                 onPressed: onShare,
                 icon: Icon(Icons.share),
