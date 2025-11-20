@@ -88,6 +88,31 @@ class MainActivity : FlutterActivity() {
 						AlarmScheduler.saveNextDeadlineMessage(applicationContext, msg)
 						result.success(null)
 					}
+					"saveNextWeatherMessage" -> {
+						val msg = call.argument<String>("message")
+						AlarmScheduler.saveNextWeatherMessage(applicationContext, msg)
+						result.success(null)
+					}
+					"saveNextWeatherPrefs" -> {
+						val lat = call.argument<Double>("lat") ?: 0.0
+						val lon = call.argument<Double>("lon") ?: 0.0
+						val label = call.argument<String>("label")
+						val timezone = call.argument<String>("timezone")
+						AlarmScheduler.saveNextWeatherPrefs(applicationContext, lat, lon, label, timezone)
+						result.success(null)
+					}
+					"scheduleWeather" -> {
+						val hour = call.argument<Int>("hour") ?: 7
+						val minute = call.argument<Int>("minute") ?: 14
+						val offsetSec = call.argument<Int>("offsetSec") ?: -60
+						AlarmScheduler.scheduleWeather(applicationContext, hour, minute, offsetSec, nextOnly = false)
+						result.success(null)
+					}
+					"scheduleWeatherIn" -> {
+						val seconds = call.argument<Int>("seconds") ?: 300
+						AlarmScheduler.scheduleWeatherIn(applicationContext, seconds)
+						result.success(null)
+					}
 					"showDeadlineNow" -> {
 						NotificationHelper.showDeadlineAlert(applicationContext)
 						result.success(null)
@@ -95,6 +120,11 @@ class MainActivity : FlutterActivity() {
 					"showDeadlineNowWithBody" -> {
 						val body = call.argument<String>("body") ?: "Deadlines due today or tomorrow, or weekly tasks today."
 						NotificationHelper.showDeadlineAlertWithBody(applicationContext, body)
+						result.success(null)
+					}
+					"showWeatherNowWithBody" -> {
+						val body = call.argument<String>("body") ?: "Weather"
+						NotificationHelper.showWeatherNowWithBody(applicationContext, body)
 						result.success(null)
 					}
 					"scheduleDeadlineIn" -> {

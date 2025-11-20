@@ -51,4 +51,8 @@ flutter {
 dependencies {
     // Required for core library desugaring
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.2")
+    // WorkManager for background fetch & retries
+    implementation("androidx.work:work-runtime-ktx:2.8.1")
+    // OkHttp for native HTTP requests in the worker
+    implementation("com.squareup.okhttp3:okhttp:4.10.0")
 }

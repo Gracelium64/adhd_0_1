@@ -7,6 +7,7 @@ class AwesomeNotifService {
   static final AwesomeNotifService instance = AwesomeNotifService._();
 
   static const String dailyChannelKey = 'daily_quote_channel_v3';
+  static const String dailyWeatherChannelKey = 'daily_weather_channel_v1';
   static const String deadlineChannelKey = 'deadline_alerts_channel_v4';
   static const String dailyGroupKey = 'group_daily_quote';
   static const String deadlineGroupKey = 'group_deadline_alerts';
@@ -28,6 +29,18 @@ class AwesomeNotifService {
           // Awesome iOS resolves resource sounds as AIFF by name (no extension)
           // Ensure a my_sound.aiff exists in the app bundle
           soundSource: 'resource://raw/my_sound',
+        ),
+        // Silent weather channel (no sound, no vibration)
+        NotificationChannel(
+          channelKey: dailyWeatherChannelKey,
+          channelName: 'Daily Weather (Silent)',
+          channelDescription:
+              'Daily weather notification without sound or vibration',
+          importance: NotificationImportance.Low,
+          defaultRingtoneType: DefaultRingtoneType.Notification,
+          ledColor: null,
+          playSound: false,
+          enableVibration: false,
         ),
         NotificationChannel(
           channelKey: deadlineChannelKey,
@@ -124,6 +137,7 @@ class AwesomeNotifService {
     required String body,
     Map<String, String>? payload,
     String? groupKey,
+    String? largeIcon,
     bool locked = true,
     bool autoDismissible = false,
   }) async {
@@ -133,6 +147,7 @@ class AwesomeNotifService {
         channelKey: channelKey,
         title: title,
         body: body,
+        largeIcon: largeIcon,
         notificationLayout: NotificationLayout.Default,
         wakeUpScreen: true,
         category: NotificationCategory.Reminder,

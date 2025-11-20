@@ -1,6 +1,6 @@
 name: adhd_0_1
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.2+101202
 
 environment:
@@ -27,13 +27,14 @@ dependencies:
   flutter_local_notifications: ^17.2.1
   timezone: ^0.9.4
   flutter_timezone: ^4.1.0
+  http: ^0.13.6
   gap: ^3.0.1
   awesome_notifications: ^0.10.1
   file_picker: ^8.1.2
   path_provider: ^2.1.5
 
 flutter_native_splash:
-  android_12: 
+  android_12:
     image: "assets/img/icons/brand_icon_a12.png"
   icon_background_color: "#000000"
   android: true
@@ -41,7 +42,6 @@ flutter_native_splash:
   web: false
   color: "#000000"
   image: "assets/img/icons/brand_icon.png"
-    
 
 dev_dependencies:
   flutter_test:
@@ -64,9 +64,10 @@ flutter:
     - assets/img/buttons/
     - assets/img/prizes/
     - assets/img/icons/
+    - assets/img/weather/
     - black_speech.env
     - assets/sound/lizard.wav
-    
+
   fonts:
     - family: Inter
       fonts:

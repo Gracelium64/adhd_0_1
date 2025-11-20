@@ -9,11 +9,17 @@ import android.util.Log
 import androidx.core.content.edit
 
 object AlarmScheduler {
-    private const val PREFS = "adhd_prefs"
-    private const val KEY_START_OF_DAY = "startOfDay" // format HH:MM
-    private const val KEY_NEXT_QUOTE = "nextQuote"
-    private const val KEY_DEADLINE_OFFSET_SEC = "deadlineOffsetSec"
-    private const val KEY_NEXT_DEADLINE_MSG = "nextDeadlineMsg"
+    const val PREFS = "adhd_prefs"
+    const val KEY_START_OF_DAY = "startOfDay" // format HH:MM
+    const val KEY_NEXT_QUOTE = "nextQuote"
+    const val KEY_DEADLINE_OFFSET_SEC = "deadlineOffsetSec"
+    const val KEY_NEXT_DEADLINE_MSG = "nextDeadlineMsg"
+    const val KEY_NEXT_WEATHER_MSG = "nextWeatherMsg"
+    const val KEY_NEXT_WEATHER_LAT = "nextWeatherLat"
+    const val KEY_NEXT_WEATHER_LON = "nextWeatherLon"
+    const val KEY_NEXT_WEATHER_LABEL = "nextWeatherLabel"
+    const val KEY_NEXT_WEATHER_ICON = "nextWeatherIcon"
+    const val KEY_NEXT_WEATHER_TZ = "nextWeatherTz"
 
     fun saveStartOfDay(context: Context, hh: Int, mm: Int) {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit {
@@ -76,6 +82,35 @@ object AlarmScheduler {
             am.setExact(AlarmManager.RTC_WAKEUP, trigger, pi)
         }
 
+        // Enqueue a WorkManager OneTimeWorkRequest to perform the fetch natively at the same trigger time
+        try {
+            val delayMs = trigger - System.currentTimeMillis()
+            if (delayMs > 0) {
+                val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                val lat = prefs.getString(KEY_NEXT_WEATHER_LAT, null)?.toDoubleOrNull() ?: 0.0
+                val lon = prefs.getString(KEY_NEXT_WEATHER_LON, null)?.toDoubleOrNull() ?: 0.0
+                val label = prefs.getString(KEY_NEXT_WEATHER_LABEL, null)
+
+                val tzString = prefs.getString(KEY_NEXT_WEATHER_TZ, "UTC") ?: "UTC"
+                val data = androidx.work.Data.Builder()
+                    .putDouble("lat", lat)
+                    .putDouble("lon", lon)
+                    .putString("label", label)
+                    .putString("timezone", tzString)
+                    .build()
+
+                val work = androidx.work.OneTimeWorkRequestBuilder<WeatherWorker>()
+                    .setInitialDelay(delayMs, java.util.concurrent.TimeUnit.MILLISECONDS)
+                    .setBackoffCriteria(androidx.work.BackoffPolicy.EXPONENTIAL, 5, java.util.concurrent.TimeUnit.MINUTES)
+                    .setInputData(data)
+                    .build()
+
+                WorkManager.getInstance(context).enqueueUniqueWork("weather_fetch", androidx.work.ExistingWorkPolicy.REPLACE, work)
+            }
+        } catch (e: Exception) {
+            // ignore WorkManager failures
+        }
+
         // Do not set an additional repeating backup to avoid duplicates with Flutter plugin
     }
 
@@ -123,6 +158,8 @@ object AlarmScheduler {
         } else {
             am.setExact(AlarmManager.RTC_WAKEUP, trigger, pi)
         }
+
+        // no native WorkManager scheduling for deadlines
     }
 
     fun scheduleNextDeadline(context: Context) {
@@ -151,6 +188,70 @@ object AlarmScheduler {
         // Commit synchronously so immediate reads (e.g., show now) see the value
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit(commit = true) {
             if (msg == null) remove(KEY_NEXT_DEADLINE_MSG) else putString(KEY_NEXT_DEADLINE_MSG, msg)
+        }
+    }
+
+    fun saveNextWeatherPrefs(context: Context, lat: Double, lon: Double, label: String?, timezone: String?) {
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit(commit = true) {
+            putString(KEY_NEXT_WEATHER_LAT, lat.toString())
+            putString(KEY_NEXT_WEATHER_LON, lon.toString())
+            if (label == null) remove(KEY_NEXT_WEATHER_LABEL) else putString(KEY_NEXT_WEATHER_LABEL, label)
+            if (timezone == null) remove(KEY_NEXT_WEATHER_TZ) else putString(KEY_NEXT_WEATHER_TZ, timezone)
+        }
+    }
+
+    fun saveNextWeatherMessage(context: Context, msg: String?) {
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit(commit = true) {
+            if (msg == null) remove(KEY_NEXT_WEATHER_MSG) else putString(KEY_NEXT_WEATHER_MSG, msg)
+        }
+    }
+
+    fun scheduleWeather(context: Context, hour: Int, minute: Int, offsetSec: Int, nextOnly: Boolean) {
+        // Persist for chaining from receivers/boot
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit {
+            putString(KEY_START_OF_DAY, String.format("%02d:%02d", hour, minute))
+        }
+        val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(context, WeatherReceiver::class.java)
+        val pi = PendingIntent.getBroadcast(
+            context,
+            2201,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val now = System.currentTimeMillis()
+        val cal = java.util.Calendar.getInstance().apply {
+            timeInMillis = now
+            set(java.util.Calendar.HOUR_OF_DAY, hour)
+            set(java.util.Calendar.MINUTE, minute)
+            set(java.util.Calendar.SECOND, 0)
+            set(java.util.Calendar.MILLISECOND, 0)
+        }
+        var trigger = cal.timeInMillis + offsetSec * 1000L
+        if (trigger <= now) trigger += 24 * 60 * 60 * 1000 // next day
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pi)
+        } else {
+            am.setExact(AlarmManager.RTC_WAKEUP, trigger, pi)
+        }
+    }
+
+    fun scheduleWeatherIn(context: Context, seconds: Int) {
+        val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(context, WeatherReceiver::class.java)
+        val pi = PendingIntent.getBroadcast(
+            context,
+            2202,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val trigger = System.currentTimeMillis() + seconds * 1000L
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, trigger, pi)
+        } else {
+            am.setExact(AlarmManager.RTC_WAKEUP, trigger, pi)
         }
     }
 
