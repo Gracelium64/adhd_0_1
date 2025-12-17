@@ -25,6 +25,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:adhd_0_1/src/common/domain/progress_triggers.dart';
 import 'package:adhd_0_1/src/data/domain/prefs_keys.dart';
+import 'dart:io' show Platform;
 
 class MainScreen extends StatefulWidget {
   final bool showTutorial;
@@ -38,9 +39,11 @@ class MainScreen extends StatefulWidget {
 class _PostRegistrationPrefsResult {
   const _PostRegistrationPrefsResult({
     required this.remoteOptOut,
+    required this.silentNotification,
   });
 
   final bool remoteOptOut;
+  final bool silentNotification;
 }
 
 class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
@@ -102,6 +105,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         prefs.getBool(PrefsKeys.postRegistrationPrefsPendingKey) ?? false;
     if (!pending || !mounted) return;
 
+    final bool initialSilentNotification =
+        prefs.getBool(PrefsKeys.silentNotificationKey) ?? false;
+
     final repoBase = context.read<DataBaseRepository>();
     final syncRepo = repoBase is SyncRepository ? repoBase : null;
 
@@ -114,6 +120,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
     if (!mounted) return;
     var optOutValue = remoteOptOut;
+    var silentValue = initialSilentNotification;
 
     final result = await showDialog<_PostRegistrationPrefsResult>(
       context: context,
@@ -146,6 +153,22 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                       ).textTheme.bodySmall?.copyWith(color: Palette.lightTeal),
                     ),
                   ),
+                  SwitchListTile.adaptive(
+                    value: silentValue,
+                    onChanged: (value) => setState(() => silentValue = value),
+                    contentPadding: EdgeInsets.zero,
+                    activeColor: Palette.lightTeal,
+                    title: Text(
+                      'Silent daily notification',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    subtitle: Text(
+                      'Disable sound for the daily quote.',
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Palette.lightTeal),
+                    ),
+                  ),
                 ],
               ),
               actions: [
@@ -161,6 +184,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                       () => Navigator.of(ctx).pop(
                         _PostRegistrationPrefsResult(
                           remoteOptOut: optOutValue,
+                          silentNotification: silentValue,
                         ),
                       ),
                   child: Text(
@@ -179,19 +203,56 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
     if (!mounted || result == null) return;
 
+    // Always persist the silent daily notification pref (local only)
     try {
-      if (syncRepo != null) {
-        if (result.remoteOptOut != remoteOptOut) {
-          await syncRepo.setRemoteWriteOptOut(result.remoteOptOut);
-        }
-      } else {}
+      await prefs.setBool(
+        PrefsKeys.silentNotificationKey,
+        result.silentNotification,
+      );
+    } catch (_) {}
+
+    // Sync Android native alarms/receivers as well.
+    if (Platform.isAndroid) {
+      try {
+        const platform = MethodChannel('shadowapp.grace6424.adhd/alarm');
+        await platform.invokeMethod('setSilentNotification', {
+          'value': result.silentNotification,
+        });
+      } catch (_) {}
+    }
+
+    // Split the operations so we can pinpoint which one fails.
+    if (syncRepo != null && result.remoteOptOut != remoteOptOut) {
+      try {
+        await syncRepo.setRemoteWriteOptOut(result.remoteOptOut);
+      } catch (e, stack) {
+        debugPrint('❌ Failed to persist remoteOptOut preference: $e');
+        debugPrint(stack.toString());
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Could not update Firebase backup preference: $e',
+              style: Theme.of(context).snackBarTheme.contentTextStyle,
+            ),
+          ),
+        );
+        return;
+      }
+    }
+
+    try {
       await DailyQuoteNotifier.instance.rescheduleFromRepository(repoBase);
-    } catch (e) {
+    } catch (e, stack) {
+      debugPrint(
+        '❌ Failed to reschedule daily notifications after onboarding: $e',
+      );
+      debugPrint(stack.toString());
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Could not update preferences: $e',
+            'Could not reschedule notifications: $e',
             style: Theme.of(context).snackBarTheme.contentTextStyle,
           ),
         ),

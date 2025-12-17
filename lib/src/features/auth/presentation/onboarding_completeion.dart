@@ -8,6 +8,8 @@ import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:adhd_0_1/src/common/presentation/blocking_loader.dart';
+import 'dart:io' show Platform;
+import 'package:flutter/services.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -86,6 +88,21 @@ class _OnboardingCompletionState extends State<OnboardingCompletion> {
                               debugPrint('🧭 Setting onboardingComplete=true');
                               await prefs.setBool('onboardingComplete', true);
                               await prefs.setBool(
+                                PrefsKeys.silentNotificationKey,
+                                false,
+                              );
+                              if (Platform.isAndroid) {
+                                try {
+                                  const platform = MethodChannel(
+                                    'shadowapp.grace6424.adhd/alarm',
+                                  );
+                                  await platform.invokeMethod(
+                                    'setSilentNotification',
+                                    {'value': false},
+                                  );
+                                } catch (_) {}
+                              }
+                              await prefs.setBool(
                                 PrefsKeys.postRegistrationPrefsPendingKey,
                                 true,
                               );
@@ -145,6 +162,21 @@ class _OnboardingCompletionState extends State<OnboardingCompletion> {
                                   await SharedPreferences.getInstance();
                               debugPrint('🧭 Setting onboardingComplete=true');
                               await prefs.setBool('onboardingComplete', true);
+                              await prefs.setBool(
+                                PrefsKeys.silentNotificationKey,
+                                false,
+                              );
+                              if (Platform.isAndroid) {
+                                try {
+                                  const platform = MethodChannel(
+                                    'shadowapp.grace6424.adhd/alarm',
+                                  );
+                                  await platform.invokeMethod(
+                                    'setSilentNotification',
+                                    {'value': false},
+                                  );
+                                } catch (_) {}
+                              }
                               await prefs.setBool(
                                 PrefsKeys.postRegistrationPrefsPendingKey,
                                 true,

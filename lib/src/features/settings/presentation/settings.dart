@@ -10,12 +10,13 @@ import 'package:adhd_0_1/src/data/domain/reset_scheduler.dart';
 import 'package:adhd_0_1/src/features/weekly_summery/presentation/widgets/weekly_summery_overlay.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:adhd_0_1/src/common/domain/skin.dart';
 import 'package:adhd_0_1/src/features/morning_greeting/domain/daily_quote_notifier.dart';
 import 'package:adhd_0_1/src/features/morning_greeting/domain/deadline_notifier.dart';
-import 'package:adhd_0_1/src/data/city_timezone_list.dart';
-import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:adhd_0_1/src/data/domain/prefs_keys.dart';
 
 class _SkinOpt {
   final bool? value;
@@ -32,11 +33,10 @@ class Settings extends StatefulWidget {
 
 class _SettingsState extends State<Settings> {
   // Saved settings bits we care about here
-  String? _location;
   Weekday? _startOfWeek;
   TimeOfDay? _startOfDay;
   bool? _appSkinColor;
-  final GlobalKey _locationBtnKey = GlobalKey();
+  bool _silentNotification = false;
   final GlobalKey _weekBtnKey = GlobalKey();
   final GlobalKey _dayBtnKey = GlobalKey();
   final GlobalKey _skinBtnKey = GlobalKey();
@@ -51,13 +51,41 @@ class _SettingsState extends State<Settings> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final repo = context.read<DataBaseRepository>();
       final s = await repo.getSettings();
+      bool silent = false;
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        silent = prefs.getBool(PrefsKeys.silentNotificationKey) ?? false;
+      } catch (_) {}
       setState(() {
         _appSkinColor = s?.appSkinColor;
-        _location = s?.location ?? 'Berlin';
         _startOfWeek = s?.startOfWeek ?? Weekday.mon;
         _startOfDay = s?.startOfDay ?? const TimeOfDay(hour: 7, minute: 15);
+        _silentNotification = silent;
       });
     });
+  }
+
+  Future<void> _setSilentNotification(bool value) async {
+    setState(() => _silentNotification = value);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(PrefsKeys.silentNotificationKey, value);
+    } catch (_) {}
+
+    // Keep Android native alarms/receivers in sync.
+    try {
+      final platform = MethodChannel('shadowapp.grace6424.adhd/alarm');
+      await platform.invokeMethod('setSilentNotification', {'value': value});
+    } catch (_) {}
+
+    // Apply immediately by rescheduling with the selected channel.
+    final repo = context.read<DataBaseRepository>();
+    try {
+      final settings = await repo.getSettings();
+      final start =
+          settings?.startOfDay ?? const TimeOfDay(hour: 7, minute: 15);
+      await DailyQuoteNotifier.instance.scheduleDailyQuote(start);
+    } catch (_) {}
   }
 
   // Map skin setting to asset path
@@ -119,63 +147,6 @@ class _SettingsState extends State<Settings> {
       // Update local UI and notify background to refresh instantly
       setState(() => _appSkinColor = updated.appSkinColor);
       updateAppBgAsset(updated.appSkinColor);
-    }
-  }
-
-  Future<void> _pickLocation() async {
-    final repo = context.read<DataBaseRepository>();
-    final current = await repo.getSettings();
-    if (!mounted) return;
-
-    // Compute popup position anchored to the button
-    final RenderBox button =
-        _locationBtnKey.currentContext!.findRenderObject() as RenderBox;
-    final RenderBox overlay =
-        Overlay.of(context).context.findRenderObject() as RenderBox;
-    final position = RelativeRect.fromRect(
-      button.localToGlobal(Offset.zero, ancestor: overlay) & button.size,
-      Offset.zero & overlay.size,
-    );
-
-    final selected = await showMenu<CityInfo>(
-      context: context,
-      position: position,
-      items:
-          representativeCities.map((c) {
-            return PopupMenuItem<CityInfo>(
-              value: c,
-              child: Text(
-                c.label,
-                style: TextStyle(color: Palette.basicBitchWhite),
-              ),
-            );
-          }).toList(),
-      color: Palette.monarchPurple2,
-    );
-
-    if (selected != null) {
-      if (!mounted) return;
-      // Persist keeping other fields intact
-      final updated = await repo.setSettings(
-        current?.appSkinColor,
-        current?.language ?? 'English',
-        selected.label,
-        current?.startOfDay ?? const TimeOfDay(hour: 7, minute: 15),
-        current?.startOfWeek ?? Weekday.mon,
-      );
-      // Also save lat/lon/timezone to native side so native workers/receivers
-      // and AlarmScheduler can use the chosen city for weather fetches.
-      try {
-        const platform = MethodChannel('shadowapp.grace6424.adhd/alarm');
-        await platform.invokeMethod('saveNextWeatherPrefs', {
-          'lat': selected.lat,
-          'lon': selected.lon,
-          'label': selected.label,
-          'timezone': selected.timezone,
-        });
-      } catch (_) {}
-      if (!mounted) return;
-      setState(() => _location = updated.location);
     }
   }
 
@@ -452,6 +423,21 @@ class _SettingsState extends State<Settings> {
                                     color: Palette.basicBitchWhite,
                                   ),
                                 ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Silent daily notification',
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ),
+                              Switch.adaptive(
+                                value: _silentNotification,
+                                onChanged: _setSilentNotification,
+                                activeThumbColor: Palette.lightTeal,
                               ),
                             ],
                           ),

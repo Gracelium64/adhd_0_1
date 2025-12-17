@@ -1,4 +1,4 @@
-package shadowapp.grace6424.adhd01
+package shadowapp.grace6424.adhd
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -13,9 +13,11 @@ import shadowapp.grace6424.adhd.R
 
 object NotificationHelper {
     private const val CHANNEL_ID = "daily_quote_channel_v2"
+    private const val CHANNEL_SILENT_ID = "daily_quote_channel_silent_v1"
     private const val CHANNEL_NAME = "Daily Quotes"
     private const val CHANNEL_DESC = "Daily tip of the day notification at startOfDay"
     private const val DL_CHANNEL_ID = "deadline_alerts_channel_v3"
+    private const val DL_CHANNEL_SILENT_ID = "deadline_alerts_channel_silent_v1"
     private const val DL_CHANNEL_NAME = "Task Deadlines"
     private const val DL_CHANNEL_DESC = "Alerts for deadlines due today/tomorrow and weekly tasks for today"
     private const val WEATHER_CHANNEL_ID = "daily_weather_channel_v1"
@@ -40,12 +42,26 @@ object NotificationHelper {
             }
             nm.createNotificationChannel(channel)
 
+            val silentChannel = NotificationChannel(CHANNEL_SILENT_ID, "$CHANNEL_NAME (Silent)", NotificationManager.IMPORTANCE_HIGH).apply {
+                description = CHANNEL_DESC
+                setSound(null, null)
+                enableVibration(true)
+            }
+            nm.createNotificationChannel(silentChannel)
+
             val dlChannel = NotificationChannel(DL_CHANNEL_ID, DL_CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH).apply {
                 description = DL_CHANNEL_DESC
                 setSound(soundUri, attrs)
                 enableVibration(true)
             }
             nm.createNotificationChannel(dlChannel)
+
+            val dlSilentChannel = NotificationChannel(DL_CHANNEL_SILENT_ID, "$DL_CHANNEL_NAME (Silent)", NotificationManager.IMPORTANCE_HIGH).apply {
+                description = DL_CHANNEL_DESC
+                setSound(null, null)
+                enableVibration(true)
+            }
+            nm.createNotificationChannel(dlSilentChannel)
 
             // Silent weather channel (no sound, no vibration)
             val weatherChannel = NotificationChannel(WEATHER_CHANNEL_ID, WEATHER_CHANNEL_NAME, NotificationManager.IMPORTANCE_LOW).apply {
@@ -107,23 +123,28 @@ object NotificationHelper {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val silent = prefs.getBoolean(AlarmScheduler.KEY_SILENT_NOTIFICATION, false)
         val saved = prefs.getString(KEY_NEXT_DEADLINE_MSG, null)
         if (saved != null) {
             prefs.edit().remove(KEY_NEXT_DEADLINE_MSG).apply()
         }
         val text = saved ?: "Deadlines due today or tomorrow, or weekly tasks today."
+        val channelId = if (silent) DL_CHANNEL_SILENT_ID else DL_CHANNEL_ID
         val soundUri = Uri.parse("android.resource://${context.packageName}/raw/my_sound")
-        val notification = NotificationCompat.Builder(context, DL_CHANNEL_ID)
+        val builder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle("Today's focus")
             .setContentText(text)
             .setStyle(NotificationCompat.BigTextStyle().bigText(text))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(contentIntent)
-            .setSound(soundUri)
             .setAutoCancel(true)
-            .build()
-        nm.notify(11001, notification)
+
+        if (!silent && Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            builder.setSound(soundUri)
+        }
+
+        nm.notify(11001, builder.build())
     }
 
     fun showDeadlineAlertWithBody(context: Context, text: String) {
@@ -140,18 +161,24 @@ object NotificationHelper {
             launchIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
+        val silent = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .getBoolean(AlarmScheduler.KEY_SILENT_NOTIFICATION, false)
+        val channelId = if (silent) DL_CHANNEL_SILENT_ID else DL_CHANNEL_ID
         val soundUri = Uri.parse("android.resource://${context.packageName}/raw/my_sound")
-        val notification = NotificationCompat.Builder(context, DL_CHANNEL_ID)
+        val builder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle("Today's focus")
             .setContentText(text)
             .setStyle(NotificationCompat.BigTextStyle().bigText(text))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(contentIntent)
-            .setSound(soundUri)
             .setAutoCancel(true)
-            .build()
-        nm.notify(11001, notification)
+
+        if (!silent && Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            builder.setSound(soundUri)
+        }
+
+        nm.notify(11001, builder.build())
     }
     
     fun showWeatherNowWithBody(context: Context, body: String) {

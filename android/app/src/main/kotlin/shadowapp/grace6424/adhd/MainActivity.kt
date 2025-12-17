@@ -1,4 +1,4 @@
-package shadowapp.grace6424.adhd01
+package shadowapp.grace6424.adhd
 
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -22,6 +22,11 @@ class MainActivity : FlutterActivity() {
 		MethodChannel(flutterEngine.dartExecutor.binaryMessenger, channel)
 			.setMethodCallHandler { call, result ->
 				when (call.method) {
+					"setSilentNotification" -> {
+						val value = call.argument<Boolean>("value") ?: false
+						AlarmScheduler.setSilentNotification(applicationContext, value)
+						result.success(null)
+					}
 					"hasExactAlarmPermission" -> {
 						val am = getSystemService(ALARM_SERVICE) as AlarmManager
 						val allowed = if (Build.VERSION.SDK_INT >= 31) {

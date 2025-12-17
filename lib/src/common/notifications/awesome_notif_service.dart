@@ -7,8 +7,11 @@ class AwesomeNotifService {
   static final AwesomeNotifService instance = AwesomeNotifService._();
 
   static const String dailyChannelKey = 'daily_quote_channel_v3';
+  static const String dailySilentChannelKey = 'daily_quote_channel_silent_v1';
   static const String dailyWeatherChannelKey = 'daily_weather_channel_v1';
   static const String deadlineChannelKey = 'deadline_alerts_channel_v4';
+  static const String deadlineSilentChannelKey =
+      'deadline_alerts_channel_silent_v1';
   static const String dailyGroupKey = 'group_daily_quote';
   static const String deadlineGroupKey = 'group_deadline_alerts';
 
@@ -29,6 +32,18 @@ class AwesomeNotifService {
           // Awesome iOS resolves resource sounds as AIFF by name (no extension)
           // Ensure a my_sound.aiff exists in the app bundle
           soundSource: 'resource://raw/my_sound',
+        ),
+        // Silent daily quote channel (no sound)
+        NotificationChannel(
+          channelKey: dailySilentChannelKey,
+          channelName: 'Daily Quotes (Silent)',
+          channelDescription:
+              'Daily tip of the day notification at startOfDay without sound',
+          importance: NotificationImportance.Max,
+          defaultRingtoneType: DefaultRingtoneType.Notification,
+          ledColor: null,
+          playSound: false,
+          enableVibration: true,
         ),
         // Silent weather channel (no sound, no vibration)
         NotificationChannel(
@@ -55,6 +70,18 @@ class AwesomeNotifService {
           // Awesome iOS resolves resource sounds as AIFF by name (no extension)
           // Ensure a my_sound.aiff exists in the app bundle
           soundSource: 'resource://raw/my_sound',
+        ),
+        // Silent deadline channel (no sound)
+        NotificationChannel(
+          channelKey: deadlineSilentChannelKey,
+          channelName: 'Task Deadlines (Silent)',
+          channelDescription:
+              'Deadline alerts without sound (respects silentNotification)',
+          importance: NotificationImportance.Max,
+          defaultRingtoneType: DefaultRingtoneType.Notification,
+          ledColor: null,
+          playSound: false,
+          enableVibration: true,
         ),
       ],
       debug: false,

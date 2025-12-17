@@ -1,4 +1,4 @@
-package shadowapp.grace6424.adhd01
+package shadowapp.grace6424.adhd
 
 import android.app.AlarmManager
 import android.app.PendingIntent
@@ -13,6 +13,7 @@ object AlarmScheduler {
     const val PREFS = "adhd_prefs"
     const val KEY_START_OF_DAY = "startOfDay" // format HH:MM
     const val KEY_NEXT_QUOTE = "nextQuote"
+    const val KEY_SILENT_NOTIFICATION = "silentNotification"
     const val KEY_DEADLINE_OFFSET_SEC = "deadlineOffsetSec"
     const val KEY_NEXT_DEADLINE_MSG = "nextDeadlineMsg"
     const val KEY_NEXT_WEATHER_MSG = "nextWeatherMsg"
@@ -31,6 +32,12 @@ object AlarmScheduler {
     fun saveNextQuote(context: Context, quote: String) {
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit {
             putString(KEY_NEXT_QUOTE, quote)
+        }
+    }
+
+    fun setSilentNotification(context: Context, value: Boolean) {
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit {
+            putBoolean(KEY_SILENT_NOTIFICATION, value)
         }
     }
 

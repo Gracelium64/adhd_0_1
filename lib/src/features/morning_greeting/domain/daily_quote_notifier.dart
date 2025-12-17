@@ -13,6 +13,7 @@ import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:adhd_0_1/src/data/domain/prefs_keys.dart';
 
 class DailyQuoteNotifier {
   DailyQuoteNotifier._();
@@ -110,6 +111,17 @@ class DailyQuoteNotifier {
       // Ensure permissions are granted (Android 13+/iOS)
       await requestPermissions();
 
+      bool silentNotification = false;
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        silentNotification =
+            prefs.getBool(PrefsKeys.silentNotificationKey) ?? false;
+      } catch (_) {}
+      final channelKey =
+          silentNotification
+              ? AwesomeNotifService.dailySilentChannelKey
+              : AwesomeNotifService.dailyChannelKey;
+
       // Best-effort: check if notifications are enabled on Android; if not, surface settings
       final android =
           _plugin
@@ -162,6 +174,7 @@ class DailyQuoteNotifier {
           body: quote,
           payload: {'route': 'dailys'},
           groupKey: AwesomeNotifService.dailyGroupKey,
+          channelKey: channelKey,
           // Daily quote likely dismissible and not locked
           locked: false,
           autoDismissible: true,
@@ -188,6 +201,7 @@ class DailyQuoteNotifier {
           body: quote,
           payload: {'route': 'dailys'},
           groupKey: AwesomeNotifService.dailyGroupKey,
+          channelKey: channelKey,
           locked: false,
           autoDismissible: true,
         );
@@ -208,8 +222,18 @@ class DailyQuoteNotifier {
     await init();
     await requestPermissions();
     final quote = await _pickQuote();
+    bool silentNotification = false;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      silentNotification =
+          prefs.getBool(PrefsKeys.silentNotificationKey) ?? false;
+    } catch (_) {}
+    final channelKey =
+        silentNotification
+            ? AwesomeNotifService.dailySilentChannelKey
+            : AwesomeNotifService.dailyChannelKey;
     await AwesomeNotifService.instance.showPersistent(
-      channelKey: AwesomeNotifService.dailyChannelKey,
+      channelKey: channelKey,
       id: 2002,
       title: 'Good morning',
       body: quote,
@@ -249,7 +273,17 @@ class DailyQuoteNotifier {
               AndroidFlutterLocalNotificationsPlugin
             >();
     final enabled = await android?.areNotificationsEnabled() ?? true;
-    final pending = await _plugin.pendingNotificationRequests();
+    List<PendingNotificationRequest> pending = const [];
+    try {
+      pending = await _plugin.pendingNotificationRequests();
+    } catch (e, stack) {
+      // Some platform implementations may return malformed pending entries
+      // (e.g., null id) which can throw inside the plugin mapping.
+      debugPrint(
+        '[DailyQuoteNotifier] pendingNotificationRequests failed (ignored): $e',
+      );
+      debugPrint(stack.toString());
+    }
     debugPrint('[DailyQuoteNotifier] Notifications enabled: $enabled');
     debugPrint('[DailyQuoteNotifier] Pending notifications: ${pending.length}');
     for (final p in pending) {

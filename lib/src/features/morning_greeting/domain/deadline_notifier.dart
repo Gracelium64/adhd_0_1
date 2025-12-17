@@ -13,6 +13,8 @@ import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:adhd_0_1/src/common/diagnostics/diag_log.dart';
 import 'package:adhd_0_1/src/common/notifications/awesome_notif_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:adhd_0_1/src/data/domain/prefs_keys.dart';
 
 /// Schedules a small "heads up" notification shortly after the Daily Quote
 /// when there's something due today/tomorrow.
@@ -32,6 +34,15 @@ class DeadlineNotifier {
 
   bool _initialized = false;
   bool _scheduling = false;
+
+  Future<bool> _isSilentNotificationEnabled() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getBool(PrefsKeys.silentNotificationKey) ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
 
   Future<void> init() async {
     if (_initialized) return;
@@ -104,6 +115,12 @@ class DeadlineNotifier {
       await init();
       await requestPermissions();
 
+      final silentNotification = await _isSilentNotificationEnabled();
+      final resolvedChannelKey =
+          silentNotification
+              ? AwesomeNotifService.deadlineSilentChannelKey
+              : AwesomeNotifService.deadlineChannelKey;
+
       final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
       // Next occurrence of the daily start time
       tz.TZDateTime nextBase = tz.TZDateTime(
@@ -156,6 +173,11 @@ class DeadlineNotifier {
           debugPrint('[DeadlineNotifier] saveNextDeadlineMessage failed: $e');
         }
         try {
+          await platform.invokeMethod('setSilentNotification', {
+            'value': silentNotification,
+          });
+        } catch (_) {}
+        try {
           await platform.invokeMethod('scheduleNextDeadlineAlarm', {
             'hour': dailyStart.hour,
             'minute': dailyStart.minute,
@@ -166,7 +188,7 @@ class DeadlineNotifier {
         }
       }
       await AwesomeNotifService.instance.schedulePersistentAt(
-        channelKey: _channelId,
+        channelKey: resolvedChannelKey,
         id: _notificationId,
         when: fireAt.toLocal(),
         title: "Today's focus",
@@ -189,8 +211,13 @@ class DeadlineNotifier {
   Future<void> showTestNow() async {
     await init();
     await requestPermissions();
+    final silentNotification = await _isSilentNotificationEnabled();
+    final resolvedChannelKey =
+        silentNotification
+            ? AwesomeNotifService.deadlineSilentChannelKey
+            : AwesomeNotifService.deadlineChannelKey;
     await AwesomeNotifService.instance.showPersistent(
-      channelKey: _channelId,
+      channelKey: resolvedChannelKey,
       id: _notificationId,
       title: "Today's focus",
       body: 'Tasks may be due today/tomorrow. Tap to review.',
