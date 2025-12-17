@@ -14,6 +14,8 @@ import 'package:provider/provider.dart';
 import 'package:adhd_0_1/src/common/domain/skin.dart';
 import 'package:adhd_0_1/src/features/morning_greeting/domain/daily_quote_notifier.dart';
 import 'package:adhd_0_1/src/features/morning_greeting/domain/deadline_notifier.dart';
+import 'package:adhd_0_1/src/data/city_timezone_list.dart';
+import 'package:flutter/services.dart';
 
 class _SkinOpt {
   final bool? value;
@@ -135,15 +137,15 @@ class _SettingsState extends State<Settings> {
       Offset.zero & overlay.size,
     );
 
-    final selected = await showMenu<WorldCapital>(
+    final selected = await showMenu<CityInfo>(
       context: context,
       position: position,
       items:
-          WorldCapital.values.map((wc) {
-            return PopupMenuItem<WorldCapital>(
-              value: wc,
+          representativeCities.map((c) {
+            return PopupMenuItem<CityInfo>(
+              value: c,
               child: Text(
-                wc.label,
+                c.label,
                 style: TextStyle(color: Palette.basicBitchWhite),
               ),
             );
@@ -161,6 +163,17 @@ class _SettingsState extends State<Settings> {
         current?.startOfDay ?? const TimeOfDay(hour: 7, minute: 15),
         current?.startOfWeek ?? Weekday.mon,
       );
+      // Also save lat/lon/timezone to native side so native workers/receivers
+      // and AlarmScheduler can use the chosen city for weather fetches.
+      try {
+        const platform = MethodChannel('shadowapp.grace6424.adhd/alarm');
+        await platform.invokeMethod('saveNextWeatherPrefs', {
+          'lat': selected.lat,
+          'lon': selected.lon,
+          'label': selected.label,
+          'timezone': selected.timezone,
+        });
+      } catch (_) {}
       if (!mounted) return;
       setState(() => _location = updated.location);
     }
@@ -442,36 +455,36 @@ class _SettingsState extends State<Settings> {
                               ),
                             ],
                           ),
-                          Row(
-                            children: [
-                              Text(
-                                'Where do you live? ;)',
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                              Spacer(),
-                              TextButton(
-                                key: _locationBtnKey,
-                                style: TextButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.all(
-                                      Radius.circular(8),
-                                    ),
-                                    side: BorderSide(
-                                      color: Palette.basicBitchWhite,
-                                      width: 1,
-                                    ),
-                                  ),
-                                ),
-                                onPressed: _pickLocation,
-                                child: Text(
-                                  _location ?? 'Berlin',
-                                  style: TextStyle(
-                                    color: Palette.basicBitchWhite,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                          // Row(
+                          //   children: [
+                          //     Text(
+                          //       'Where do you live? ;)',
+                          //       style: Theme.of(context).textTheme.bodyMedium,
+                          //     ),
+                          //     Spacer(),
+                          //     TextButton(
+                          //       key: _locationBtnKey,
+                          //       style: TextButton.styleFrom(
+                          //         shape: RoundedRectangleBorder(
+                          //           borderRadius: BorderRadius.all(
+                          //             Radius.circular(8),
+                          //           ),
+                          //           side: BorderSide(
+                          //             color: Palette.basicBitchWhite,
+                          //             width: 1,
+                          //           ),
+                          //         ),
+                          //       ),
+                          //       onPressed: _pickLocation,
+                          //       child: Text(
+                          //         _location ?? 'Berlin',
+                          //         style: TextStyle(
+                          //           color: Palette.basicBitchWhite,
+                          //         ),
+                          //       ),
+                          //     ),
+                          //   ],
+                          // ),
                           // Row(
                           //   children: [
                           //     Text(

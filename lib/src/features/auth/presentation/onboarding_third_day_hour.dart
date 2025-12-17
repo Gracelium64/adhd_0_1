@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:adhd_0_1/src/common/presentation/confirm_button.dart';
 import 'package:adhd_0_1/src/data/databaserepository.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/app_bg_coldstart.dart';
+import 'package:adhd_0_1/src/features/auth/presentation/onboarding_fifth.dart';
 import 'package:adhd_0_1/src/features/auth/presentation/onboarding_fourth_location.dart';
 import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:adhd_0_1/src/common/presentation/blocking_loader.dart';
@@ -136,7 +137,7 @@ class _OnboardingThirdDayHourState extends State<OnboardingThirdDayHour> {
                         ).pushReplacement(
                           PageRouteBuilder(
                             pageBuilder:
-                                (_, __, ___) => OnboardingFourthLocation(),
+                                (_, __, ___) => OnboardingFifth(),
                             transitionsBuilder: (_, animation, __, child) {
                               return FadeTransition(
                                 opacity: animation,

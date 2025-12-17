@@ -7,6 +7,8 @@ import 'package:adhd_0_1/src/theme/palette.dart';
 import 'package:adhd_0_1/src/common/presentation/blocking_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:adhd_0_1/src/data/city_timezone_list.dart';
+import 'package:flutter/services.dart';
 
 class OnboardingFourthLocation extends StatefulWidget {
   const OnboardingFourthLocation({super.key});
@@ -17,7 +19,7 @@ class OnboardingFourthLocation extends StatefulWidget {
 }
 
 class _OnboardingFourthLocationState extends State<OnboardingFourthLocation> {
-  WorldCapital selectedCapital = WorldCapital.berlin;
+  CityInfo selectedCapital = representativeCities.first;
 
   @override
   Widget build(BuildContext context) {
@@ -71,11 +73,11 @@ class _OnboardingFourthLocationState extends State<OnboardingFourthLocation> {
                       ),
                     ),
                     SizedBox(height: 12),
-                    DropdownButton<WorldCapital>(
+                    DropdownButton<CityInfo>(
                       value: selectedCapital,
                       dropdownColor: Palette.basicBitchBlack,
                       style: TextStyle(color: Palette.basicBitchWhite),
-                      onChanged: (WorldCapital? newCapital) {
+                      onChanged: (CityInfo? newCapital) {
                         if (newCapital != null) {
                           setState(() {
                             selectedCapital = newCapital;
@@ -83,8 +85,8 @@ class _OnboardingFourthLocationState extends State<OnboardingFourthLocation> {
                         }
                       },
                       items:
-                          WorldCapital.values.map((capital) {
-                            return DropdownMenuItem(
+                          representativeCities.map((capital) {
+                            return DropdownMenuItem<CityInfo>(
                               value: capital,
                               child: Text(capital.label),
                             );
@@ -105,6 +107,21 @@ class _OnboardingFourthLocationState extends State<OnboardingFourthLocation> {
                                 TimeOfDay(hour: 8, minute: 0),
                             currentSettings?.startOfWeek ?? Weekday.mon,
                           );
+                          // Also persist lat/lon/timezone for native workers
+                          try {
+                            const platform = MethodChannel(
+                              'shadowapp.grace6424.adhd/alarm',
+                            );
+                            await platform.invokeMethod(
+                              'saveNextWeatherPrefs',
+                              {
+                                'lat': selectedCapital.lat,
+                                'lon': selectedCapital.lon,
+                                'label': selectedCapital.label,
+                                'timezone': selectedCapital.timezone,
+                              },
+                            );
+                          } catch (_) {}
                         });
 
                         if (!context.mounted) return;

@@ -17,7 +17,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:adhd_0_1/src/features/morning_greeting/domain/daily_quote_notifier.dart';
 import 'package:adhd_0_1/src/features/morning_greeting/domain/deadline_notifier.dart';
-import 'package:adhd_0_1/src/features/morning_greeting/domain/daily_weather_notifier.dart';
+// import 'package:adhd_0_1/src/features/morning_greeting/domain/daily_weather_notifier.dart';
+// TODO(reactivate_weather): Re-enable this import when turning daily weather notifications back on.
 import 'package:adhd_0_1/src/common/domain/refresh_bus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:adhd_0_1/src/data/domain/pending_registration.dart';
@@ -294,16 +295,18 @@ Future<void> main() async {
     await DeadlineNotifier.instance.init();
     await DeadlineNotifier.instance.requestPermissions();
     await DeadlineNotifier.instance.scheduleRelativeToDaily(start, mainRepo);
-    // Schedule daily silent weather notification one minute before daily quote
-    try {
-      await DailyWeatherNotifier.instance.init();
-      await DailyWeatherNotifier.instance.scheduleRelativeToDaily(
-        start,
-        mainRepo,
-      );
-    } catch (e) {
-      debugPrint('⚠️ DailyWeatherNotifier scheduling failed: $e');
-    }
+
+    // Schedule daily silent weather notification one minute before daily quote (disabled).
+    // TODO(reactivate_weather): Uncomment this block (and the import above) to restore the weather API notification.
+    // try {
+    //   await DailyWeatherNotifier.instance.init();
+    //   await DailyWeatherNotifier.instance.scheduleRelativeToDaily(
+    //     start,
+    //     mainRepo,
+    //   );
+    // } catch (e) {
+    //   debugPrint('⚠️ DailyWeatherNotifier scheduling failed: $e');
+    // }
   } catch (e) {
     debugPrint('⚠️ Notification init/schedule failed: $e');
   }
@@ -326,11 +329,11 @@ Future<void> main() async {
 
   // Test Release 4 // v.0.1.3 // Apply for review in App Store and Play Store
   //todo: silent morning notification
-  // // //TODO: weather API - in another daily silent notification in the morning with a one liner and symbol for today's weather, to be timed for 5 minutes before the daily quote
-  //TODO: eastereggs
-  //TODO: make more AI abominations for prizes
 
   // First Update after Release // v.0.1.3.1 //
+  //TODO: make more AI abominations for prizes
+  //TODO: eastereggs
+  // //TODO: weather API - in another daily silent notification in the morning with a one liner and symbol for today's weather, to be timed for 5 minutes before the daily quote
   //TODO: fix bleed in dragging tasks to change order
   //TODO: responsive design - accesibility big fonts    // GRACE //
   //TODO: translations

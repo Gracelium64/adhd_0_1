@@ -28,7 +28,7 @@ android {
         applicationId = "shadowapp.grace6424.adhd"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 23
+        minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
     versionCode = flutter.versionCode
     // Follow pubspec version automatically via Flutter Gradle plugin
